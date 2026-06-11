@@ -322,8 +322,8 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
         // Buscar si el usuario ya tiene un pronóstico para este partido
         const existingPrediction = userPredictions.find(p => p.match_id === match.id);
 
-        const homePred = existingPrediction ? existingPrediction.home_score_pred : '';
-        const awayPred = existingPrediction ? existingPrediction.away_score_pred : '';
+        const homePred = existingPrediction?.home_score_pred ?? '';
+        const awayPred = existingPrediction?.away_score_pred ?? '';
         const penaltyPred = existingPrediction ? existingPrediction.penalty_winner_pred : '';
         
         const isDisabled = hasStarted ? 'disabled' : ''; 
@@ -357,9 +357,9 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
                         </div>
                     </div>
                     <div class="flex items-center gap-1">
-                        <input type="number" id="home-${match.id}" class="input input-bordered input-sm w-9 sm:w-12 text-center px-1" placeholder="0" value="${homePred}" ${isDisabled}>
+                        <input type="number" id="home-${match.id}" class="input input-bordered input-sm w-9 sm:w-12 text-center px-1" value="${homePred}" ${isDisabled}>
                         <span class="opacity-30 text-[10px] font-bold">vs</span>
-                        <input type="number" id="away-${match.id}" class="input input-bordered input-sm w-9 sm:w-12 text-center px-1" placeholder="0" value="${awayPred}" ${isDisabled}>
+                        <input type="number" id="away-${match.id}" class="input input-bordered input-sm w-9 sm:w-12 text-center px-1" value="${awayPred}" ${isDisabled}>
                     </div>
                     <div class="tooltip tooltip-top" data-tip="${match.away_team}">
                         <div class="font-bold text-xs sm:text-base md:text-lg whitespace-normal leading-tight">
