@@ -2,20 +2,9 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 // Lógica de Tema Global
 // Función auxiliar para parsear la fecha como hora local
-const parseMatchDateAsLocal = (isoString) => {
+const parseMatchDate = (isoString) => { // Renamed for clarity, it parses ISO string to Date object
     if (!isoString) return new Date();
-    
-    // Remove any timezone indicator (Z or +/- offset) if present, as we want to interpret it as local
-    let cleanIsoString = isoString.replace(/Z$|(\+|-)\d{2}:\d{2}$/, '');
-    
-    const [datePart, timePartWithSeconds] = cleanIsoString.split('T');
-    const [year, month, day] = datePart.split('-').map(Number);
-    const timeParts = (timePartWithSeconds || "00:00:00").split(':');
-    const hour = Number(timeParts[0]);
-    const minute = Number(timeParts[1]);
-    const second = Number(timeParts[2]?.split('.')[0]) || 0; // Handle potential milliseconds and default to 0
-    
-    return new Date(year, month - 1, day, hour, minute, second);
+    return new Date(isoString); // Date constructor handles ISO 8601 strings correctly, including UTC 'Z'
 };
 
 window.initTheme = () => {
@@ -271,7 +260,7 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
     container.innerHTML = '' // Limpiar contenedor
     
     // Filtrado robusto comparando año-mes-día localmente
-    const matchesFiltrados = allMatches.filter(m => {
+    const matchesFiltrados = allMatches.filter(m => { // This filter still uses local date components for display grouping
         const d = parseMatchDateAsLocal(m.match_date);
         const mYear = d.getFullYear();
         const mMonth = String(d.getMonth() + 1).padStart(2, '0');
@@ -283,7 +272,7 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
         const header = document.createElement('div');
         header.className = 'col-span-full mb-2';
         const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        // Usamos T12:00:00 para evitar desfases de zona horaria al crear el objeto Date
+        // Usamos T12:00:00 para evitar desfases de zona horaria al crear el objeto Date para el display
         const fechaDisplay = new Date(fechaSeleccionada + 'T12:00:00').toLocaleDateString('es-ES', opcionesFecha);
         
         header.innerHTML = `
@@ -309,7 +298,7 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
     const now = new Date();
 
     matchesFiltrados.forEach((match, index) => {
-        const matchTime = parseMatchDateAsLocal(match.match_date);
+        const matchTime = parseMatchDate(match.match_date);
         const hasStarted = now >= matchTime;
 
         // Buscar si el usuario ya tiene un pronóstico para este partido
@@ -341,7 +330,7 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
             <div class="card-body p-4 sm:p-5">
                 <div class="flex justify-between items-center mb-4">
                     <span class="badge badge-primary badge-outline badge-sm text-[10px] sm:text-xs">${match.stage}</span>
-                    <span class="text-[10px] sm:text-xs opacity-50 font-mono">${parseMatchDateAsLocal(match.match_date).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                    <span class="text-[10px] sm:text-xs opacity-50 font-mono">${parseMatchDate(match.match_date).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
                 </div>
                 <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1 sm:gap-3 mb-6 text-center">
                     <div class="tooltip tooltip-top" data-tip="${match.home_team}">
@@ -429,9 +418,9 @@ function updateCountdowns() {
     let allMatchesClosed = true; // Flag to check if all matches on screen are closed
 
     document.querySelectorAll('.card[data-match-id]').forEach(cardElement => {
-        const matchId = parseInt(cardElement.getAttribute('data-match-id'));
+        // const matchId = parseInt(cardElement.getAttribute('data-match-id')); // matchId not used here
         const matchDateStr = cardElement.getAttribute('data-match-date');
-        const matchTime = parseMatchDateAsLocal(matchDateStr);
+        const matchTime = parseMatchDate(matchDateStr);
         const countdownElement = cardElement.querySelector(`#countdown-${matchId}`);
         
         if (!countdownElement) return;
@@ -531,7 +520,7 @@ window.guardarPronostico = async (matchId) => {
 
     // Verificación de seguridad: No permitir guardar si el partido ya comenzó
     const match = allMatches.find(m => m.id === matchId);
-    if (new Date() >= parseMatchDateAsLocal(match.match_date)) {
+    if (new Date() >= parseMatchDate(match.match_date)) {
         return alert('El partido ya comenzó, no puedes modificar tu pronóstico.');
     }
 

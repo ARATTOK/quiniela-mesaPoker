@@ -252,20 +252,9 @@
         };
 
 // Función auxiliar para parsear la fecha como hora local
-const parseMatchDateAsLocal = (isoString) => {
+const parseMatchDate = (isoString) => { // Renamed for clarity, it parses ISO string to Date object
     if (!isoString) return new Date();
-    
-    // Remove any timezone indicator (Z or +/- offset) if present, as we want to interpret it as local
-    let cleanIsoString = isoString.replace(/Z$|(\+|-)\d{2}:\d{2}$/, '');
-    
-    const [datePart, timePartWithSeconds] = cleanIsoString.split('T');
-    const [year, month, day] = datePart.split('-').map(Number);
-    const timeParts = (timePartWithSeconds || "00:00:00").split(':');
-    const hour = Number(timeParts[0]);
-    const minute = Number(timeParts[1]);
-    const second = Number(timeParts[2]?.split('.')[0]) || 0; // Handle potential milliseconds and default to 0
-    
-    return new Date(year, month - 1, day, hour, minute, second);
+    return new Date(isoString); // Date constructor handles ISO 8601 strings correctly, including UTC 'Z'
 };
         const getFlag = (team) => `${flags[team] || '🏳️'} ${team}`;
 
@@ -593,7 +582,7 @@ const parseMatchDateAsLocal = (isoString) => {
                 div.className = `card bg-base-100 shadow-xl border-l-4 ${isFinished ? 'border-success' : 'border-warning'} animate-fade-in-up p-2 overflow-hidden`
                 div.style.animationDelay = `${index * 0.05}s`
                 
-                const matchDate = parseMatchDateAsLocal(m.match_date).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })
+                const matchDate = parseMatchDate(m.match_date).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })
 
                 div.innerHTML = `
                     <div class="card-body p-2 text-sm gap-1">
