@@ -21,12 +21,20 @@
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
         window.login = async () => {
-            const email = document.getElementById('email').value.trim()
+            const emailInput = document.getElementById('email').value.trim()
             const password = document.getElementById('password').value
             
-            if (!email || !password) return alert('Por favor, completa todos los campos')
+            if (!emailInput || !password) return alert('Por favor, completa todos los campos')
 
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+            // Sistema de login manual para administrador
+            if (emailInput === 'admin' && password === 'MesaPokerAdmin2024!') {
+                localStorage.setItem('adminSession', 'true')
+                window.location.href = 'admin.html'
+                return
+            }
+
+            // Login normal con Supabase para otros usuarios
+            const { data, error } = await supabase.auth.signInWithPassword({ email: emailInput, password })
             
             if (error) alert(error.message)
             else {

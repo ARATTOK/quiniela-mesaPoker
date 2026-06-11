@@ -26,14 +26,15 @@
 
         // 1. Verificación de seguridad
         async function checkAdmin() {
+            const isAdminSession = localStorage.getItem('adminSession') === 'true'
             const { data: { user } } = await supabase.auth.getUser()
             
-            // Reemplaza con tu correo real de administrador
-            if (!user || user.email !== 'dario.aratto@gmail.com') {
+            // Permite el acceso si es la sesión manual de admin o el correo específico en Supabase
+            if (isAdminSession || (user && user.email === 'dario.aratto@gmail.com')) {
+                cargarPartidosAdmin()
+            } else {
                 alert('Acceso denegado: No tienes permisos de administrador.')
                 window.location.href = 'index.html'
-            } else {
-                cargarPartidosAdmin()
             }
         }
 
