@@ -97,30 +97,30 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
 
     matchesFiltrados.forEach((match, index) => {
         const div = document.createElement('div')
-        // Añadimos la clase de animación, un delay progresivo, y la altura mínima
-        div.className = 'card bg-base-100 shadow-xl animate-fade-in-up min-h-[180px]'
+        // Diseño de tarjeta optimizado para responsividad
+        div.className = 'card bg-base-100 shadow-xl animate-fade-in-up min-h-[200px] border border-base-300/50'
         div.style.animationDelay = `${index * 0.1}s`
         const isKnockout = ['Octavos', 'Cuartos', 'Semis', 'Final'].includes(match.stage)
         
         div.innerHTML = `
-            <div class="card-body p-5">
+            <div class="card-body p-4 sm:p-5">
                 <div class="flex justify-between items-center mb-4">
-                    <span class="badge badge-primary badge-outline">${match.stage}</span>
-                    <span class="text-xs opacity-50 font-mono">${new Date(match.match_date).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                    <span class="badge badge-primary badge-outline badge-sm text-[10px] sm:text-xs">${match.stage}</span>
+                    <span class="text-[10px] sm:text-xs opacity-50 font-mono">${new Date(match.match_date).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
                 </div>
-                <div class="flex items-center justify-between gap-2 mb-6 text-center">
-                    <div class="flex-1 tooltip tooltip-top" data-tip="${match.home_team}">
-                        <div class="font-bold text-base md:text-lg whitespace-normal leading-tight text-center">
+                <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1 sm:gap-3 mb-6 text-center">
+                    <div class="tooltip tooltip-top" data-tip="${match.home_team}">
+                        <div class="font-bold text-xs sm:text-base md:text-lg whitespace-normal leading-tight">
                             ${getFlag(match.home_team)}
                         </div>
                     </div>
-                    <div class="flex gap-2">
-                        <input type="number" id="home-${match.id}" class="input input-bordered input-sm w-12 text-center" placeholder="0">
-                        <span class="self-center opacity-30">vs</span>
-                        <input type="number" id="away-${match.id}" class="input input-bordered input-sm w-12 text-center" placeholder="0">
+                    <div class="flex items-center gap-1">
+                        <input type="number" id="home-${match.id}" class="input input-bordered input-sm w-9 sm:w-12 text-center px-1" placeholder="0">
+                        <span class="opacity-30 text-[10px] font-bold">vs</span>
+                        <input type="number" id="away-${match.id}" class="input input-bordered input-sm w-9 sm:w-12 text-center px-1" placeholder="0">
                     </div>
-                    <div class="flex-1 tooltip tooltip-top" data-tip="${match.away_team}">
-                        <div class="font-bold text-base md:text-lg whitespace-normal leading-tight text-center">
+                    <div class="tooltip tooltip-top" data-tip="${match.away_team}">
+                        <div class="font-bold text-xs sm:text-base md:text-lg whitespace-normal leading-tight">
                             ${getFlag(match.away_team)}
                         </div>
                     </div>
