@@ -261,7 +261,7 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
     
     // Filtrado robusto comparando año-mes-día localmente
     const matchesFiltrados = allMatches.filter(m => { // This filter still uses local date components for display grouping
-        const d = parseMatchDateAsLocal(m.match_date);
+        const d = parseMatchDate(m.match_date);
         const mYear = d.getFullYear();
         const mMonth = String(d.getMonth() + 1).padStart(2, '0');
         const mDay = String(d.getDate()).padStart(2, '0');
@@ -418,7 +418,7 @@ function updateCountdowns() {
     let allMatchesClosed = true; // Flag to check if all matches on screen are closed
 
     document.querySelectorAll('.card[data-match-id]').forEach(cardElement => {
-        // const matchId = parseInt(cardElement.getAttribute('data-match-id')); // matchId not used here
+        const matchId = cardElement.getAttribute('data-match-id');
         const matchDateStr = cardElement.getAttribute('data-match-date');
         const matchTime = parseMatchDate(matchDateStr);
         const countdownElement = cardElement.querySelector(`#countdown-${matchId}`);
