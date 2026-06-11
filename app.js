@@ -79,7 +79,8 @@ const userConfig = {
     'takashi': { emoji: '👽', color: 'ring-accent' },
     'rodrigo': { emoji: '👾', color: 'ring-info' },
     'chamba': { emoji: '👹', color: 'ring-success' },
-    'dario': { emoji: '👺', color: 'ring-warning' }
+    'dario': { emoji: '👺', color: 'ring-warning' },
+    'andrea': { emoji: '💃', color: 'ring-secondary' }
 };
 
 let allMatches = []; // Variable global para almacenar todos los partidos
