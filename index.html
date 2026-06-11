@@ -83,6 +83,75 @@
         </div>
     </dialog>
 
+    <!-- Modal de Reglas -->
+    <dialog id="rules_modal" class="modal" onclick="this.close()">
+        <div class="modal-box max-w-4xl text-left p-8 border border-accent/20 shadow-2xl" onclick="event.stopPropagation()">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="font-bold text-2xl mb-6 text-accent">Reglamento Oficial</h3>
+            
+            <div class="space-y-6">
+                <div class="card bg-base-100 shadow-sm border border-base-300">
+                    <div class="card-body p-4">
+                        <h4 class="card-title text-accent text-xl mb-2">Sistema de Puntuación</h4>
+                        <div class="overflow-x-auto">
+                            <table class="table w-full table-zebra">
+                                <thead>
+                                    <tr class="text-secondary uppercase text-xs">
+                                        <th>Acierto</th>
+                                        <th class="text-right">Puntos</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>⚽ Marcador exacto</td><td class="text-right font-bold text-success">12 pts</td></tr>
+                                    <tr><td>📊 Ganador + misma diferencia o empate</td><td class="text-right font-bold">8 pts</td></tr>
+                                    <tr><td>✅ Ganador correcto (sin diferencia)</td><td class="text-right font-bold">5 pts</td></tr>
+                                    <tr><td>🔢 Goles exactos de un equipo (si no aplica lo anterior)</td><td class="text-right font-bold">2 pts</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="alert alert-info mt-4 text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>Solo se asigna el puntaje más alto aplicable por partido. No son acumulables.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow-sm border border-base-300">
+                    <div class="card-body p-4">
+                        <h4 class="card-title text-secondary text-xl mb-2">Fases Eliminatorias</h4>
+                        <p class="opacity-80 text-sm">Los resultados se toman al finalizar los 90' o el alargue si lo hubiese. Los penales no cuentan para el marcador principal.</p>
+                        <div class="stats shadow bg-base-200 mt-2">
+                            <div class="stat">
+                                <div class="stat-title text-xs">Bono Clasificación</div>
+                                <div class="stat-value text-primary text-2xl">+3 pts</div>
+                                <div class="stat-desc">Por acertar quién pasa de ronda en penales</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow-sm border border-base-300">
+                    <div class="card-body p-4">
+                        <h4 class="card-title text-warning text-xl mb-2">Podio Ideal</h4>
+                        <p class="text-sm opacity-80 mb-2">Puntos adicionales al finalizar el torneo:</p>
+                        <div class="flex flex-wrap gap-2">
+                            <div class="badge badge-outline p-4">🥇 Campeón: 20 pts</div>
+                            <div class="badge badge-outline p-4">🥈 Subcampeón: 10 pts</div>
+                            <div class="badge badge-outline p-4">🥉 Tercer puesto: 6 pts</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-action mt-8">
+                <form method="dialog">
+                    <button class="btn btn-primary">Entendido</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
         
