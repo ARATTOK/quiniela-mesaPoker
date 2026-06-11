@@ -26,10 +26,33 @@
             
             if (!emailInput || !password) return alert('Por favor, completa todos los campos')
 
-            // Sistema de login manual para administrador
-            if (emailInput === 'admin' && password === 'MesaPokerAdmin2024!') {
-                localStorage.setItem('adminSession', 'true')
-                window.location.href = 'admin.html'
+            // Diccionario de 13 usuarios predefinidos
+            const usersMap = {
+                'admin': 'MesaPokerAdmin2024!',
+                'jugador1': 'poker01',
+                'jugador2': 'poker02',
+                'jugador3': 'poker03',
+                'jugador4': 'poker04',
+                'jugador5': 'poker05',
+                'jugador6': 'poker06',
+                'jugador7': 'poker07',
+                'jugador8': 'poker08',
+                'jugador9': 'poker09',
+                'jugador10': 'poker10',
+                'jugador11': 'poker11',
+                'jugador12': 'poker12'
+            }
+
+            // Verificación en lista local
+            if (usersMap[emailInput] && usersMap[emailInput] === password) {
+                localStorage.setItem('currentUser', emailInput)
+                if (emailInput === 'admin') {
+                    localStorage.setItem('adminSession', 'true')
+                    window.location.href = 'admin.html'
+                } else {
+                    localStorage.setItem('adminSession', 'false')
+                    window.location.href = 'pronosticos.html'
+                }
                 return
             }
 
