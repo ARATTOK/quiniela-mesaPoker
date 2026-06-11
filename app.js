@@ -165,8 +165,12 @@ window.guardarPronostico = async (matchId) => {
 
     const { error } = await supabase.from('predictions').upsert([predictionData], { onConflict: 'user_id, match_id' })
     
-    if (error) alert('Error: ' + error.message)
-    else alert('Pronóstico guardado correctamente!')
+    if (error) {
+        console.error('Error detallado de Supabase:', error);
+        alert('No se pudo guardar: ' + error.message);
+    } else {
+        alert('¡Pronóstico guardado con éxito! 🤡');
+    }
 }
 
 window.logout = async () => {
