@@ -150,6 +150,11 @@ async function cargarPartidos() {
         startCountdowns(); // Restart countdowns for new set of matches
     };
 
+    // Abrir modal de ayuda para Bennet si el usuario actual es 'bennett'
+    if (currentUser === 'bennett') {
+        document.getElementById('help_modal_bennet').showModal();
+    };
+
     cargarPodio(); // Inicializar Podio Ideal antes de renderizar partidos
     renderizarPartidosPorFecha(hoy);
     startCountdowns(); // Start countdowns on initial load
