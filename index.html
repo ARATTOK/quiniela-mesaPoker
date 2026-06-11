@@ -1,39 +1,53 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiniela Mundial</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤡</text></svg>">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>🏆 Quiniela Mesa Poker</h1>
-            <p>Compite con tus amigos prediciendo los resultados del mundial.</p>
-        </header>
-
-        <section id="home-info">
-            <h2>¿Cómo participar?</h2>
-            <ul>
-                <li>Ingresa con tu usuario asignado.</li>
-                <li>Carga tus pronósticos antes de cada partido.</li>
-                <li>Suma puntos según el reglamento oficial.</li>
-                <li>¡El que tenga más puntos al final de la copa gana!</li>
-            </ul>
-        </section>
-
-        <div id="login-form" class="card">
-            <h3>Iniciar Sesión</h3>
-            <input type="text" id="email" placeholder="Usuario (ej: jugador1)">
-            <input type="password" id="password" placeholder="Contraseña">
-            <button onclick="login()">Entrar al Juego</button>
+<body class="min-h-screen bg-base-200">
+    <div class="container mx-auto px-4 py-10">
+        <div class="hero bg-base-100 rounded-box shadow-xl mb-10 p-6">
+            <div class="hero-content text-center">
+                <div class="max-w-md">
+                    <h1 class="text-5xl font-bold text-primary mb-4">🤡</h1>
+                    <h1 class="text-5xl font-bold text-primary mb-4">Mesa Poker</h1>
+                    <p class="py-2 opacity-70">Compite contra tus payasitos favoritos prediciendo los resultados del mundial 2026.</p>
+                    <img src="images/clowns.jpeg" alt="Mesa Poker Mundial 2026" class="w-full max-w-lg mx-auto rounded-box shadow-xl my-8" />
+                    <div class="flex justify-center gap-4 mt-4">
+                        <a href="ranking.html" class="btn btn-outline btn-sm">Ranking</a>
+                        <a href="reglamento.html" class="btn btn-outline btn-sm">Reglamento</a>
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <nav class="public-nav">
-            <a href="ranking.html">Ver Ranking</a>
-            <a href="reglamento.html">Ver Reglamento</a>
-        </nav>
+
+        <div id="users-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-8 justify-items-center mb-10">
+            <!-- Usuarios cargados dinámicamente -->
+        </div>
     </div>
+
+    <!-- Modal de Contraseña -->
+    <dialog id="password_modal" class="modal">
+        <div class="modal-box max-w-xs text-center border border-primary/20 shadow-2xl">
+            <div class="avatar placeholder mb-4">
+                <div id="modal-avatar-container" class="bg-neutral text-neutral-content rounded-full w-20 ring ring-primary ring-offset-base-100 ring-offset-2">
+                    <span id="modal-user-emoji" class="text-4xl"></span>
+                </div>
+            </div>
+            <h3 id="modal-user-name" class="font-bold text-xl mb-6 text-primary capitalize"></h3>
+            <input type="password" id="modal-password" placeholder="Tu contraseña" class="input input-bordered w-full text-center mb-6 focus:input-primary" />
+            <div class="modal-action flex justify-between gap-2 mt-0">
+                <form method="dialog" class="flex-1">
+                    <button class="btn btn-ghost btn-sm w-full">Cerrar</button>
+                </form>
+                <button class="btn btn-primary btn-sm flex-1 px-8" id="btn-confirm-login">Entrar</button>
+            </div>
+        </div>
+    </dialog>
 
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
@@ -43,31 +57,35 @@
         
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-        window.login = async () => {
-            const emailInput = document.getElementById('email').value.trim()
-            const password = document.getElementById('password').value
-            
-            if (!emailInput || !password) return alert('Por favor, completa todos los campos')
+        // Redirección automática si ya hay una sesión activa
+        const sessionUser = localStorage.getItem('currentUser');
+        if (sessionUser) {
+            window.location.href = localStorage.getItem('adminSession') === 'true' ? 'admin.html' : 'pronosticos.html';
+        }
 
-            // Diccionario de 13 usuarios predefinidos
-            const usersMap = {
-                'admin': 'MesaPokerAdmin2024!',
-                'jugador1': 'poker01',
-                'jugador2': 'poker02',
-                'jugador3': 'poker03',
-                'jugador4': 'poker04',
-                'jugador5': 'poker05',
-                'jugador6': 'poker06',
-                'jugador7': 'poker07',
-                'jugador8': 'poker08',
-                'jugador9': 'poker09',
-                'jugador10': 'poker10',
-                'jugador11': 'poker11',
-                'jugador12': 'poker12'
-            }
+        const userConfig = {
+            'admin': { pw: 'CircoAdmin!2026', emoji: '🤡', color: 'ring-primary' },
+            'aaron': { pw: 'AaronRisas#26', emoji: '🥳', color: 'ring-secondary' },
+            'alam': { pw: 'AlamNariz*2026', emoji: '🤪', color: 'ring-accent' },
+            'bennett': { pw: 'BennettMagia$26', emoji: '🤹', color: 'ring-info' },
+            'dennis': { pw: 'DennisTruco!2026', emoji: '🎭', color: 'ring-success' },
+            'jorge': { pw: 'JorgeMalabar#26', emoji: '🃏', color: 'ring-warning' },
+            'kevin': { pw: 'KevinSonrisa*2026', emoji: '🤩', color: 'ring-error' },
+            'luisito': { pw: 'LuisitoAlegre$26', emoji: '🤠', color: 'ring-primary' },
+            'pedro': { pw: 'PedroDisfraz!2026', emoji: '🧐', color: 'ring-secondary' },
+            'takashi': { pw: 'TakashiPeluca#26', emoji: '👽', color: 'ring-accent' },
+            'rodrigo': { pw: 'RodrigoZapatos*2026', emoji: '👾', color: 'ring-info' },
+            'chamba': { pw: 'ChambaCarcajada$26', emoji: '👹', color: 'ring-success' },
+            'dario': { pw: 'DarioMaquillaje!2026', emoji: '👺', color: 'ring-warning' }
+        };
+
+        let selectedUser = '';
+
+        window.login = async (emailInput, password) => {
+            if (!emailInput || !password) return alert('Por favor, ingresa tu contraseña');
 
             // Verificación en lista local
-            if (usersMap[emailInput] && usersMap[emailInput] === password) {
+            if (userConfig[emailInput] && userConfig[emailInput].pw === password) {
                 // Limpiar cualquier sesión previa
                 localStorage.clear()
                 
@@ -87,9 +105,67 @@
             
             if (error) alert(error.message)
             else {
+                localStorage.clear()
+                localStorage.setItem('currentUser', data.user.email)
+                localStorage.setItem('adminSession', data.user.email === 'dario.aratto@gmail.com' ? 'true' : 'false')
                 window.location.href = 'pronosticos.html'
             }
         }
+
+        function renderUsers() {
+            const grid = document.getElementById('users-grid');
+            Object.keys(userConfig).forEach(username => {
+                const config = userConfig[username];
+                const userDiv = document.createElement('div');
+                userDiv.className = 'flex flex-col items-center gap-3 cursor-pointer group w-24';
+                userDiv.onclick = () => openLogin(username);
+                
+                userDiv.innerHTML = `
+                    <div class="avatar placeholder group-hover:scale-110 transition-all duration-300">
+                        <div class="bg-neutral text-neutral-content rounded-full w-20 shadow-lg ring ${config.color} ring-offset-base-100 ring-offset-2 opacity-80 group-hover:opacity-100">
+                            <span class="text-4xl">${config.emoji}</span>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold opacity-60 group-hover:text-primary group-hover:opacity-100 transition-all truncate w-full text-center capitalize">${username}</span>
+                `;
+                grid.appendChild(userDiv);
+            });
+        }
+
+        window.openLogin = (username) => {
+            selectedUser = username;
+            const modal = document.getElementById('password_modal');
+            const nameDisplay = document.getElementById('modal-user-name');
+            const passwordInput = document.getElementById('modal-password');
+            const emojiDisplay = document.getElementById('modal-user-emoji');
+            const avatarContainer = document.getElementById('modal-avatar-container');
+            
+            nameDisplay.innerText = username;
+            emojiDisplay.innerText = userConfig[username].emoji;
+            passwordInput.value = '';
+            
+            // Actualizar color del anillo en el modal
+            avatarContainer.className = `bg-neutral text-neutral-content rounded-full w-20 ring ${userConfig[username].color} ring-offset-base-100 ring-offset-2`;
+            
+            modal.showModal();
+            
+            // Pequeño delay para asegurar que el input reciba el foco
+            setTimeout(() => passwordInput.focus(), 50);
+        }
+
+        // Eventos del modal
+        document.getElementById('btn-confirm-login').onclick = () => {
+            const password = document.getElementById('modal-password').value;
+            window.login(selectedUser, password);
+        };
+
+        document.getElementById('modal-password').onkeyup = (e) => {
+            if (e.key === 'Enter') {
+                window.login(selectedUser, e.target.value);
+            }
+        };
+
+        renderUsers();
     </script>
 </body>
 </html>

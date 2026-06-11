@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reglamento - Quiniela</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤡</text></svg>">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-base-200 min-h-screen">
+    <div class="navbar bg-base-100 shadow-lg px-4 lg:px-20">
+        <div class="flex-1"><a href="index.html" class="text-xl font-bold text-primary">🏆 Quiniela</a></div>
+        <div class="flex-none flex items-center gap-2">
+            <ul class="menu menu-horizontal px-1 gap-2">
+                <li><a href="pronosticos.html">Pronósticos</a></li>
+                <li><a href="ranking.html">Ranking</a></li>
+                <li><a href="reglamento.html" class="active">Reglamento</a></li>
+            </ul>
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-sm italic opacity-70 lowercase">
+                    <span id="user-display"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 opacity-50">
+                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-4">
+                    <li><button onclick="logout()" class="text-error font-bold text-left">Cerrar Sesión</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto p-4 lg:p-10 max-w-4xl">
+        <h1 class="text-3xl font-bold mb-8 border-l-4 border-accent pl-4">Reglamento Oficial</h1>
+        
+        <div class="space-y-6">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-accent text-2xl mb-4">Sistema de Puntuación</h2>
+                    <div class="overflow-x-auto">
+                        <table class="table w-full">
+                            <thead>
+                                <tr class="text-secondary uppercase text-xs">
+                                    <th>Acierto</th>
+                                    <th class="text-right">Puntos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>⚽ Marcador exacto</td><td class="text-right font-bold text-success">12 pts</td></tr>
+                                <tr><td>📊 Ganador + misma diferencia o empate</td><td class="text-right font-bold">8 pts</td></tr>
+                                <tr><td>✅ Ganador correcto (sin diferencia)</td><td class="text-right font-bold">5 pts</td></tr>
+                                <tr><td>🔢 Goles exactos de un equipo (si no aplica lo anterior)</td><td class="text-right font-bold">2 pts</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="alert alert-info mt-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Solo se asigna el puntaje más alto aplicable por partido. No son acumulables.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-secondary">Fases Eliminatorias</h2>
+                    <p class="opacity-80 text-sm">Los resultados se toman al finalizar los 90' o el alargue si lo hubiese. Los penales no cuentan para el marcador principal.</p>
+                    <div class="stats shadow bg-base-200 mt-2">
+                        <div class="stat">
+                            <div class="stat-title text-xs">Bono Clasificación</div>
+                            <div class="stat-value text-primary text-2xl">+3 pts</div>
+                            <div class="stat-desc">Por acertar quién pasa de ronda en penales</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-warning">Podio Ideal</h2>
+                    <p class="text-sm opacity-80 mb-2">Puntos adicionales al finalizar el torneo:</p>
+                    <div class="flex flex-wrap gap-2">
+                        <div class="badge badge-outline p-4">🥇 Campeón: 20 pts</div>
+                        <div class="badge badge-outline p-4">🥈 Subcampeón: 10 pts</div>
+                        <div class="badge badge-outline p-4">🥉 Tercer puesto: 6 pts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const user = localStorage.getItem('currentUser');
+        if (user) document.getElementById('user-display').innerText = user;
+
+        window.logout = () => {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        };
+    </script>
+</body>
+</html>

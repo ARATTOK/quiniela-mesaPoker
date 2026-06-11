@@ -1,46 +1,185 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Quiniela</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤡</text></svg>">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
     </style>
-    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <h1>Panel de Control del Admin</h1>
-    
-    <section class="admin-section">
-        <h2>Crear Nuevo Partido</h2>
-        <div class="card">
-            <div class="admin-form-group">
-                <label for="new-home">Equipo Local:</label>
-                <input type="text" id="new-home" placeholder="Ej: Argentina">
-            </div>
-            <div class="admin-form-group">
-                <label for="new-away">Equipo Visitante:</label>
-                <input type="text" id="new-away" placeholder="Ej: Brasil">
-            </div>
-            <div class="admin-form-group">
-                <label for="new-stage">Fase:</label>
-                <select id="new-stage">
-                    <option value="Grupos">Grupos</option>
-                    <option value="Octavos">Octavos</option>
-                    <option value="Cuartos">Cuartos</option>
-                    <option value="Semis">Semis</option>
-                    <option value="Final">Final</option>
-                </select>
-            </div>
-            <div class="admin-form-group">
-                <label for="new-date">Fecha y Hora:</label>
-                <input type="datetime-local" id="new-date">
-            </div>
-            <button onclick="crearPartido()">Agregar Partido</button> <button class="btn-secondary" onclick="limpiarFormularioPartido()">Limpiar</button>
+<body class="bg-base-200 min-h-screen pb-20">
+    <div class="navbar bg-base-100 shadow-lg px-4 lg:px-20 border-b border-primary/20">
+        <div class="flex-1">
+            <a href="index.html" class="text-xl font-bold text-primary tracking-tight">🏆 Admin Panel</a>
         </div>
-    </section>
+        <div class="flex-none flex items-center gap-2">
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-sm italic opacity-70 lowercase">
+                    <span id="user-display"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 opacity-50">
+                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-4">
+                    <li><button onclick="logout()" class="text-error font-bold text-left">Cerrar Sesión</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
-    <div id="admin-matches">Cargando partidos...</div>
+    <div class="container mx-auto p-4 lg:p-10 space-y-10">
+        <!-- API Automation -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-bold border-l-4 border-secondary pl-4 text-secondary uppercase tracking-wider text-sm">Automatización FIFA API</h2>
+            <div class="card bg-base-100 shadow-xl border border-base-300">
+                <div class="card-body flex flex-col md:flex-row items-end gap-4">
+                    <div class="form-control flex-1 w-full">
+                        <label class="label"><span class="label-text text-xs uppercase font-bold opacity-60">API Key (API-Sports)</span></label>
+                        <input type="password" id="api-key-sports" class="input input-bordered w-full" placeholder="Ingresa tu API Key">
+                    </div>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <button class="btn btn-secondary flex-1 shadow-lg" onclick="importarCalendarioFIFA()">Sincronizar API</button>
+                        <button class="btn btn-outline btn-secondary flex-1" onclick="importarListaOficialPartidos()">Importar Lista Oficial</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gestión de Equipos (CRUD) -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-bold border-l-4 border-info pl-4 text-info uppercase tracking-wider text-sm">Gestión de Equipos</h2>
+            <div class="card bg-base-100 shadow-xl border border-base-300">
+                <div class="card-body">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-semibold">País</span></label>
+                            <input type="text" id="team-name" placeholder="Ej: Argentina" class="input input-bordered w-full focus:input-info" />
+                        </div>
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-semibold">Grupo</span></label>
+                            <select id="team-group" class="select select-bordered w-full focus:select-info">
+                                <option>Grupo A</option><option>Grupo B</option><option>Grupo C</option><option>Grupo D</option>
+                                <option>Grupo E</option><option>Grupo F</option><option>Grupo G</option><option>Grupo H</option>
+                                <option>Grupo I</option><option>Grupo J</option><option>Grupo K</option><option>Grupo L</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="btn btn-info" onclick="crearEquipo()">Agregar Equipo</button>
+                            <button class="btn btn-outline btn-info" onclick="importarEquiposMundial()">Importar Grupos 2026</button>
+                        </div>
+                    </div>
+
+                    <!-- Filtros de Equipos -->
+                    <div class="flex flex-col md:flex-row gap-4 mt-8 p-4 bg-base-200 rounded-lg">
+                        <div class="form-control flex-1">
+                            <input type="text" id="filter-team-name" placeholder="Buscar país..." class="input input-bordered input-sm" oninput="renderEquipos()" />
+                        </div>
+                        <div class="form-control">
+                            <select id="filter-team-group" class="select select-bordered select-sm" onchange="renderEquipos()">
+                                <option value="todos">Todos los grupos</option>
+                                <option>Grupo A</option><option>Grupo B</option><option>Grupo C</option><option>Grupo D</option>
+                                <option>Grupo E</option><option>Grupo F</option><option>Grupo G</option><option>Grupo H</option>
+                                <option>Grupo I</option><option>Grupo J</option><option>Grupo K</option><option>Grupo L</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 overflow-x-auto rounded-lg border border-base-300">
+                        <table class="table table-zebra w-full" id="teams-table">
+                            <thead class="bg-base-200 text-info uppercase text-xs">
+                                <tr><th>País</th><th>Grupo</th><th class="text-right">Acciones</th></tr>
+                            </thead>
+                            <tbody><!-- Cargado por JS --></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Manual Creation -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-bold border-l-4 border-primary pl-4 text-primary uppercase tracking-wider text-sm">Nuevo Partido Manual</h2>
+            <div class="card bg-base-100 shadow-xl border border-base-300">
+                <div class="card-body">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-semibold">Local</span></label>
+                            <select id="new-home" class="select select-bordered w-full focus:select-primary select-teams-list">
+                                <option disabled selected>Cargando...</option>
+                            </select>
+                        </div>
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-semibold">Visitante</span></label>
+                            <select id="new-away" class="select select-bordered w-full focus:select-primary select-teams-list">
+                                <option disabled selected>Cargando...</option>
+                            </select>
+                        </div>
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-semibold">Fase</span></label>
+                            <select id="new-stage" class="select select-bordered w-full focus:select-primary">
+                                <option value="Grupos">Grupos</option><option value="Octavos">Octavos</option>
+                                <option value="Cuartos">Cuartos</option><option value="Semis">Semis</option><option value="Final">Final</option>
+                            </select>
+                        </div>
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-semibold">Fecha</span></label>
+                            <input type="datetime-local" id="new-date" class="input input-bordered w-full focus:input-primary">
+                        </div>
+                    </div>
+                    <div class="card-actions justify-end mt-6">
+                        <button class="btn btn-ghost btn-sm" onclick="limpiarFormularioPartido()">Limpiar</button>
+                        <button class="btn btn-primary px-8" onclick="crearPartido()">Crear Partido</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- List -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-bold border-l-4 border-accent pl-4 text-accent uppercase tracking-wider text-sm">Gestión de Resultados</h2>
+            
+            <!-- Filtros de Partidos -->
+            <div class="flex flex-col md:flex-row gap-4 p-4 bg-base-100 rounded-box shadow-xl border border-base-300">
+                <div class="form-control flex-1">
+                    <input type="text" id="filter-match-search" placeholder="Buscar equipo..." class="input input-bordered input-sm" oninput="renderPartidosAdmin()" />
+                </div>
+                <div class="form-control">
+                    <select id="filter-match-stage" class="select select-bordered select-sm" onchange="renderPartidosAdmin()">
+                        <option value="todos">Todas las fases</option>
+                        <option value="Grupos">Grupos</option>
+                        <option value="Octavos">Octavos</option>
+                        <option value="Cuartos">Cuartos</option>
+                        <option value="Semis">Semis</option>
+                        <option value="Final">Final</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <select id="filter-match-status" class="select select-bordered select-sm" onchange="renderPartidosAdmin()">
+                        <option value="todos">Todos los estados</option>
+                        <option value="pending">Pendientes</option>
+                        <option value="finished">Finalizados</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="admin-matches" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                <div class="col-span-full flex justify-center py-20 text-accent italic">
+                    <span class="loading loading-dots loading-lg"></span>
+                </div>
+            </div>
+        </section>
+    </div>
 
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
@@ -51,18 +190,286 @@
         
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
+        let allTeams = [];
+        let allMatches = [];
+
+        const flags = {
+            'Argentina': '🇦🇷', 'Brasil': '🇧🇷', 'Uruguay': '🇺🇾', 'Colombia': '🇨🇴',
+            'Chile': '🇨🇱', 'Perú': '🇵🇪', 'Ecuador': '🇪🇨', 'Paraguay': '🇵🇾',
+            'Venezuela': '🇻🇪', 'Bolivia': '🇧🇴', 'México': '🇲🇽', 'USA': '🇺🇸',
+            'Estados Unidos': '🇺🇸', 'EE. UU.': '🇺🇸', 'Canadá': '🇨🇦', 'España': '🇪🇸', 'Francia': '🇫🇷',
+            'Alemania': '🇩🇪', 'Italia': '🇮🇹', 'Inglaterra': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Portugal': '🇵🇹',
+            'Holanda': '🇳🇱', 'Países Bajos': '🇳🇱', 'Bélgica': '🇧🇪', 'Croacia': '🇭🇷', 'Suiza': '🇨🇭',
+            'Dinamarca': '🇩🇰', 'Serbia': '🇷🇸', 'Polonia': '🇵🇱', 'Escocia': '🏴󠁧󠁢󠁳󠁣󠁴󠁿', 'Ucrania': '🇺🇦',
+            'Turquía': '🇹🇷', 'Marruecos': '🇲🇦', 'Argelia': '🇩🇿', 'Egipto': '🇪🇬', 'Nigeria': '🇳🇬',
+            'Camerún': '🇨🇲', 'Ghana': '🇬🇭', 'Costa de Marfil': '🇨🇮', 'Senegal': '🇸🇳', 'Japón': '🇯🇵',
+            'Corea del Sur': '🇰🇷', 'República de Corea': '🇰🇷', 'Australia': '🇦🇺', 'Arabia Saudita': '🇸🇦', 
+            'Arabia Saudí': '🇸🇦', 'Irán': '🇮🇷', 'RI de Irán': '🇮🇷', 'Qatar': '🇶🇦', 'Catar': '🇶🇦',
+            'Costa Rica': '🇨🇷', 'Panamá': '🇵🇦', 'Jamaica': '🇯🇲', 'Sudáfrica': '🇿🇦',
+            'Chequia': '🇨🇿', 'Bosnia y Herzegovina': '🇧🇦', 'Haití': '🇭🇹', 'Curazao': '🇨🇼',
+            'Suecia': '🇸🇪', 'Túnez': '🇹🇳', 'Nueva Zelanda': '🇳🇿', 'Islas de Cabo Verde': '🇨🇻', 
+            'Cabo Verde': '🇨🇻',
+            'Irak': '🇮🇶', 'Noruega': '🇳🇴', 'Austria': '🇦🇹', 'Jordania': '🇯🇴', 'RD Congo': '🇨🇩',
+            'RD del Congo': '🇨🇩',
+            'Uzbekistán': '🇺🇿'
+        };
+
+        const getFlag = (team) => `${flags[team] || '🏳️'} ${team}`;
+
         // 1. Verificación de seguridad
         async function checkAdmin() {
             const isAdminSession = localStorage.getItem('adminSession') === 'true'
             const { data: { user } } = await supabase.auth.getUser()
             
+            const sessionUser = localStorage.getItem('currentUser');
+            if (sessionUser) document.getElementById('user-display').innerText = sessionUser;
+            
             // Permite el acceso si es la sesión manual de admin o el correo específico en Supabase
             if (isAdminSession || (user && user.email === 'dario.aratto@gmail.com')) {
                 cargarPartidosAdmin()
+                cargarEquipos()
             } else {
                 alert('Acceso denegado: No tienes permisos de administrador.')
                 window.location.href = 'index.html'
             }
+        }
+
+        window.importarCalendarioFIFA = async () => {
+            const apiKey = document.getElementById('api-key-sports').value;
+            if (!apiKey) return alert("Por favor ingresa tu API Key de API-Sports");
+
+            try {
+                const response = await fetch('https://v3.football.api-sports.io/fixtures?league=1&season=2026', {
+                    headers: { 'x-apisports-key': apiKey }
+                });
+                const data = await response.json();
+                const fixtures = data.response;
+
+                if (!fixtures || fixtures.length === 0) throw new Error("No se encontraron partidos");
+
+                const partidosParaInsertar = fixtures.map(f => ({
+                    home_team: f.teams.home.name,
+                    away_team: f.teams.away.name,
+                    match_date: f.fixture.date,
+                    stage: f.league.round,
+                    status: 'pending'
+                }));
+
+                // Insertar en Supabase
+                const { error } = await supabase.from('matches').insert(partidosParaInsertar);
+
+                if (error) throw error;
+                alert(`${fixtures.length} partidos importados correctamente.`);
+                cargarPartidosAdmin();
+            } catch (err) {
+                alert("Error: " + err.message);
+            }
+        }
+
+        window.cargarEquipos = async () => {
+            const { data: teams, error } = await supabase.from('teams').select('*').order('name', { ascending: true })
+            if (error) return console.error(error)
+            allTeams = teams;
+            renderEquipos();
+            updateMatchSelects();
+        }
+
+        window.renderEquipos = () => {
+            const filterName = document.getElementById('filter-team-name').value.toLowerCase();
+            const filterGroup = document.getElementById('filter-team-group').value;
+
+            const filteredTeams = allTeams.filter(t => {
+                const matchesName = t.name.toLowerCase().includes(filterName);
+                const matchesGroup = filterGroup === 'todos' || t.group_name === filterGroup;
+                return matchesName && matchesGroup;
+            });
+
+            const tbody = document.querySelector('#teams-table tbody')
+            tbody.innerHTML = ''
+            filteredTeams.forEach(t => {
+                const row = tbody.insertRow()
+                row.innerHTML = `
+                    <td>
+                        <div class="tooltip tooltip-right" data-tip="${t.name}">
+                            <div class="font-bold whitespace-normal leading-tight">${getFlag(t.name)}</div>
+                        </div>
+                    </td>
+                    <td><div class="badge badge-ghost">${t.group_name}</div></td>
+                    <td class="text-right"><button onclick="eliminarEquipo(${t.id})" class="btn btn-ghost btn-xs text-error">Eliminar</button></td>
+                `
+            })
+        }
+
+        window.importarListaOficialPartidos = async () => {
+            if (!confirm('¿Deseas importar los 72 partidos confirmados de la fase de grupos?')) return;
+
+            const partidos = [
+                {"id": 1, "fecha": "2026-06-11", "grupo": "A", "home": "México", "away": "Sudáfrica"},
+                {"id": 2, "fecha": "2026-06-11", "grupo": "A", "home": "República de Corea", "away": "Chequia"},
+                {"id": 3, "fecha": "2026-06-12", "grupo": "B", "home": "Canadá", "away": "Bosnia y Herzegovina"},
+                {"id": 4, "fecha": "2026-06-12", "grupo": "D", "home": "EE. UU.", "away": "Paraguay"},
+                {"id": 5, "fecha": "2026-06-13", "grupo": "B", "home": "Catar", "away": "Suiza"},
+                {"id": 6, "fecha": "2026-06-13", "grupo": "C", "home": "Brasil", "away": "Marruecos"},
+                {"id": 7, "fecha": "2026-06-13", "grupo": "C", "home": "Haití", "away": "Escocia"},
+                {"id": 8, "fecha": "2026-06-13", "grupo": "D", "home": "Australia", "away": "Turquía"},
+                {"id": 9, "fecha": "2026-06-14", "grupo": "E", "home": "Alemania", "away": "Curazao"},
+                {"id": 10, "fecha": "2026-06-14", "grupo": "F", "home": "Países Bajos", "away": "Japón"},
+                {"id": 11, "fecha": "2026-06-14", "grupo": "E", "home": "Costa de Marfil", "away": "Ecuador"},
+                {"id": 12, "fecha": "2026-06-14", "grupo": "F", "home": "Suecia", "away": "Túnez"},
+                {"id": 13, "fecha": "2026-06-15", "grupo": "H", "home": "España", "away": "Islas de Cabo Verde"},
+                {"id": 14, "fecha": "2026-06-15", "grupo": "G", "home": "Bélgica", "away": "Egipto"},
+                {"id": 15, "fecha": "2026-06-15", "grupo": "H", "home": "Arabia Saudí", "away": "Uruguay"},
+                {"id": 16, "fecha": "2026-06-15", "grupo": "G", "home": "RI de Irán", "away": "Nueva Zelanda"},
+                {"id": 17, "fecha": "2026-06-16", "grupo": "I", "home": "Francia", "away": "Senegal"},
+                {"id": 18, "fecha": "2026-06-16", "grupo": "I", "home": "Irak", "away": "Noruega"},
+                {"id": 19, "fecha": "2026-06-16", "grupo": "J", "home": "Argentina", "away": "Argelia"},
+                {"id": 20, "fecha": "2026-06-16", "grupo": "J", "home": "Austria", "away": "Jordania"},
+                {"id": 21, "fecha": "2026-06-17", "grupo": "K", "home": "Portugal", "away": "RD Congo"},
+                {"id": 22, "fecha": "2026-06-17", "grupo": "L", "home": "Inglaterra", "away": "Croacia"},
+                {"id": 23, "fecha": "2026-06-17", "grupo": "L", "home": "Ghana", "away": "Panamá"},
+                {"id": 24, "fecha": "2026-06-17", "grupo": "K", "home": "Uzbekistán", "away": "Colombia"},
+                {"id": 25, "fecha": "2026-06-18", "grupo": "A", "home": "Chequia", "away": "Sudáfrica"},
+                {"id": 26, "fecha": "2026-06-18", "grupo": "B", "home": "Suiza", "away": "Bosnia y Herzegovina"},
+                {"id": 27, "fecha": "2026-06-18", "grupo": "B", "home": "Canadá", "away": "Catar"},
+                {"id": 28, "fecha": "2026-06-18", "grupo": "A", "home": "México", "away": "República de Corea"},
+                {"id": 29, "fecha": "2026-06-19", "grupo": "D", "home": "EE. UU.", "away": "Australia"},
+                {"id": 30, "fecha": "2026-06-19", "grupo": "C", "home": "Escocia", "away": "Marruecos"},
+                {"id": 31, "fecha": "2026-06-19", "grupo": "C", "home": "Brasil", "away": "Haití"},
+                {"id": 32, "fecha": "2026-06-19", "grupo": "D", "home": "Turquía", "away": "Paraguay"},
+                {"id": 33, "fecha": "2026-06-20", "grupo": "F", "home": "Países Bajos", "away": "Suecia"},
+                {"id": 34, "fecha": "2026-06-20", "grupo": "E", "home": "Alemania", "away": "Costa de Marfil"},
+                {"id": 35, "fecha": "2026-06-20", "grupo": "E", "home": "Ecuador", "away": "Curazao"},
+                {"id": 36, "fecha": "2026-06-20", "grupo": "F", "home": "Túnez", "away": "Japón"},
+                {"id": 37, "fecha": "2026-06-21", "grupo": "H", "home": "España", "away": "Arabia Saudita"},
+                {"id": 37, "fecha": "2026-06-21", "grupo": "H", "home": "España", "away": "Arabia Saudí"},
+                {"id": 38, "fecha": "2026-06-21", "grupo": "G", "home": "Bélgica", "away": "RI de Irán"},
+                {"id": 39, "fecha": "2026-06-21", "grupo": "H", "home": "Uruguay", "away": "Islas de Cabo Verde"},
+                {"id": 40, "fecha": "2026-06-21", "grupo": "G", "home": "Nueva Zelanda", "away": "Egipto"},
+                {"id": 41, "fecha": "2026-06-22", "grupo": "I", "home": "Noruega", "away": "Senegal"},
+                {"id": 42, "fecha": "2026-06-22", "grupo": "I", "home": "Francia", "away": "Irak"},
+                {"id": 43, "fecha": "2026-06-22", "grupo": "J", "home": "Argentina", "away": "Austria"},
+                {"id": 44, "fecha": "2026-06-22", "grupo": "J", "home": "Jordania", "away": "Argelia"},
+                {"id": 45, "fecha": "2026-06-23", "grupo": "L", "home": "Inglaterra", "away": "Ghana"},
+                {"id": 46, "fecha": "2026-06-23", "grupo": "L", "home": "Panamá", "away": "Croacia"},
+                {"id": 47, "fecha": "2026-06-23", "grupo": "K", "home": "Portugal", "away": "Uzbekistán"},
+                {"id": 48, "fecha": "2026-06-23", "grupo": "K", "home": "Colombia", "away": "RD Congo"},
+                {"id": 49, "fecha": "2026-06-24", "grupo": "C", "home": "Escocia", "away": "Brasil"},
+                {"id": 50, "fecha": "2026-06-24", "grupo": "C", "home": "Marruecos", "away": "Haití"},
+                {"id": 51, "fecha": "2026-06-24", "grupo": "B", "home": "Suiza", "away": "Canadá"},
+                {"id": 52, "fecha": "2026-06-24", "grupo": "B", "home": "Bosnia y Herzegovina", "away": "Catar"},
+                {"id": 53, "fecha": "2026-06-24", "grupo": "A", "home": "Chequia", "away": "México"},
+                {"id": 54, "fecha": "2026-06-24", "grupo": "A", "home": "Sudáfrica", "away": "República de Corea"},
+                {"id": 55, "fecha": "2026-06-25", "grupo": "E", "home": "Curazao", "away": "Costa de Marfil"},
+                {"id": 56, "fecha": "2026-06-25", "grupo": "E", "home": "Ecuador", "away": "Alemania"},
+                {"id": 57, "fecha": "2026-06-25", "grupo": "F", "home": "Japón", "away": "Suecia"},
+                {"id": 58, "fecha": "2026-06-25", "grupo": "F", "home": "Túnez", "away": "Países Bajos"},
+                {"id": 59, "fecha": "2026-06-25", "grupo": "D", "home": "Turquía", "away": "EE. UU."},
+                {"id": 60, "fecha": "2026-06-25", "grupo": "D", "home": "Paraguay", "away": "Australia"},
+                {"id": 61, "fecha": "2026-06-26", "grupo": "G", "home": "Bélgica", "away": "Nueva Zelanda"},
+                {"id": 62, "fecha": "2026-06-26", "grupo": "G", "home": "RI de Irán", "away": "Egipto"},
+                {"id": 63, "fecha": "2026-06-26", "grupo": "H", "home": "España", "away": "Uruguay"},
+                {"id": 64, "fecha": "2026-06-26", "grupo": "H", "home": "Islas de Cabo Verde", "away": "Arabia Saudí"},
+                {"id": 65, "fecha": "2026-06-26", "grupo": "I", "home": "Francia", "away": "Noruega"},
+                {"id": 66, "fecha": "2026-06-26", "grupo": "I", "home": "Senegal", "away": "Irak"},
+                {"id": 67, "fecha": "2026-06-27", "grupo": "L", "home": "Panamá", "away": "Inglaterra"},
+                {"id": 68, "fecha": "2026-06-27", "grupo": "L", "home": "Croacia", "away": "Ghana"},
+                {"id": 69, "fecha": "2026-06-27", "grupo": "J", "home": "Jordania", "away": "Argentina"},
+                {"id": 70, "fecha": "2026-06-27", "grupo": "J", "home": "Argelia", "away": "Austria"},
+                {"id": 71, "fecha": "2026-06-27", "grupo": "K", "home": "Colombia", "away": "Portugal"},
+                {"id": 72, "fecha": "2026-06-27", "grupo": "K", "home": "RD Congo", "away": "Uzbekistán"}
+            ];
+
+            const matchesToInsert = partidos.map(p => ({
+                home_team: p.home,
+                away_team: p.away,
+                match_date: p.fecha,
+                stage: `Grupos - ${p.grupo}`,
+                status: 'pending'
+            }));
+
+            const { error } = await supabase.from('matches').insert(matchesToInsert);
+            if (error) alert("Error: " + error.message);
+            else {
+                alert(`${partidos.length} partidos del calendario oficial importados correctamente.`);
+                cargarPartidosAdmin();
+            }
+        }
+
+        window.updateMatchSelects = () => {
+            const selects = document.querySelectorAll('.select-teams-list')
+            selects.forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = '<option value="" disabled selected>Seleccionar país</option>'
+                allTeams.forEach(t => {
+                    const option = document.createElement('option')
+                    option.value = t.name
+                    option.textContent = getFlag(t.name)
+                    select.appendChild(option)
+                })
+                if (currentValue) select.value = currentValue;
+            })
+        }
+
+        window.importarEquiposMundial = async () => {
+            if (!confirm('¿Deseas importar los 48 equipos del Mundial 2026? Esto podría duplicar equipos si ya existen.')) return;
+            
+            const mundialData = {
+                "Grupo A": ["México", "Sudáfrica", "República de Corea", "Chequia"],
+                "Grupo B": ["Canadá", "Bosnia y Herzegovina", "Catar", "Suiza"],
+                "Grupo C": ["Brasil", "Marruecos", "Haití", "Escocia"],
+                "Grupo D": ["EE. UU.", "Paraguay", "Australia", "Turquía"],
+                "Grupo E": ["Alemania", "Curazao", "Costa de Marfil", "Ecuador"],
+                "Grupo F": ["Países Bajos", "Japón", "Suecia", "Túnez"],
+                "Grupo G": ["Bélgica", "Egipto", "RI de Irán", "Nueva Zelanda"],
+                "Grupo H": ["España", "Islas de Cabo Verde", "Arabia Saudí", "Uruguay"],
+                "Grupo I": ["Francia", "Senegal", "Irak", "Noruega"],
+                "Grupo J": ["Argentina", "Argelia", "Austria", "Jordania"],
+                "Grupo K": ["Portugal", "RD Congo", "Uzbekistán", "Colombia"],
+                "Grupo L": ["Inglaterra", "Croacia", "Ghana", "Panamá"]
+            };
+            
+            const teamsToInsert = [];
+            for (const [grupo, paises] of Object.entries(mundialData)) {
+                paises.forEach(pais => teamsToInsert.push({ name: pais, group_name: grupo }));
+            }
+
+            const { error } = await supabase.from('teams').insert(teamsToInsert);
+            if (error) alert("Error: " + error.message);
+            else { alert("Equipos importados exitosamente."); cargarEquipos(); }
+        }
+
+        window.crearEquipo = async () => {
+            const name = document.getElementById('team-name').value.trim()
+            const group = document.getElementById('team-group').value
+
+            if (!name) return alert("Ingresa el nombre del país")
+
+            const { error } = await supabase.from('teams').insert([{ name, group_name: group }])
+            
+            if (error) {
+                alert("Error: " + error.message)
+            } else {
+                document.getElementById('team-name').value = ''
+                cargarEquipos()
+            }
+        }
+
+        window.eliminarEquipo = async (id) => {
+            if (!confirm('¿Eliminar este equipo?')) return
+            
+            const { error } = await supabase.from('teams').delete().eq('id', id)
+            if (error) {
+                alert("No se puede eliminar: el equipo podría estar en un partido.")
+            } else {
+                cargarEquipos()
+            }
+        }
+
+        window.limpiarFormularioPartido = () => {
+            document.getElementById('new-home').value = ''
+            document.getElementById('new-away').value = ''
+            document.getElementById('new-stage').value = 'Grupos'
+            document.getElementById('new-date').value = ''
         }
 
         window.crearPartido = async () => {
@@ -93,19 +500,73 @@
                 document.getElementById('admin-matches').innerHTML = "Error al cargar: " + error.message
                 return
             }
+            allMatches = matches;
+            renderPartidosAdmin();
+        }
+
+        window.renderPartidosAdmin = () => {
+            const filterStage = document.getElementById('filter-match-stage').value;
+            const filterStatus = document.getElementById('filter-match-status').value;
+            const filterSearch = document.getElementById('filter-match-search').value.toLowerCase();
+
+            const filteredMatches = allMatches.filter(m => {
+                const matchesStage = filterStage === 'todos' || m.stage === filterStage;
+                const matchesStatus = filterStatus === 'todos' || m.status === filterStatus;
+                const matchesSearch = m.home_team.toLowerCase().includes(filterSearch) || m.away_team.toLowerCase().includes(filterSearch);
+                return matchesStage && matchesStatus && matchesSearch;
+            });
 
             const container = document.getElementById('admin-matches')
             container.innerHTML = ''
             
-            matches.forEach(m => {
+            filteredMatches.forEach((m, index) => {
+                const isFinished = m.status === 'finished'
+                const isKnockout = ['Octavos', 'Cuartos', 'Semis', 'Final'].includes(m.stage)
                 const div = document.createElement('div')
-                div.className = 'match-card'
+                div.className = `card bg-base-100 shadow-xl border-l-4 ${isFinished ? 'border-success' : 'border-warning'} animate-fade-in-up p-2 overflow-hidden`
+                div.style.animationDelay = `${index * 0.05}s`
+                
+                const matchDate = new Date(m.match_date).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })
+
                 div.innerHTML = `
-                    <span>${m.home_team} vs ${m.away_team} (${m.stage})</span>
-                    <div>
-                        <input type="number" id="home-${m.id}" value="${m.home_score || 0}">
-                        <input type="number" id="away-${m.id}" value="${m.away_score || 0}">
-                        <button onclick="actualizarResultado(${m.id})">Guardar</button>
+                    <div class="card-body p-2 text-sm gap-1">
+                        <div class="flex justify-between items-start">
+                            <span class="badge badge-outline badge-xs opacity-70">${m.stage}</span>
+                            <span class="text-[10px] opacity-50">${matchDate}</span>
+                        </div>
+                        <div class="text-center font-bold text-sm md:text-base my-1 truncate w-full" title="${m.home_team} vs ${m.away_team}">
+                            ${getFlag(m.home_team)} vs ${getFlag(m.away_team)}
+                        </div>
+                        <div class="flex items-center gap-2 justify-center py-1">
+                            <input type="number" id="home-${m.id}" value="${m.home_score ?? ''}" 
+                                class="input input-bordered input-xs w-12 text-center font-bold" placeholder="0">
+                            <span class="opacity-30">-</span>
+                            <input type="number" id="away-${m.id}" value="${m.away_score ?? ''}" 
+                                class="input input-bordered input-xs w-12 text-center font-bold" placeholder="0">
+                        </div>
+                        
+                        ${isKnockout ? `
+                        <select id="penalty-${m.id}" class="select select-bordered select-xs w-full mt-1">
+                            <option value="">¿Quién clasifica?</option>
+                            <option value="${m.home_team}" ${m.penalty_winner === m.home_team ? 'selected' : ''}>${getFlag(m.home_team)}</option>
+                            <option value="${m.away_team}" ${m.penalty_winner === m.away_team ? 'selected' : ''}>${getFlag(m.away_team)}</option>
+                        </select>` : ''}
+
+                        <div class="card-actions justify-between items-center mt-2 border-t border-base-300 pt-2">
+                            <button onclick="eliminarPartido(${m.id})" class="btn btn-ghost btn-xs text-error p-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                </svg>
+                            </button>
+                            <div class="flex gap-1">
+                                ${isFinished ? `
+                                    <div class="badge badge-success badge-sm font-bold">FINALIZADO</div>
+                                    <button onclick="reabrirPartido(${m.id})" class="btn btn-ghost btn-xs text-info px-1">Editar</button>
+                                ` : `
+                                    <button onclick="actualizarResultado(${m.id})" class="btn btn-primary btn-xs px-4">Guardar</button>
+                                `}
+                            </div>
+                        </div>
                     </div>
                 `
                 container.appendChild(div)
@@ -116,11 +577,15 @@
         window.actualizarResultado = async (id) => {
             const home = document.getElementById(`home-${id}`).value
             const away = document.getElementById(`away-${id}`).value
+            const penalty = document.getElementById(`penalty-${id}`)?.value || null
             
+            if (home === '' || away === '') return alert('Por favor, ingresa los goles.')
+
             // A. Actualizar partido
             const { error: updateError } = await supabase.from('matches').update({ 
                 home_score: parseInt(home), 
-                away_score: parseInt(away), 
+                away_score: parseInt(away),
+                penalty_winner: penalty,
                 status: 'finished' 
             }).eq('id', id)
             
@@ -137,6 +602,12 @@
             }
         }
 
+        window.reabrirPartido = async (id) => {
+            const { error } = await supabase.from('matches').update({ status: 'pending' }).eq('id', id)
+            if (error) alert(error.message)
+            else cargarPartidosAdmin()
+        }
+
         window.eliminarPartido = async (id) => {
             if (!confirm('¿Estás seguro de que quieres eliminar este partido y todos sus pronósticos?')) {
                 return
@@ -149,6 +620,12 @@
             const { error } = await supabase.from('matches').delete().eq('id', id)
             if (error) alert('Error al eliminar el partido: ' + error.message)
             else cargarPartidosAdmin()
+        }
+
+        window.logout = async () => {
+            await supabase.auth.signOut()
+            localStorage.clear()
+            window.location.href = 'index.html'
         }
 
         checkAdmin()
