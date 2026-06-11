@@ -10,6 +10,33 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤡</text></svg>">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+        .metallic-row {
+            background-size: 200% auto;
+            animation: shine 5s linear infinite;
+            transition: transform 0.2s;
+        }
+        .metallic-row:hover { transform: scale(1.01); }
+        
+        /* Oro */
+        .rank-1 {
+            background-image: linear-gradient(110deg, #fdf6e3 0%, #f5d142 20%, #fdf6e3 40%, #f5d142 60%, #fdf6e3 80%, #f5d142 100%);
+            color: #7a5100 !important;
+        }
+        /* Plata */
+        .rank-2 {
+            background-image: linear-gradient(110deg, #f8fafc 0%, #cbd5e1 20%, #f8fafc 40%, #cbd5e1 60%, #f8fafc 80%, #cbd5e1 100%);
+            color: #334155 !important;
+        }
+        /* Bronce */
+        .rank-3 {
+            background-image: linear-gradient(110deg, #fff7ed 0%, #d97706 20%, #fff7ed 40%, #d97706 60%, #fff7ed 80%, #d97706 100%);
+            color: #78350f !important;
+        }
+    </style>
 </head>
 <body class="bg-base-200 min-h-screen">
     <div class="navbar bg-base-100 shadow-lg px-2 sm:px-4 lg:px-20 border-b border-primary/10">
@@ -49,15 +76,25 @@
     </div>
 
     <div class="container mx-auto p-4 lg:p-10">
-        <h1 class="text-3xl font-bold mb-8 border-l-4 border-secondary pl-4">Tabla de Posiciones</h1>
-        <div class="overflow-x-auto card bg-base-100 shadow-xl p-4">
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+            <h1 class="text-3xl font-bold border-l-4 border-secondary pl-4 text-secondary tracking-tight">Clasificación Mundial</h1>
+            <div class="form-control">
+                <label class="label cursor-pointer gap-4 bg-base-100 px-6 py-3 rounded-2xl shadow-md border border-base-300 hover:border-secondary transition-all">
+                    <span class="label-text font-bold text-sm uppercase opacity-70">Solo con marcadores exactos 🎯</span> 
+                    <input type="checkbox" id="filter-exacts" class="checkbox checkbox-secondary" onchange="window.applyFilters()" />
+                </label>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto card bg-base-100 shadow-2xl border border-base-300">
             <table class="table table-zebra w-full" id="ranking-table">
-                <thead class="text-secondary uppercase text-xs">
-                    <tr class="border-b border-base-300">
+                <thead>
+                    <tr class="text-secondary uppercase text-[10px] tracking-widest bg-base-200">
                         <th class="w-16 text-center">#</th>
                         <th>Usuario</th>
-                        <th class="text-center">Exactos</th>
-                        <th>Puntos</th>
+                        <th class="text-center">Exactos (12 pts)</th>
+                        <th class="text-center">Otros (2-8 pts)</th>
+                        <th class="text-right pr-8">Total Puntos</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -113,7 +150,77 @@
             }
         };
 
+        const userConfig = {
+            'admin': { emoji: '🤡', color: 'ring-primary' },
+            'aaron': { emoji: '🥳', color: 'ring-secondary' },
+            'alam': { emoji: '🤪', color: 'ring-accent' },
+            'bennett': { emoji: '🤹', color: 'ring-info' },
+            'dennis': { emoji: '🎭', color: 'ring-success' },
+            'jorge': { emoji: '🃏', color: 'ring-warning' },
+            'kevin': { emoji: '🤩', color: 'ring-error' },
+            'luisito': { emoji: '🤠', color: 'ring-primary' },
+            'pedro': { emoji: '🧐', color: 'ring-secondary' },
+            'takashi': { emoji: '👽', color: 'ring-accent' },
+            'rodrigo': { emoji: '👾', color: 'ring-info' },
+            'chamba': { emoji: '👹', color: 'ring-success' },
+            'dario': { emoji: '👺', color: 'ring-warning' }
+        };
+
         const getFlag = (team) => `${flags[team] || ''} ${team}`;
+
+        let fullRankingData = [];
+
+        window.applyFilters = () => {
+            const showOnlyExacts = document.getElementById('filter-exacts').checked;
+            const filteredData = showOnlyExacts 
+                ? fullRankingData.filter(p => (p.exact_scores || 0) > 0)
+                : fullRankingData;
+            renderRanking(filteredData);
+        };
+
+        function renderRanking(data) {
+            const tbody = document.querySelector('#ranking-table tbody');
+            tbody.innerHTML = '';
+
+            data.forEach((player, index) => {
+                const row = tbody.insertRow();
+                const isTop3 = index < 3;
+                
+                if (isTop3) {
+                    row.className = `metallic-row rank-${index + 1} font-black`;
+                }
+
+                const medalEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1);
+                const otherPoints = player.total_points - (player.exact_scores * 12);
+                const config = userConfig[player.username] || { emoji: '👤', color: 'ring-neutral' };
+
+                row.innerHTML = `
+                    <th class="text-center ${isTop3 ? 'text-2xl' : 'opacity-50'}">${medalEmoji}</th>
+                    <td>
+                        <div class="flex items-center gap-4">
+                            <div class="avatar placeholder">
+                                <div class="bg-neutral text-neutral-content rounded-full w-8 sm:w-10 ring ${config.color} ring-offset-base-100 ring-offset-1">
+                                    <span class="text-lg">${config.emoji}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="${isTop3 ? 'text-lg' : 'font-bold'} capitalize">${player.username}</div>
+                                <div class="text-[10px] opacity-50 uppercase tracking-tighter">Participante Activo</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <div class="badge ${player.exact_scores > 0 ? 'badge-success' : 'badge-ghost opacity-30'} font-bold">🎯 ${player.exact_scores || 0}</div>
+                    </td>
+                    <td class="text-center">
+                        <div class="text-xs opacity-70">${otherPoints} pts</div>
+                    </td>
+                    <td class="text-right pr-8">
+                        <div class="text-xl font-black">${player.total_points}</div>
+                    </td>
+                `;
+            });
+        }
 
         async function cargarRanking() {
             const { data: ranking, error } = await supabase
@@ -121,21 +228,9 @@
                 .select('*')
             
             if (error) return console.error('Error al cargar el ranking:', error.message)
-
-            const tbody = document.querySelector('#ranking-table tbody')
-            ranking.forEach((player, index) => {
-                const row = tbody.insertRow()
-                row.innerHTML = `
-                    <th class="text-center font-bold">${index + 1}</th>
-                    <td>
-                        <div class="tooltip tooltip-right" data-tip="${player.username}">
-                            <div class="font-bold whitespace-normal text-left leading-tight">${getFlag(player.username)}</div>
-                        </div>
-                    </td>
-                    <td class="text-center"><div class="badge badge-ghost">${player.exact_scores || 0}</div></td>
-                    <td><div class="badge badge-secondary font-bold">${player.total_points} pts</div></td>
-                `
-            })
+            
+            fullRankingData = ranking.sort((a, b) => b.total_points - a.total_points);
+            renderRanking(fullRankingData);
         }
 
         window.logout = async () => {

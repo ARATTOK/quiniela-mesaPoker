@@ -112,9 +112,127 @@ async function cargarPartidos() {
         startCountdowns(); // Restart countdowns for new set of matches
     };
 
+    cargarPodio(); // Inicializar Podio Ideal antes de renderizar partidos
     renderizarPartidosPorFecha(hoy);
     startCountdowns(); // Start countdowns on initial load
     window.initTheme(); // Inicializar el switch de tema
+}
+
+async function cargarPodio() {
+    const currentUser = localStorage.getItem('currentUser');
+    const container = document.getElementById('podium-container');
+    if (!currentUser || !container) return;
+
+    // 1. Cargar equipos desde Supabase para llenar los selectores
+    const { data: teams, error: teamsError } = await supabase
+        .from('teams')
+        .select('name')
+        .order('name', { ascending: true });
+
+    if (teamsError) return console.error('Error cargando equipos:', teamsError.message);
+
+    // 2. Poblar los selects con los países y sus banderas
+    ['1', '2', '3'].forEach(pos => {
+        const select = document.getElementById(`podium-${pos}`);
+        if (select) {
+            select.innerHTML = '<option value="" disabled selected>Seleccionar equipo...</option>';
+            teams.forEach(t => {
+                const option = document.createElement('option');
+                option.value = t.name;
+                option.textContent = getFlag(t.name);
+                select.appendChild(option);
+            });
+        }
+    });
+
+    // 3. Cargar predicción previa del usuario si existe
+    const { data: savedPodium } = await supabase
+        .from('podium_predictions')
+        .select('*')
+        .eq('user_id', currentUser)
+        .maybeSingle();
+
+    if (savedPodium) {
+        document.getElementById('podium-1').value = savedPodium.champion || '';
+        document.getElementById('podium-2').value = savedPodium.runner_up || '';
+        document.getElementById('podium-3').value = savedPodium.third_place || '';
+        
+        const saveBtn = document.getElementById('save-podium');
+        if (saveBtn) {
+            saveBtn.innerHTML = '<span>🔄 Actualizar Podio</span>';
+            saveBtn.classList.remove('btn-warning');
+            saveBtn.classList.add('btn-outline', 'btn-secondary');
+        }
+    }
+
+    // Lógica de Fecha Límite y Contador para el Podio
+    const deadline = new Date(2026, 5, 15); // 15 de Junio 00:00:00 (Fin del día 14)
+    const updatePodiumCountdown = () => {
+        const now = new Date();
+        const timeRemaining = deadline - now;
+        const timerDisplay = document.getElementById('podium-timer');
+        const saveBtn = document.getElementById('save-podium');
+        const deadlineAlert = document.getElementById('podium-deadline-alert');
+
+        if (timeRemaining <= 0) {
+            document.querySelectorAll('#podium-container select').forEach(el => el.disabled = true);
+            if (saveBtn) saveBtn.remove(); // Quitar botón de actualización definitivamente
+            if (deadlineAlert) {
+                deadlineAlert.classList.remove('animate-pulse', 'alert-warning');
+                deadlineAlert.classList.add('alert-error');
+                deadlineAlert.querySelector('span').textContent = 'El plazo para el podio ha finalizado. Solo lectura.';
+                if (timerDisplay) timerDisplay.remove();
+            }
+            return true;
+        }
+
+        if (timerDisplay) {
+            const d = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const h = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+            // Cambiar a color rojo y animar si faltan menos de 24 horas (86,400,000 ms)
+            if (timeRemaining < 86400000) {
+                timerDisplay.classList.remove('badge-neutral');
+                timerDisplay.classList.add('badge-error', 'animate-pulse');
+            }
+
+            timerDisplay.textContent = `Faltan: ${d}d ${h}h ${m}m ${s}s`;
+        }
+        return false;
+    };
+
+    setInterval(updatePodiumCountdown, 1000);
+    updatePodiumCountdown();
+
+    container.classList.remove('hidden');
+
+    // 4. Manejador de guardado con validación de duplicados
+    const savePodiumBtn = document.getElementById('save-podium');
+    if (savePodiumBtn) {
+        savePodiumBtn.onclick = async () => {
+            // Doble verificación de seguridad por tiempo
+            if (new Date() >= deadline) {
+                alert('¡Demasiado tarde! El plazo ha vencido.');
+                location.reload();
+                return;
+            }
+            const champion = document.getElementById('podium-1').value;
+            const runner_up = document.getElementById('podium-2').value;
+            const third_place = document.getElementById('podium-3').value;
+
+            if (!champion || !runner_up || !third_place) return alert('Por favor, completa los tres lugares del podio.');
+            if (new Set([champion, runner_up, third_place]).size !== 3) return alert('No puedes seleccionar el mismo equipo en varias posiciones.');
+
+            const { error } = await supabase
+                .from('podium_predictions')
+                .upsert({ user_id: currentUser, champion, runner_up, third_place }, { onConflict: 'user_id' });
+
+            if (error) alert('Error al guardar podio: ' + error.message);
+            else alert('¡Podio Ideal guardado exitosamente! 🤡🏆');
+        };
+    }
 }
 
 function renderizarPartidosPorFecha(fechaSeleccionada) {
