@@ -1,22 +1,50 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
+    </script>
     <title>Reglamento - Quiniela</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤡</text></svg>">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+    </style>
 </head>
 <body class="bg-base-200 min-h-screen">
-    <div class="navbar bg-base-100 shadow-lg px-4 lg:px-20">
-        <div class="flex-1"><a href="index.html" onclick="playHorn()" class="text-lg sm:text-xl font-bold text-primary">🤡 <span class="hidden sm:inline">Mesa Poker</span></a></div>
-        <div class="flex-none flex items-center gap-2">
-            <ul class="menu menu-horizontal px-1 gap-2">
-                <li><a href="pronosticos.html">Pronósticos</a></li>
-                <li><a href="ranking.html">Ranking</a></li>
-                <li><a href="reglamento.html" class="active">Reglamento</a></li>
+    <div class="navbar bg-base-100 shadow-lg px-2 sm:px-4 lg:px-20 border-b border-primary/10">
+        <div class="flex-1"><a href="javascript:void(0)" onclick="playHorn()" class="text-2xl sm:text-3xl hover:scale-110 active:scale-90 transition-transform duration-200 inline-block">🤡</a></div>
+        <div class="flex-none flex items-center gap-1 sm:gap-2">
+            <ul class="menu menu-horizontal px-0 sm:px-1 gap-0 sm:gap-2 text-xs sm:text-sm font-medium">
+                <li><a href="pronosticos.html" class="p-2 sm:p-4 hover:text-primary transition-all duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.048 8.287 8.25 0 0 0 9 9.6a8.983 8.983 0 0 1 3.361-6.867 8.21 8.25 0 0 0 3 2.48Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 0 0 .495-7.467 5.99 5.99 0 0 0-1.925 3.546 5.974 5.974 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z" /></svg>
+                    <span class="hidden sm:inline">Pronósticos</span>
+                </a></li>
+                <li><a href="ranking.html" class="p-2 sm:p-4 hover:text-secondary transition-all duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
+                    <span class="hidden sm:inline">Ranking</span>
+                </a></li>
+                <li><a href="reglamento.html" class="active p-2 sm:p-4 hover:text-accent transition-all duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+                    <span class="hidden sm:inline">Reglas</span>
+                </a></li>
             </ul>
+            <label class="btn btn-ghost btn-circle btn-sm swap swap-rotate">
+                <input type="checkbox" id="theme-toggle" />
+                <svg class="swap-on fill-current w-5 h-5 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,17.05l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,18.36,17ZM12,8a4,4,0,1,0,4,4A4,4,0,0,0,12,8Z"/></svg>
+                <svg class="swap-off fill-current w-5 h-5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.91,0,0,1,.25-1A1,1,0,0,0,8,3.23,9,9,0,1,0,21.64,13Zm-9.5,6.69A7,7,0,1,1,14.63,6a9,9,0,0,0-1.3,4A8.15,8.15,0,0,0,21.37,18,7,7,0,0,1,12.14,19.69Z"/></svg>
+            </label>
             <div class="dropdown dropdown-end">
                 <div tabindex="0" role="button" class="btn btn-ghost btn-sm italic opacity-70 lowercase">
                     <span id="user-display"></span>
@@ -32,79 +60,151 @@
     </div>
 
     <div class="container mx-auto p-4 lg:p-10 max-w-4xl">
-        <h1 class="text-3xl font-bold mb-8 border-l-4 border-accent pl-4">Reglamento Oficial</h1>
+        <h1 class="text-3xl font-bold mb-8 border-l-4 border-accent pl-4 text-accent tracking-tight">Reglamento Oficial</h1>
         
         <div class="space-y-6">
-            <div class="card bg-base-100 shadow-xl">
+            <div class="card bg-base-100 shadow-xl animate-fade-in-up" style="animation-delay: 0.1s">
                 <div class="card-body">
-                    <h2 class="card-title text-accent text-2xl mb-4">Sistema de Puntuación</h2>
+                    <h2 class="card-title text-accent text-2xl mb-4 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" /></svg>
+                        Sistema de Puntuación
+                    </h2>
                     <div class="overflow-x-auto">
-                        <table class="table w-full">
-                            <thead>
-                                <tr class="text-secondary uppercase text-xs">
+                        <table class="table w-full table-zebra">
+                            <thead class="text-secondary uppercase text-[10px] tracking-widest">
+                                <tr>
                                     <th>Acierto</th>
                                     <th class="text-right">Puntos</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td>⚽ Marcador exacto</td><td class="text-right font-bold text-success">12 pts</td></tr>
-                                <tr><td>📊 Ganador + misma diferencia o empate</td><td class="text-right font-bold">8 pts</td></tr>
-                                <tr><td>✅ Ganador correcto (sin diferencia)</td><td class="text-right font-bold">5 pts</td></tr>
-                                <tr><td>🔢 Goles exactos de un equipo (si no aplica lo anterior)</td><td class="text-right font-bold">2 pts</td></tr>
+                                <tr><td>⚽ Marcador exacto</td><td class="text-right"><div class="badge badge-success font-black px-4 py-3">12 pts</div></td></tr>
+                                <tr><td>📊 Ganador + misma diferencia o empate</td><td class="text-right"><div class="badge badge-info font-bold px-4 py-3">8 pts</div></td></tr>
+                                <tr><td>✅ Ganador correcto (sin diferencia)</td><td class="text-right"><div class="badge badge-warning font-bold px-4 py-3">5 pts</div></td></tr>
+                                <tr><td>🔢 Goles exactos de un equipo</td><td class="text-right"><div class="badge badge-ghost opacity-70 px-4 py-3">2 pts</div></td></tr>
                             </tbody>
                         </table>
                     </div>
-                    <div class="alert alert-info mt-4">
+                    <div class="alert alert-info mt-6 text-xs sm:text-sm font-medium border-2 border-info/20">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span>Solo se asigna el puntaje más alto aplicable por partido. No son acumulables.</span>
                     </div>
                 </div>
             </div>
 
-            <div class="card bg-base-100 shadow-xl">
+            <div class="card bg-base-100 shadow-xl animate-fade-in-up" style="animation-delay: 0.2s">
                 <div class="card-body">
-                    <h2 class="card-title text-secondary">Fases Eliminatorias</h2>
+                    <h2 class="card-title text-secondary flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.875a3.375 3.375 0 0 1-3.375-3.375V11.25c0-.621.504-1.125 1.125-1.125h1.75c.621 0 1.125.504 1.125 1.125v2.625c0 .621.504 1.125 1.125 1.125h.875c.621 0 1.125.504 1.125 1.125v3.375Z" /></svg>
+                        Fases Eliminatorias
+                    </h2>
                     <p class="opacity-80 text-sm">Los resultados se toman al finalizar los 90' o el alargue si lo hubiese. Los penales no cuentan para el marcador principal.</p>
-                    <div class="stats shadow bg-base-200 mt-2">
+                    <div class="stats shadow bg-base-200 mt-4 border border-base-300">
                         <div class="stat">
-                            <div class="stat-title text-xs">Bono Clasificación</div>
-                            <div class="stat-value text-primary text-2xl">+3 pts</div>
+                            <div class="stat-title text-[10px] uppercase font-bold">Bono Clasificación</div>
+                            <div class="stat-value text-primary text-3xl">+3 pts</div>
                             <div class="stat-desc">Por acertar quién pasa de ronda en penales</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card bg-base-100 shadow-xl">
+            <div class="card bg-base-100 shadow-xl animate-fade-in-up" style="animation-delay: 0.3s">
                 <div class="card-body">
-                    <h2 class="card-title text-warning">Podio Ideal</h2>
+                    <h2 class="card-title text-warning flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 4.233a2.25 2.25 0 0 0-3 0m3 0a2.25 2.25 0 1 1-3 0m3 0V2.25m-3 1.983V2.25m-6 4.632V2.25m0 4.632a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5Z" /></svg>
+                        Podio Ideal
+                    </h2>
                     <p class="text-sm opacity-80 mb-2">Puntos adicionales al finalizar el torneo:</p>
-                    <div class="flex flex-wrap gap-2">
-                        <div class="badge badge-outline p-4">🥇 Campeón: 20 pts</div>
-                        <div class="badge badge-outline p-4">🥈 Subcampeón: 10 pts</div>
-                        <div class="badge badge-outline p-4">🥉 Tercer puesto: 6 pts</div>
+                    <div class="flex flex-wrap gap-3 mt-2">
+                        <div class="badge badge-outline badge-lg p-5 border-warning text-warning font-bold">🥇 Campeón: 20 pts</div>
+                        <div class="badge badge-outline badge-lg p-5 border-slate-400 font-bold">🥈 Subcampeón: 10 pts</div>
+                        <div class="badge badge-outline badge-lg p-5 border-amber-700 font-bold"> Tercer puesto: 6 pts</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <script>
-        const user = localStorage.getItem('currentUser');
-        if (user) document.getElementById('user-display').innerText = user;
+        const userConfig = {
+            'admin': { emoji: '🤡', color: 'ring-primary' },
+            'aaron': { emoji: '🥳', color: 'ring-secondary' },
+            'alam': { emoji: '🤪', color: 'ring-accent' },
+            'bennett': { emoji: '🤹', color: 'ring-info' },
+            'dennis': { emoji: '🎭', color: 'ring-success' },
+            'jorge': { emoji: '🃏', color: 'ring-warning' },
+            'kevin': { emoji: '🤩', color: 'ring-error' },
+            'luisito': { emoji: '🤠', color: 'ring-primary' },
+            'pedro': { emoji: '🧐', color: 'ring-secondary' },
+            'takashi': { emoji: '👽', color: 'ring-accent' },
+            'rodrigo': { emoji: '👾', color: 'ring-info' },
+            'chamba': { emoji: '👹', color: 'ring-success' },
+            'dario': { emoji: '👺', color: 'ring-warning' }
+        };
 
-        window.logout = () => {
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+            const userDisplay = document.getElementById('user-display');
+            const config = userConfig[currentUser] || { emoji: '👤', color: 'ring-neutral' };
+            userDisplay.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <div class="avatar placeholder">
+                        <div class="bg-neutral text-neutral-content rounded-full w-6 ring ${config.color} ring-offset-base-100 ring-offset-1">
+                            <span class="text-[10px]">${config.emoji}</span>
+                        </div>
+                    </div>
+                    <span class="capitalize font-bold text-xs">${currentUser}</span>
+                </div>
+            `;
+            userDisplay.parentElement.classList.remove('italic', 'opacity-70', 'lowercase');
+        }
+
+        const initTheme = () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            if (themeToggle) {
+                themeToggle.checked = currentTheme === 'light';
+                themeToggle.onchange = () => {
+                    const newTheme = themeToggle.checked ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                };
+            }
+        };
+
+        window.logout = async () => {
             localStorage.clear();
             window.location.href = 'index.html';
         };
 
-        // Precarga del audio
-        const hornAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/611/611-preview.mp3');
-        hornAudio.load();
+        const circusSounds = [
+            'https://assets.mixkit.co/active_storage/sfx/611/611-preview.mp3',
+            'https://assets.mixkit.co/active_storage/sfx/607/607-preview.mp3',
+            'https://assets.mixkit.co/active_storage/sfx/608/608-preview.mp3'
+        ].map(src => {
+            const audio = new Audio(src);
+            audio.load();
+            return audio;
+        });
 
         window.playHorn = () => {
-            hornAudio.currentTime = 0;
-            hornAudio.play();
+            const randomHorn = circusSounds[Math.floor(Math.random() * circusSounds.length)];
+            randomHorn.currentTime = 0;
+            randomHorn.playbackRate = 0.8 + Math.random() * 0.7;
+            randomHorn.play();
+
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { x: 0.1, y: 0.1 },
+                    colors: ['#ef4444', '#f5d142', '#3b82f6', '#10b981', '#a855f7']
+                });
+            }
         };
+
+        initTheme();
     </script>
 </body>
 </html>

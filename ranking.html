@@ -10,6 +10,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤡</text></svg>">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
         @keyframes shine {
             to { background-position: 200% center; }
@@ -40,7 +41,7 @@
 </head>
 <body class="bg-base-200 min-h-screen">
     <div class="navbar bg-base-100 shadow-lg px-2 sm:px-4 lg:px-20 border-b border-primary/10">
-        <div class="flex-1"><a href="index.html" onclick="playHorn()" class="text-lg sm:text-xl font-bold text-primary hover:text-secondary transition-colors duration-300">🤡 <span class="hidden sm:inline">Mesa Poker</span></a></div>
+        <div class="flex-1"><a href="javascript:void(0)" onclick="playHorn()" class="text-2xl sm:text-3xl hover:scale-110 active:scale-90 transition-transform duration-200 inline-block">🤡</a></div>
         <div class="flex-none flex items-center gap-1 sm:gap-2">
             <ul class="menu menu-horizontal px-0 sm:px-1 gap-0 sm:gap-2 text-xs sm:text-sm font-medium">
                 <li><a href="pronosticos.html" class="p-2 sm:p-4 hover:text-primary transition-all duration-300">
@@ -108,12 +109,40 @@
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
         const supabase = createClient('https://gvoadjrnrlzhgeqsdhyi.supabase.co', 'sb_publishable_XiqzVY4Sh3VTQsqGEu6eHA_akxwyJZK')
 
-        // Verificar sesión al cargar
+        const userConfig = {
+            'admin': { emoji: '🤡', color: 'ring-primary' },
+            'aaron': { emoji: '🥳', color: 'ring-secondary' },
+            'alam': { emoji: '🤪', color: 'ring-accent' },
+            'bennett': { emoji: '🤹', color: 'ring-info' },
+            'dennis': { emoji: '🎭', color: 'ring-success' },
+            'jorge': { emoji: '🃏', color: 'ring-warning' },
+            'kevin': { emoji: '🤩', color: 'ring-error' },
+            'luisito': { emoji: '🤠', color: 'ring-primary' },
+            'pedro': { emoji: '🧐', color: 'ring-secondary' },
+            'takashi': { emoji: '👽', color: 'ring-accent' },
+            'rodrigo': { emoji: '👾', color: 'ring-info' },
+            'chamba': { emoji: '👹', color: 'ring-success' },
+            'dario': { emoji: '👺', color: 'ring-warning' }
+        };
+
+        // Verificar sesión al cargar (Movido después de declarar userConfig)
         const currentUser = localStorage.getItem('currentUser');
         if (!currentUser) {
             window.location.href = 'index.html'
         } else {
-            document.getElementById('user-display').innerText = currentUser;
+            const userDisplay = document.getElementById('user-display');
+            const config = userConfig[currentUser] || { emoji: '👤', color: 'ring-neutral' };
+            userDisplay.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <div class="avatar placeholder">
+                        <div class="bg-neutral text-neutral-content rounded-full w-6 ring ${config.color} ring-offset-base-100 ring-offset-1">
+                            <span class="text-[10px]">${config.emoji}</span>
+                        </div>
+                    </div>
+                    <span class="capitalize font-bold text-xs">${currentUser}</span>
+                </div>
+            `;
+            userDisplay.parentElement.classList.remove('italic', 'opacity-70', 'lowercase');
         }
 
         const flags = {
@@ -148,22 +177,6 @@
                     localStorage.setItem('theme', newTheme);
                 };
             }
-        };
-
-        const userConfig = {
-            'admin': { emoji: '🤡', color: 'ring-primary' },
-            'aaron': { emoji: '🥳', color: 'ring-secondary' },
-            'alam': { emoji: '🤪', color: 'ring-accent' },
-            'bennett': { emoji: '🤹', color: 'ring-info' },
-            'dennis': { emoji: '🎭', color: 'ring-success' },
-            'jorge': { emoji: '🃏', color: 'ring-warning' },
-            'kevin': { emoji: '🤩', color: 'ring-error' },
-            'luisito': { emoji: '🤠', color: 'ring-primary' },
-            'pedro': { emoji: '🧐', color: 'ring-secondary' },
-            'takashi': { emoji: '👽', color: 'ring-accent' },
-            'rodrigo': { emoji: '👾', color: 'ring-info' },
-            'chamba': { emoji: '👹', color: 'ring-success' },
-            'dario': { emoji: '👺', color: 'ring-warning' }
         };
 
         const getFlag = (team) => `${flags[team] || ''} ${team}`;
@@ -239,13 +252,30 @@
             window.location.href = 'index.html'
         }
 
-        // Precarga del audio
-        const hornAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/611/611-preview.mp3');
-        hornAudio.load();
+        const circusSounds = [
+            'https://assets.mixkit.co/active_storage/sfx/611/611-preview.mp3',
+            'https://assets.mixkit.co/active_storage/sfx/607/607-preview.mp3',
+            'https://assets.mixkit.co/active_storage/sfx/608/608-preview.mp3'
+        ].map(src => {
+            const audio = new Audio(src);
+            audio.load();
+            return audio;
+        });
 
         window.playHorn = () => {
-            hornAudio.currentTime = 0;
-            hornAudio.play();
+            const randomHorn = circusSounds[Math.floor(Math.random() * circusSounds.length)];
+            randomHorn.currentTime = 0;
+            randomHorn.playbackRate = 0.8 + Math.random() * 0.7;
+            randomHorn.play();
+
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { x: 0.1, y: 0.1 },
+                    colors: ['#ef4444', '#f5d142', '#3b82f6', '#10b981', '#a855f7']
+                });
+            }
         }
 
         cargarRanking()

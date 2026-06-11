@@ -59,6 +59,22 @@ const flags = {
 
 const getFlag = (team) => `${flags[team] || '🏳️'} ${team}`;
 
+const userConfig = {
+    'admin': { emoji: '🤡', color: 'ring-primary' },
+    'aaron': { emoji: '🥳', color: 'ring-secondary' },
+    'alam': { emoji: '🤪', color: 'ring-accent' },
+    'bennett': { emoji: '🤹', color: 'ring-info' },
+    'dennis': { emoji: '🎭', color: 'ring-success' },
+    'jorge': { emoji: '🃏', color: 'ring-warning' },
+    'kevin': { emoji: '🤩', color: 'ring-error' },
+    'luisito': { emoji: '🤠', color: 'ring-primary' },
+    'pedro': { emoji: '🧐', color: 'ring-secondary' },
+    'takashi': { emoji: '👽', color: 'ring-accent' },
+    'rodrigo': { emoji: '👾', color: 'ring-info' },
+    'chamba': { emoji: '👹', color: 'ring-success' },
+    'dario': { emoji: '👺', color: 'ring-warning' }
+};
+
 let allMatches = []; // Variable global para almacenar todos los partidos
 let userPredictions = []; // Variable global para almacenar los pronósticos del usuario
 
@@ -71,7 +87,21 @@ async function cargarPartidos() {
     }
 
     const userDisplay = document.getElementById('user-display');
-    if (userDisplay) userDisplay.innerText = currentUser;
+    if (userDisplay) {
+        const config = userConfig[currentUser] || { emoji: '👤', color: 'ring-neutral' };
+        userDisplay.innerHTML = `
+            <div class="flex items-center gap-2">
+                <div class="avatar placeholder">
+                    <div class="bg-neutral text-neutral-content rounded-full w-6 ring ${config.color} ring-offset-base-100 ring-offset-1">
+                        <span class="text-[10px]">${config.emoji}</span>
+                    </div>
+                </div>
+                <span class="capitalize font-bold text-xs">${currentUser}</span>
+            </div>
+        `;
+        // Limpiar estilos antiguos del botón padre
+        userDisplay.parentElement.classList.remove('italic', 'opacity-70', 'lowercase');
+    }
 
     const { data: matches, error } = await supabase
         .from('matches')
@@ -485,13 +515,31 @@ window.logout = async () => {
     window.location.href = 'index.html'
 }
 
-// Precarga del audio al cargar el script
-const hornAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/611/611-preview.mp3');
-hornAudio.load();
+const circusSounds = [
+    'https://assets.mixkit.co/active_storage/sfx/611/611-preview.mp3',
+    'https://assets.mixkit.co/active_storage/sfx/607/607-preview.mp3',
+    'https://assets.mixkit.co/active_storage/sfx/608/608-preview.mp3'
+].map(src => {
+    const audio = new Audio(src);
+    audio.load();
+    return audio;
+});
 
 window.playHorn = () => {
-    hornAudio.currentTime = 0; // Reinicia el audio por si se pulsa varias veces rápido
-    hornAudio.play();
+    const randomHorn = circusSounds[Math.floor(Math.random() * circusSounds.length)];
+    randomHorn.currentTime = 0;
+    randomHorn.playbackRate = 0.8 + Math.random() * 0.7;
+    randomHorn.play();
+
+    // Efecto de Confeti de Circo
+    if (typeof confetti === 'function') {
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { x: 0.1, y: 0.1 }, // Sale desde la esquina superior izquierda
+            colors: ['#ef4444', '#f5d142', '#3b82f6', '#10b981', '#a855f7']
+        });
+    }
 }
 
 cargarPartidos()
