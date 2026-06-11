@@ -5,12 +5,11 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const parseMatchDate = (isoString) => {
     if (!isoString) return new Date();
     
-    // Extraemos solo los números (Año, Mes, Día, Hora, Minuto, Segundo)
-    // Esto ignora cualquier indicador de zona horaria (Z, +00:00, etc.)
-    const m = isoString.match(/\d+/g);
+    // Forzamos que sea String y extraemos solo los números
+    const m = String(isoString).match(/\d+/g);
     if (!m || m.length < 3) return new Date(isoString);
 
-    return new Date(
+    const date = new Date(
         parseInt(m[0]),       // Año
         parseInt(m[1]) - 1,   // Mes (0-11)
         parseInt(m[2]),       // Día
@@ -18,6 +17,12 @@ const parseMatchDate = (isoString) => {
         parseInt(m[4] || 0),  // Minuto
         parseInt(m[5] || 0)   // Segundo
     );
+
+    // LOG DE DEPURACIÓN PARA GITHUB PAGES
+    // Si ves este log en la consola, significa que el código nuevo YA se cargó.
+    // console.log(`[DEBUG] DB: ${isoString} -> Interpretada Local: ${date.getHours()}:${date.getMinutes()}`);
+    
+    return date;
 };
 
 window.initTheme = () => {
