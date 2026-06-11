@@ -6,6 +6,11 @@ async function showTab(tab) {
     const content = document.getElementById('content');
     content.innerHTML = '<p>Cargando...</p>';
     
+    // Actualizar estado activo en la navegación
+    document.querySelectorAll('#main-nav button').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById(`nav-${tab}`);
+    if (activeBtn) activeBtn.classList.add('active');
+
     if (tab === 'rankings') {
         try {
             const { data: rankings, error } = await supabase.from('rankings').select('*').order('puntos', { ascending: false });
@@ -143,6 +148,11 @@ window.savePrediction = async (matchId) => {
         return alert("Por favor, ingresa el marcador completo.");
     }
 
+    const btn = event?.target || document.querySelector(`button[onclick*='${matchId}']`);
+    const originalText = btn.innerText;
+    btn.disabled = true;
+    btn.innerText = "Guardando...";
+
     try {
         const { data: match, error: matchError } = await supabase.from('partidos').select('fecha').eq('id_partido', matchId).single();
         if (matchError) throw matchError;
@@ -170,6 +180,9 @@ window.savePrediction = async (matchId) => {
     } catch (e) {
         console.error("Error al guardar:", e);
         alert("Error al guardar la predicción: " + e.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = originalText;
     }
 };
 
