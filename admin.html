@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Quiniela</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+        .match-card { background: #f9f9f9; padding: 15px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; }
+        input { width: 50px; padding: 5px; text-align: center; }
+        button { padding: 5px 15px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Panel de Control del Admin</h1>
+    <div id="admin-matches">Cargando partidos...</div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+        // Credenciales integradas
+        const SUPABASE_URL = 'https://gvoadjrnrlzhgeqsdhyi.supabase.co'
+        const SUPABASE_KEY = 'sb_publishable_XiqzVY4Sh3VTQsqGEu6eHA_akxwyJZK'
+        
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+        // 1. Verificación de seguridad
+        async function checkAdmin() {
+            const { data: { user } } = await supabase.auth.getUser()
+            
+            // Reemplaza con tu correo real de administrador
+            if (!user || user.email !== 'dario.aratto@gmail.com') {
+                alert('Acceso denegado: No tienes permisos de administrador.')
+                window.location.href = 'index.html'
+            } else {
+                cargarPartidosAdmin()
+            }
+        }
+
+        // 2. Cargar partidos
+        async function cargarPartidosAdmin() {
+            const { data: matches, error } = await supabase
+                .from('matches')
+                .select('*')
+                .order('match_date', { ascending: true })
+            
+            if (error) {
+                document.getElementById('admin-matches').innerHTML = "Error al cargar: " + error.message
+                return
+            }
+
+            const container = document.getElementById('admin-matches')
+            container.innerHTML = ''
+            
+            matches.forEach(m => {
+                const div = document.createElement('div')
+                div.className = 'match-card'
+                div.innerHTML = `
+                    <span>${m.home_team} vs ${m.away_team} (${m.stage})</span>
+                    <div>
+                        <input type="number" id="home-${m.id}" value="${m.home_score || 0}">
+                        <input type="number" id="away-${m.id}" value="${m.away_score || 0}">
+                        <button onclick="actualizarResultado(${m.id})">Guardar</button>
+                    </div>
+                `
+                container.appendChild(div)
+            })
+        }
+
+        // 3. Función para actualizar y calcular
+        window.actualizarResultado = async (id) => {
+            const home = document.getElementById(`home-${id}`).value
+            const away = document.getElementById(`away-${id}`).value
+            
+            // A. Actualizar partido
+            const { error: updateError } = await supabase.from('matches').update({ 
+                home_score: parseInt(home), 
+                away_score: parseInt(away), 
+                status: 'finished' 
+            }).eq('id', id)
+            
+            if (updateError) return alert('Error al actualizar: ' + updateError.message)
+
+            // B. Llamar a la función SQL de cálculo
+            const { error: rpcError } = await supabase.rpc('calcular_puntos_partido', { p_match_id: id })
+            
+            if (rpcError) {
+                alert('Resultado guardado, pero falló el cálculo: ' + rpcError.message)
+            } else {
+                alert('Resultado guardado y puntos calculados exitosamente.')
+                cargarPartidosAdmin()
+            }
+        }
+
+        checkAdmin()
+    </script>
+</body>
+</html>

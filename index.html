@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiniela Mundial</title>
+</head>
+<body>
+    <h1>Bienvenido a la Quiniela</h1>
+    <div id="login-form">
+        <input type="email" id="email" placeholder="Correo">
+        <input type="password" id="password" placeholder="Contraseña">
+        <button onclick="login()">Entrar</button>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+        
+        const SUPABASE_URL = 'https://gvoadjrnrlzhgeqsdhyi.supabase.co'
+        const SUPABASE_KEY = 'sb_publishable_XiqzVY4Sh3VTQsqGEu6eHA_akxwyJZK'
+        
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+        window.login = async () => {
+            const email = document.getElementById('email').value.trim()
+            const password = document.getElementById('password').value
+            
+            if (!email || !password) return alert('Por favor, completa todos los campos')
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+            
+            if (error) alert(error.message)
+            else {
+                window.location.href = 'pronosticos.html'
+            }
+        }
+    </script>
+</body>
+</html>
