@@ -254,14 +254,16 @@
 // Función auxiliar para parsear la fecha como hora local
         const parseMatchDate = (isoString) => {
             if (!isoString) return new Date();
-            const parts = isoString.split(/[-T:Z.]/);
-            const year = parseInt(parts[0]);
-            const month = parseInt(parts[1]) - 1;
-            const day = parseInt(parts[2]);
-            const hour = parseInt(parts[3] || 0);
-            const minute = parseInt(parts[4] || 0);
-            const second = parseInt(parts[5] || 0);
-            return new Date(year, month, day, hour, minute, second);
+            const m = isoString.match(/\d+/g);
+            if (!m || m.length < 3) return new Date(isoString);
+            return new Date(
+                parseInt(m[0]),
+                parseInt(m[1]) - 1,
+                parseInt(m[2]),
+                parseInt(m[3] || 0),
+                parseInt(m[4] || 0),
+                parseInt(m[5] || 0)
+            );
         };
         const getFlag = (team) => `${flags[team] || '🏳️'} ${team}`;
 

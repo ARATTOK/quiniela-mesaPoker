@@ -4,16 +4,20 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 // Función auxiliar para parsear la fecha como hora local
 const parseMatchDate = (isoString) => {
     if (!isoString) return new Date();
-    // Parseo manual para evitar que el navegador aplique offsets de zona horaria (UTC/GMT)
-    // Esto asegura que la hora mostrada sea idéntica a la almacenada en la base de datos.
-    const parts = isoString.split(/[-T:Z.]/);
-    const year = parseInt(parts[0]);
-    const month = parseInt(parts[1]) - 1;
-    const day = parseInt(parts[2]);
-    const hour = parseInt(parts[3] || 0);
-    const minute = parseInt(parts[4] || 0);
-    const second = parseInt(parts[5] || 0);
-    return new Date(year, month, day, hour, minute, second);
+    
+    // Extraemos solo los números (Año, Mes, Día, Hora, Minuto, Segundo)
+    // Esto ignora cualquier indicador de zona horaria (Z, +00:00, etc.)
+    const m = isoString.match(/\d+/g);
+    if (!m || m.length < 3) return new Date(isoString);
+
+    return new Date(
+        parseInt(m[0]),       // Año
+        parseInt(m[1]) - 1,   // Mes (0-11)
+        parseInt(m[2]),       // Día
+        parseInt(m[3] || 0),  // Hora
+        parseInt(m[4] || 0),  // Minuto
+        parseInt(m[5] || 0)   // Segundo
+    );
 };
 
 window.initTheme = () => {
