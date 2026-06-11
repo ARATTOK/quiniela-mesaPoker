@@ -1,5 +1,40 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
+// Lógica de Tema Global
+// Función auxiliar para parsear la fecha como hora local
+const parseMatchDateAsLocal = (isoString) => {
+    if (!isoString) return new Date();
+    
+    // Remove any timezone indicator (Z or +/- offset) if present, as we want to interpret it as local
+    let cleanIsoString = isoString.replace(/Z$|(\+|-)\d{2}:\d{2}$/, '');
+    
+    const [datePart, timePartWithSeconds] = cleanIsoString.split('T');
+    const [year, month, day] = datePart.split('-').map(Number);
+    const timeParts = (timePartWithSeconds || "00:00:00").split(':');
+    const hour = Number(timeParts[0]);
+    const minute = Number(timeParts[1]);
+    const second = Number(timeParts[2]?.split('.')[0]) || 0; // Handle potential milliseconds and default to 0
+    
+    return new Date(year, month - 1, day, hour, minute, second);
+};
+
+window.initTheme = () => {
+    const themeToggle = document.getElementById('theme-toggle');
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    
+    // Aplicar el tema inmediatamente
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    
+    if (themeToggle) {
+        themeToggle.checked = currentTheme === 'light';
+        themeToggle.onchange = () => {
+            const newTheme = themeToggle.checked ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        };
+    }
+};
+
 const supabase = createClient('https://gvoadjrnrlzhgeqsdhyi.supabase.co', 'sb_publishable_XiqzVY4Sh3VTQsqGEu6eHA_akxwyJZK')
 
 const flags = {
@@ -25,6 +60,7 @@ const flags = {
 const getFlag = (team) => `${flags[team] || '🏳️'} ${team}`;
 
 let allMatches = []; // Variable global para almacenar todos los partidos
+let userPredictions = []; // Variable global para almacenar los pronósticos del usuario
 
 async function cargarPartidos() {
     // Verificar si el usuario está logueado
@@ -49,26 +85,52 @@ async function cargarPartidos() {
 
     allMatches = matches;
 
+    // Obtener los pronósticos del usuario actual
+    const { data: predictions, error: predError } = await supabase
+        .from('predictions')
+        .select('*')
+        .eq('user_id', currentUser); // Filtrar por el usuario actual
+
+    if (predError) {
+        console.error('Error cargando pronósticos del usuario:', predError.message);
+    } else {
+        userPredictions = predictions; // Almacenar los pronósticos del usuario
+    }
+
     // Configurar el filtro de fecha inicial (Hoy)
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+    const day = String(today.getDate()).padStart(2, '0');
     const dateFilter = document.getElementById('match-date-filter');
-    const hoy = new Date().toISOString().split('T')[0];
+    const hoy = `${year}-${month}-${day}`; // Get local date string
     dateFilter.value = hoy;
 
     // Escuchar cambios en la fecha
-    dateFilter.onchange = (e) => renderizarPartidosPorFecha(e.target.value);
+    dateFilter.onchange = (e) => {
+        renderizarPartidosPorFecha(e.target.value);
+        startCountdowns(); // Restart countdowns for new set of matches
+    };
 
     renderizarPartidosPorFecha(hoy);
+    startCountdowns(); // Start countdowns on initial load
+    window.initTheme(); // Inicializar el switch de tema
 }
 
 function renderizarPartidosPorFecha(fechaSeleccionada) {
     const container = document.getElementById('matches-container')
     container.innerHTML = '' // Limpiar contenedor
     
-    // Filtrar partidos que coincidan con la fecha seleccionada (YYYY-MM-DD)
-    const matchesFiltrados = allMatches.filter(m => m.match_date.startsWith(fechaSeleccionada));
+    // Filtrado robusto comparando año-mes-día localmente
+    const matchesFiltrados = allMatches.filter(m => {
+        const d = parseMatchDateAsLocal(m.match_date);
+        const mYear = d.getFullYear();
+        const mMonth = String(d.getMonth() + 1).padStart(2, '0');
+        const mDay = String(d.getDate()).padStart(2, '0');
+        return `${mYear}-${mMonth}-${mDay}` === fechaSeleccionada;
+    });
 
     if (matchesFiltrados.length > 0) {
-        // Crear encabezado de grupo por fecha
         const header = document.createElement('div');
         header.className = 'col-span-full mb-2';
         const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -95,18 +157,42 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
         return
     }
 
+    const now = new Date();
+
     matchesFiltrados.forEach((match, index) => {
+        const matchTime = parseMatchDateAsLocal(match.match_date);
+        const hasStarted = now >= matchTime;
+
+        // Buscar si el usuario ya tiene un pronóstico para este partido
+        const existingPrediction = userPredictions.find(p => p.match_id === match.id);
+
+        const homePred = existingPrediction ? existingPrediction.home_score_pred : '';
+        const awayPred = existingPrediction ? existingPrediction.away_score_pred : '';
+        const penaltyPred = existingPrediction ? existingPrediction.penalty_winner_pred : '';
+        
+        const isDisabled = hasStarted ? 'disabled' : ''; 
+        let buttonText = existingPrediction ? 'Actualizar' : 'Guardar';
+        let buttonClass = 'btn-primary';
+
+        if (hasStarted) {
+            buttonText = 'Partido Cerrado';
+            buttonClass = 'btn-disabled';
+        } else if (existingPrediction) {
+            buttonClass = 'btn-secondary';
+        }
+
         const div = document.createElement('div')
-        // Diseño de tarjeta optimizado para responsividad
-        div.className = 'card bg-base-100 shadow-xl animate-fade-in-up min-h-[200px] border border-base-300/50'
+        div.className = 'card bg-base-100 shadow-xl animate-fade-in-up min-h-[200px]'; // Border will be set dynamically
         div.style.animationDelay = `${index * 0.1}s`
+        div.setAttribute('data-match-id', match.id); // Store match ID
+        div.setAttribute('data-match-date', match.match_date); // Store match date for countdown
         const isKnockout = ['Octavos', 'Cuartos', 'Semis', 'Final'].includes(match.stage)
         
         div.innerHTML = `
             <div class="card-body p-4 sm:p-5">
                 <div class="flex justify-between items-center mb-4">
                     <span class="badge badge-primary badge-outline badge-sm text-[10px] sm:text-xs">${match.stage}</span>
-                    <span class="text-[10px] sm:text-xs opacity-50 font-mono">${new Date(match.match_date).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                    <span class="text-[10px] sm:text-xs opacity-50 font-mono">${parseMatchDateAsLocal(match.match_date).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
                 </div>
                 <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1 sm:gap-3 mb-6 text-center">
                     <div class="tooltip tooltip-top" data-tip="${match.home_team}">
@@ -115,9 +201,9 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
                         </div>
                     </div>
                     <div class="flex items-center gap-1">
-                        <input type="number" id="home-${match.id}" class="input input-bordered input-sm w-9 sm:w-12 text-center px-1" placeholder="0">
+                        <input type="number" id="home-${match.id}" class="input input-bordered input-sm w-9 sm:w-12 text-center px-1" placeholder="0" value="${homePred}" ${isDisabled}>
                         <span class="opacity-30 text-[10px] font-bold">vs</span>
-                        <input type="number" id="away-${match.id}" class="input input-bordered input-sm w-9 sm:w-12 text-center px-1" placeholder="0">
+                        <input type="number" id="away-${match.id}" class="input input-bordered input-sm w-9 sm:w-12 text-center px-1" placeholder="0" value="${awayPred}" ${isDisabled}>
                     </div>
                     <div class="tooltip tooltip-top" data-tip="${match.away_team}">
                         <div class="font-bold text-xs sm:text-base md:text-lg whitespace-normal leading-tight">
@@ -126,13 +212,17 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
                     </div>
                 </div>
                 ${isKnockout ? `
-                <select id="penalty-${match.id}" class="select select-bordered select-sm w-full mb-4">
+                <select id="penalty-${match.id}" class="select select-bordered select-sm w-full mb-4" ${isDisabled}>
                     <option value="">¿Quién clasifica?</option>
-                    <option value="${match.home_team}">${getFlag(match.home_team)}</option>
-                    <option value="${match.away_team}">${getFlag(match.away_team)}</option>
+                    <option value="${match.home_team}" ${penaltyPred === match.home_team ? 'selected' : ''}>${getFlag(match.home_team)}</option>
+                    <option value="${match.away_team}" ${penaltyPred === match.away_team ? 'selected' : ''}>${getFlag(match.away_team)}</option>
                 </select>` : ''}
                 <div class="card-actions">
-                    <button class="btn btn-primary btn-block btn-sm" onclick="guardarPronostico(${match.id})">Guardar</button>
+                    <div id="countdown-${match.id}" class="text-sm font-bold text-center mb-2"></div>
+                    <button class="btn ${buttonClass} btn-block btn-sm" onclick="guardarPronostico(${match.id})" ${isDisabled}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                        ${buttonText}
+                    </button>
                 </div>
             </div>
         `
@@ -140,11 +230,102 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
     })
 }
 
+function formatTime(ms) {
+    if (ms <= 0) return "00:00:00";
+    const seconds = Math.floor((ms / 1000) % 60);
+    const minutes = Math.floor((ms / (1000 * 60)) % 60);
+    const hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
+    const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    parts.push(`${String(hours).padStart(2, '0')}h`);
+    parts.push(`${String(minutes).padStart(2, '0')}m`);
+    parts.push(`${String(seconds).padStart(2, '0')}s`);
+    return parts.join(' ');
+}
+
+function startCountdowns() {
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+    }
+    updateCountdowns(); // Initial update
+    countdownInterval = setInterval(updateCountdowns, 1000);
+}
+
+function updateCountdowns() {
+    const now = new Date();
+    let allMatchesClosed = true; // Flag to check if all matches on screen are closed
+
+    document.querySelectorAll('.card[data-match-id]').forEach(cardElement => {
+        // Remove all potential border and text color classes before applying new ones
+        cardElement.classList.remove('border-primary', 'border-warning', 'border-accent', 'border-error');
+        countdownElement.classList.remove('text-primary', 'text-warning', 'text-accent', 'text-error', 'text-success');
+
+        const matchId = parseInt(cardElement.getAttribute('data-match-id'));
+        const matchDateStr = cardElement.getAttribute('data-match-date');
+        const matchTime = new Date(matchDateStr);
+        const countdownElement = cardElement.querySelector(`#countdown-${matchId}`);
+        const homeInput = cardElement.querySelector(`#home-${matchId}`);
+        const awayInput = cardElement.querySelector(`#away-${matchId}`);
+        const penaltySelect = cardElement.querySelector(`#penalty-${matchId}`);
+        const saveButton = cardElement.querySelector(`button[onclick="guardarPronostico(${matchId})"]`);
+
+        const timeRemaining = matchTime.getTime() - now.getTime();
+
+        if (timeRemaining <= 0) {
+            if (countdownElement.textContent !== 'Cerrado') { // Only update if state changes
+                countdownElement.textContent = 'Cerrado';
+                cardElement.classList.add('border-error');
+                countdownElement.classList.add('text-error');
+                
+                // Disable inputs and button
+                if (homeInput) homeInput.disabled = true;
+                if (awayInput) awayInput.disabled = true;
+                if (penaltySelect) penaltySelect.disabled = true;
+                if (saveButton) {
+                    if (!saveButton.disabled) { // Only update if not already disabled
+                        saveButton.disabled = true;
+                        saveButton.textContent = 'Partido Cerrado';
+                        saveButton.classList.remove('btn-primary', 'btn-secondary');
+                        saveButton.classList.add('btn-disabled');
+                    }
+                }
+            }
+        } else if (timeRemaining <= 1800000) { // Less than 30 minutes (30 * 60 * 1000 ms)
+            allMatchesClosed = false;
+            countdownElement.textContent = `¡Empieza en: ${formatTime(timeRemaining)}!`;
+            cardElement.classList.add('border-accent');
+            countdownElement.classList.add('text-accent');
+        } else if (timeRemaining < 3600000) { // Less than 1 hour (60 * 60 * 1000 ms)
+            allMatchesClosed = false;
+            countdownElement.textContent = `Cierra en: ${formatTime(timeRemaining)}`;
+            cardElement.classList.add('border-warning');
+            countdownElement.classList.add('text-warning');
+        } else {
+            allMatchesClosed = false; // At least one match is still open
+            countdownElement.textContent = `Cierra en: ${formatTime(timeRemaining)}`;
+            cardElement.classList.add('border-primary'); // Default border for open matches
+            countdownElement.classList.add('text-success');
+        }
+    });
+
+    if (allMatchesClosed && countdownInterval) {
+        clearInterval(countdownInterval); // Stop interval if all matches on screen are closed
+        countdownInterval = null;
+    }
+}
+
 window.resetFecha = () => {
     const dateFilter = document.getElementById('match-date-filter');
-    const hoy = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const hoy = `${year}-${month}-${day}`; // Get local date string
     dateFilter.value = hoy;
     renderizarPartidosPorFecha(hoy);
+    startCountdowns(); // Restart countdowns for the "Hoy" view
 };
 
 window.guardarPronostico = async (matchId) => {
@@ -154,6 +335,12 @@ window.guardarPronostico = async (matchId) => {
     const currentUser = localStorage.getItem('currentUser')
 
     if (home === '' || away === '') return alert('Ingresa un resultado')
+
+    // Verificación de seguridad: No permitir guardar si el partido ya comenzó
+    const match = allMatches.find(m => m.id === matchId);
+    if (new Date() >= parseMatchDateAsLocal(match.match_date)) {
+        return alert('El partido ya comenzó, no puedes modificar tu pronóstico.');
+    }
 
     const predictionData = { 
         match_id: matchId, 
@@ -170,6 +357,7 @@ window.guardarPronostico = async (matchId) => {
         alert('No se pudo guardar: ' + error.message);
     } else {
         alert('¡Pronóstico guardado con éxito! 🤡');
+        location.reload(); // Recargar para actualizar el estado de los botones
     }
 }
 
@@ -177,6 +365,15 @@ window.logout = async () => {
     await supabase.auth.signOut()
     localStorage.clear()
     window.location.href = 'index.html'
+}
+
+// Precarga del audio al cargar el script
+const hornAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/611/611-preview.mp3');
+hornAudio.load();
+
+window.playHorn = () => {
+    hornAudio.currentTime = 0; // Reinicia el audio por si se pulsa varias veces rápido
+    hornAudio.play();
 }
 
 cargarPartidos()

@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
+    </script>
     <title>Panel de Administración - Quiniela</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤡</text></svg>">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
@@ -21,9 +24,14 @@
 <body class="bg-base-200 min-h-screen pb-20">
     <div class="navbar bg-base-100 shadow-lg px-2 sm:px-4 lg:px-20 border-b border-primary/20">
         <div class="flex-1">
-            <a href="index.html" class="text-lg sm:text-xl font-bold text-primary tracking-tight">🏆 <span class="hidden sm:inline text-xs opacity-50 uppercase">Admin</span></a>
+            <a href="index.html" onclick="playHorn()" class="text-lg sm:text-xl font-bold text-primary hover:text-secondary transition-all duration-300 tracking-tight">🤡 <span class="hidden sm:inline text-xs opacity-50 uppercase font-medium">Admin Panel</span></a>
         </div>
-        <div class="flex-none flex items-center gap-2">
+        <div class="flex-none flex items-center gap-1 sm:gap-2">
+            <label class="btn btn-ghost btn-circle btn-sm swap swap-rotate">
+                <input type="checkbox" id="theme-toggle" />
+                <svg class="swap-on fill-current w-5 h-5 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,17.05l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,18.36,17ZM12,8a4,4,0,1,0,4,4A4,4,0,0,0,12,8Z"/></svg>
+                <svg class="swap-off fill-current w-5 h-5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.91,0,0,1,.25-1A1,1,0,0,0,8,3.23,9,9,0,1,0,21.64,13Zm-9.5,6.69A7,7,0,1,1,14.63,6a9,9,0,0,0-1.3,4A8.15,8.15,0,0,0,21.37,18,7,7,0,0,1,12.14,19.69Z"/></svg>
+            </label>
             <div class="dropdown dropdown-end">
                 <div tabindex="0" role="button" class="btn btn-ghost btn-sm italic opacity-70 lowercase">
                     <span id="user-display"></span>
@@ -49,8 +57,14 @@
                         <input type="password" id="api-key-sports" class="input input-bordered w-full" placeholder="Ingresa tu API Key">
                     </div>
                     <div class="flex gap-2 w-full md:w-auto">
-                        <button class="btn btn-secondary flex-1 shadow-lg" onclick="importarCalendarioFIFA()">Sincronizar API</button>
-                        <button class="btn btn-outline btn-secondary flex-1" onclick="importarListaOficialPartidos()">Importar Lista Oficial</button>
+                        <button class="btn btn-secondary flex-1 shadow-lg" onclick="importarCalendarioFIFA()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+                            Sincronizar
+                        </button>
+                        <button class="btn btn-outline btn-secondary flex-1 font-normal text-xs" onclick="importarListaOficialPartidos()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+                            Lista Ofic.
+                        </button>
                     </div>
                 </div>
             </div>
@@ -75,8 +89,14 @@
                             </select>
                         </div>
                         <div class="flex gap-2">
-                            <button class="btn btn-info" onclick="crearEquipo()">Agregar Equipo</button>
-                            <button class="btn btn-outline btn-info" onclick="importarEquiposMundial()">Importar Grupos 2026</button>
+                            <button class="btn btn-info flex-1" onclick="crearEquipo()">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                                Agregar
+                            </button>
+                            <button class="btn btn-outline btn-info flex-1 font-normal text-xs" onclick="importarEquiposMundial()">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.967 0 0 1 7.843 4.582M12 3a8.997 8.967 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.538-.284 2.253m0 0A11.952 11.952 0 0 1 12 13.5a11.952 11.952 0 0 1-8.716-1.247m0 0A8.959 8.959 0 0 1 3 12c0-.778.099-1.538.284-2.253" /></svg>
+                                Cargar 2026
+                            </button>
                         </div>
                     </div>
 
@@ -214,6 +234,22 @@
             'Uzbekistán': '🇺🇿'
         };
 
+// Función auxiliar para parsear la fecha como hora local
+const parseMatchDateAsLocal = (isoString) => {
+    if (!isoString) return new Date();
+    
+    // Remove any timezone indicator (Z or +/- offset) if present, as we want to interpret it as local
+    let cleanIsoString = isoString.replace(/Z$|(\+|-)\d{2}:\d{2}$/, '');
+    
+    const [datePart, timePartWithSeconds] = cleanIsoString.split('T');
+    const [year, month, day] = datePart.split('-').map(Number);
+    const timeParts = (timePartWithSeconds || "00:00:00").split(':');
+    const hour = Number(timeParts[0]);
+    const minute = Number(timeParts[1]);
+    const second = Number(timeParts[2]?.split('.')[0]) || 0; // Handle potential milliseconds and default to 0
+    
+    return new Date(year, month - 1, day, hour, minute, second);
+};
         const getFlag = (team) => `${flags[team] || '🏳️'} ${team}`;
 
         // 1. Verificación de seguridad
@@ -526,7 +562,7 @@
                 div.className = `card bg-base-100 shadow-xl border-l-4 ${isFinished ? 'border-success' : 'border-warning'} animate-fade-in-up p-2 overflow-hidden`
                 div.style.animationDelay = `${index * 0.05}s`
                 
-                const matchDate = new Date(m.match_date).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })
+                const matchDate = parseMatchDateAsLocal(m.match_date).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })
 
                 div.innerHTML = `
                     <div class="card-body p-2 text-sm gap-1">
@@ -628,7 +664,31 @@
             window.location.href = 'index.html'
         }
 
+        const initTheme = () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            if (themeToggle) {
+                themeToggle.checked = currentTheme === 'light';
+                themeToggle.onchange = () => {
+                    const newTheme = themeToggle.checked ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                };
+            }
+        };
+
+        // Precarga del audio
+        const hornAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/611/611-preview.mp3');
+        hornAudio.load();
+
+        window.playHorn = () => {
+            hornAudio.currentTime = 0;
+            hornAudio.play();
+        }
+
         checkAdmin()
+        initTheme()
     </script>
 </body>
 </html>

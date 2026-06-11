@@ -10,7 +10,7 @@
 </head>
 <body class="bg-base-200 min-h-screen">
     <div class="navbar bg-base-100 shadow-lg px-4 lg:px-20">
-        <div class="flex-1"><a href="index.html" class="text-xl font-bold text-primary">🏆 Quiniela</a></div>
+        <div class="flex-1"><a href="index.html" onclick="playHorn()" class="text-lg sm:text-xl font-bold text-primary">🤡 <span class="hidden sm:inline">Mesa Poker</span></a></div>
         <div class="flex-none flex items-center gap-2">
             <ul class="menu menu-horizontal px-1 gap-2">
                 <li><a href="pronosticos.html">Pronósticos</a></li>
@@ -95,6 +95,15 @@
         window.logout = () => {
             localStorage.clear();
             window.location.href = 'index.html';
+        };
+
+        // Precarga del audio
+        const hornAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/611/611-preview.mp3');
+        hornAudio.load();
+
+        window.playHorn = () => {
+            hornAudio.currentTime = 0;
+            hornAudio.play();
         };
     </script>
 </body>
