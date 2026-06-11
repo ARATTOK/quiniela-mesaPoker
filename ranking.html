@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiniela - Ranking</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html">Inicio</a>
+        <a href="pronosticos.html">Pronósticos</a>
+        <a href="ranking.html">Ranking</a>
+        <a href="reglamento.html">Reglamento</a>
+        <a href="#" onclick="logout()">Cerrar Sesión</a>
+    </nav>
+
+    <div class="container">
+        <h1>Tabla de Posiciones</h1>
+        <div class="card">
+            <table id="ranking-table">
+                <thead>
+                    <tr>
+                        <th>Posición</th>
+                        <th>Usuario</th>
+                        <th>Puntos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Aquí se cargarán los datos del ranking -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+        const supabase = createClient('https://gvoadjrnrlzhgeqsdhyi.supabase.co', 'sb_publishable_XiqzVY4Sh3VTQsqGEu6eHA_akxwyJZK')
+
+        async function cargarRanking() {
+            const { data: ranking, error } = await supabase
+                .from('ranking_view') // Nombre de la vista que creaste en SQL
+                .select('*')
+            
+            if (error) return console.error('Error al cargar el ranking:', error.message)
+
+            const tbody = document.querySelector('#ranking-table tbody')
+            ranking.forEach((player, index) => {
+                const row = tbody.insertRow()
+                row.insertCell().textContent = index + 1
+                row.insertCell().textContent = player.username
+                row.insertCell().textContent = player.total_points
+            })
+        }
+
+        window.logout = () => {
+            localStorage.clear()
+            window.location.href = 'index.html'
+        }
+
+        cargarRanking()
+    </script>
+</body>
+</html>

@@ -5,14 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Quiniela</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
-        .match-card { background: #f9f9f9; padding: 15px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; }
-        input { width: 50px; padding: 5px; text-align: center; }
-        button { padding: 5px 15px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 4px; }
     </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Panel de Control del Admin</h1>
+    
+    <section class="admin-section">
+        <h2>Crear Nuevo Partido</h2>
+        <div class="card">
+            <div class="admin-form-group">
+                <label for="new-home">Equipo Local:</label>
+                <input type="text" id="new-home" placeholder="Ej: Argentina">
+            </div>
+            <div class="admin-form-group">
+                <label for="new-away">Equipo Visitante:</label>
+                <input type="text" id="new-away" placeholder="Ej: Brasil">
+            </div>
+            <div class="admin-form-group">
+                <label for="new-stage">Fase:</label>
+                <select id="new-stage">
+                    <option value="Grupos">Grupos</option>
+                    <option value="Octavos">Octavos</option>
+                    <option value="Cuartos">Cuartos</option>
+                    <option value="Semis">Semis</option>
+                    <option value="Final">Final</option>
+                </select>
+            </div>
+            <div class="admin-form-group">
+                <label for="new-date">Fecha y Hora:</label>
+                <input type="datetime-local" id="new-date">
+            </div>
+            <button onclick="crearPartido()">Agregar Partido</button> <button class="btn-secondary" onclick="limpiarFormularioPartido()">Limpiar</button>
+        </div>
+    </section>
+
     <div id="admin-matches">Cargando partidos...</div>
 
     <script type="module">
@@ -35,6 +62,23 @@
             } else {
                 alert('Acceso denegado: No tienes permisos de administrador.')
                 window.location.href = 'index.html'
+            }
+        }
+
+        window.crearPartido = async () => {
+            const home = document.getElementById('new-home').value
+            const away = document.getElementById('new-away').value
+            const stage = document.getElementById('new-stage').value
+            const date = document.getElementById('new-date').value
+
+            const { error } = await supabase.from('matches').insert([
+                { home_team: home, away_team: away, stage: stage, match_date: date }
+            ])
+
+            if (error) alert(error.message)
+            else {
+                alert('Partido creado')
+                cargarPartidosAdmin()
             }
         }
 
@@ -91,6 +135,20 @@
                 alert('Resultado guardado y puntos calculados exitosamente.')
                 cargarPartidosAdmin()
             }
+        }
+
+        window.eliminarPartido = async (id) => {
+            if (!confirm('¿Estás seguro de que quieres eliminar este partido y todos sus pronósticos?')) {
+                return
+            }
+
+            // Eliminar pronósticos asociados primero (debido a la clave foránea)
+            await supabase.from('predictions').delete().eq('match_id', id)
+
+            // Eliminar el partido
+            const { error } = await supabase.from('matches').delete().eq('id', id)
+            if (error) alert('Error al eliminar el partido: ' + error.message)
+            else cargarPartidosAdmin()
         }
 
         checkAdmin()

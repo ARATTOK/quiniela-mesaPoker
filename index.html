@@ -3,13 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <title>Quiniela Mundial</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Bienvenido a la Quiniela</h1>
-    <div id="login-form">
-        <input type="email" id="email" placeholder="Correo">
-        <input type="password" id="password" placeholder="Contraseña">
-        <button onclick="login()">Entrar</button>
+    <div class="container">
+        <header>
+            <h1>🏆 Quiniela Mesa Poker</h1>
+            <p>Compite con tus amigos prediciendo los resultados del mundial.</p>
+        </header>
+
+        <section id="home-info">
+            <h2>¿Cómo participar?</h2>
+            <ul>
+                <li>Ingresa con tu usuario asignado.</li>
+                <li>Carga tus pronósticos antes de cada partido.</li>
+                <li>Suma puntos según el reglamento oficial.</li>
+                <li>¡El que tenga más puntos al final de la copa gana!</li>
+            </ul>
+        </section>
+
+        <div id="login-form" class="card">
+            <h3>Iniciar Sesión</h3>
+            <input type="text" id="email" placeholder="Usuario (ej: jugador1)">
+            <input type="password" id="password" placeholder="Contraseña">
+            <button onclick="login()">Entrar al Juego</button>
+        </div>
+        
+        <nav class="public-nav">
+            <a href="ranking.html">Ver Ranking</a>
+            <a href="reglamento.html">Ver Reglamento</a>
+        </nav>
     </div>
 
     <script type="module">
@@ -45,6 +68,9 @@
 
             // Verificación en lista local
             if (usersMap[emailInput] && usersMap[emailInput] === password) {
+                // Limpiar cualquier sesión previa
+                localStorage.clear()
+                
                 localStorage.setItem('currentUser', emailInput)
                 if (emailInput === 'admin') {
                     localStorage.setItem('adminSession', 'true')

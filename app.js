@@ -3,6 +3,13 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const supabase = createClient('https://gvoadjrnrlzhgeqsdhyi.supabase.co', 'sb_publishable_XiqzVY4Sh3VTQsqGEu6eHA_akxwyJZK')
 
 async function cargarPartidos() {
+    // Verificar si el usuario está logueado
+    const currentUser = localStorage.getItem('currentUser')
+    if (!currentUser) {
+        window.location.href = 'index.html'
+        return
+    }
+
     const { data: matches } = await supabase
         .from('matches')
         .select('*')
@@ -26,12 +33,21 @@ async function cargarPartidos() {
 window.guardarPronostico = async (matchId) => {
     const home = document.getElementById(`home-${matchId}`).value
     const away = document.getElementById(`away-${matchId}`).value
-    const user = await supabase.auth.getUser()
+    const currentUser = localStorage.getItem('currentUser')
 
-    await supabase.from('predictions').insert([
-        { match_id: matchId, user_id: user.data.user.id, home_score_pred: home, away_score_pred: away }
+    if (home === '' || away === '') return alert('Ingresa un resultado')
+
+    const { error } = await supabase.from('predictions').insert([
+        { match_id: matchId, user_id: currentUser, home_score_pred: parseInt(home), away_score_pred: parseInt(away) }
     ])
-    alert('Pronóstico guardado!')
+    
+    if (error) alert('Error: ' + error.message)
+    else alert('Pronóstico guardado correctamente!')
+}
+
+window.logout = () => {
+    localStorage.clear()
+    window.location.href = 'index.html'
 }
 
 cargarPartidos()
