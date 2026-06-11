@@ -77,6 +77,7 @@ const userConfig = {
 
 let allMatches = []; // Variable global para almacenar todos los partidos
 let userPredictions = []; // Variable global para almacenar los pronósticos del usuario
+let countdownInterval = null;
 
 async function cargarPartidos() {
     // Verificar si el usuario está logueado
@@ -319,6 +320,13 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
         const penaltyPred = existingPrediction ? existingPrediction.penalty_winner_pred : '';
         
         const isDisabled = hasStarted ? 'disabled' : ''; 
+        const div = document.createElement('div')
+        div.className = 'card bg-base-100 shadow-xl animate-fade-in-up min-h-[200px]'; // Border will be set dynamically
+        div.style.animationDelay = `${index * 0.1}s`
+        div.setAttribute('data-match-id', match.id); // Store match ID
+        div.setAttribute('data-match-date', match.match_date); // Store match date for countdown
+        const isKnockout = ['Octavos', 'Cuartos', 'Semis', 'Final'].includes(match.stage)
+        
         let buttonText = existingPrediction ? 'Actualizar' : 'Guardar';
         let buttonClass = 'btn-primary';
 
@@ -329,13 +337,6 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
             buttonClass = 'btn-secondary';
         }
 
-        const div = document.createElement('div')
-        div.className = 'card bg-base-100 shadow-xl animate-fade-in-up min-h-[200px]'; // Border will be set dynamically
-        div.style.animationDelay = `${index * 0.1}s`
-        div.setAttribute('data-match-id', match.id); // Store match ID
-        div.setAttribute('data-match-date', match.match_date); // Store match date for countdown
-        const isKnockout = ['Octavos', 'Cuartos', 'Semis', 'Final'].includes(match.stage)
-        
         div.innerHTML = `
             <div class="card-body p-4 sm:p-5">
                 <div class="flex justify-between items-center mb-4">
@@ -376,6 +377,28 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
         `
         container.appendChild(div)
     })
+
+    // Añadir listeners para pausar el pulso de la tarjeta al interactuar con los inputs/botones
+    matchesFiltrados.forEach(match => {
+        const cardElement = document.querySelector(`.card[data-match-id="${match.id}"]`);
+        if (!cardElement) return;
+
+        const homeInput = cardElement.querySelector(`#home-${match.id}`);
+        const awayInput = cardElement.querySelector(`#away-${match.id}`);
+        const penaltySelect = cardElement.querySelector(`#penalty-${match.id}`);
+        const saveButton = cardElement.querySelector(`button[onclick="guardarPronostico(${match.id})"]`);
+
+        const interactiveElements = [homeInput, awayInput, penaltySelect, saveButton].filter(Boolean);
+
+        interactiveElements.forEach(el => {
+            el.addEventListener('focus', () => {
+                cardElement.dataset.isFocused = 'true'; // Marcar la tarjeta como enfocada
+            });
+            el.addEventListener('blur', () => {
+                delete cardElement.dataset.isFocused; // Desmarcar la tarjeta
+            });
+        });
+    });
 }
 
 function formatTime(ms) {
@@ -406,28 +429,37 @@ function updateCountdowns() {
     let allMatchesClosed = true; // Flag to check if all matches on screen are closed
 
     document.querySelectorAll('.card[data-match-id]').forEach(cardElement => {
-        // Remove all potential border and text color classes before applying new ones
-        cardElement.classList.remove('border-primary', 'border-warning', 'border-accent', 'border-error');
-        countdownElement.classList.remove('text-primary', 'text-warning', 'text-accent', 'text-error', 'text-success');
-
         const matchId = parseInt(cardElement.getAttribute('data-match-id'));
         const matchDateStr = cardElement.getAttribute('data-match-date');
-        const matchTime = new Date(matchDateStr);
+        const matchTime = parseMatchDateAsLocal(matchDateStr);
         const countdownElement = cardElement.querySelector(`#countdown-${matchId}`);
+        
+        if (!countdownElement) return;
+
+        // Limpiar clases antes de aplicar el nuevo estado
+        cardElement.classList.remove('border-primary', 'border-warning', 'border-accent', 'border-error', 'animate-pulse');
+        countdownElement.classList.remove('text-primary', 'text-warning', 'text-accent', 'text-error', 'text-success');
+
         const homeInput = cardElement.querySelector(`#home-${matchId}`);
         const awayInput = cardElement.querySelector(`#away-${matchId}`);
+
+        // Limpiar clases de resaltado de los inputs
+        if (homeInput) homeInput.classList.remove('input-error', 'animate-pulse', 'border-2');
+        if (awayInput) awayInput.classList.remove('input-error', 'animate-pulse', 'border-2');
+
         const penaltySelect = cardElement.querySelector(`#penalty-${matchId}`);
         const saveButton = cardElement.querySelector(`button[onclick="guardarPronostico(${matchId})"]`);
 
         const timeRemaining = matchTime.getTime() - now.getTime();
+        const isCardFocused = cardElement.dataset.isFocused === 'true';
 
         if (timeRemaining <= 0) {
-            if (countdownElement.textContent !== 'Cerrado') { // Only update if state changes
-                countdownElement.textContent = 'Cerrado';
+            if (countdownElement.textContent !== 'Partido Cerrado') { 
+                countdownElement.textContent = 'Partido Cerrado';
                 cardElement.classList.add('border-error');
                 countdownElement.classList.add('text-error');
                 
-                // Disable inputs and button
+                // Bloqueo total de inputs y botones
                 if (homeInput) homeInput.disabled = true;
                 if (awayInput) awayInput.disabled = true;
                 if (penaltySelect) penaltySelect.disabled = true;
@@ -440,11 +472,24 @@ function updateCountdowns() {
                     }
                 }
             }
+        } else if (timeRemaining <= 300000) { // Menos de 5 minutos (5 * 60 * 1000 ms)
+            allMatchesClosed = false;
+            countdownElement.textContent = `¡CIERRE INMINENTE!: ${formatTime(timeRemaining)}`;
+            cardElement.classList.add('border-error', 'animate-pulse');
+            countdownElement.classList.add('text-error');
+            if (homeInput) homeInput.classList.add('input-error', 'border-2', 'animate-pulse'); // Inputs siguen pulsando
+            if (awayInput) awayInput.classList.add('input-error', 'border-2', 'animate-pulse'); // Inputs siguen pulsando
+            if (!isCardFocused) { // Solo pulsa la tarjeta si no hay un input enfocado
+                cardElement.classList.add('animate-pulse');
+            }
         } else if (timeRemaining <= 1800000) { // Less than 30 minutes (30 * 60 * 1000 ms)
             allMatchesClosed = false;
-            countdownElement.textContent = `¡Empieza en: ${formatTime(timeRemaining)}!`;
+            countdownElement.textContent = `Cierre Inminente: ${formatTime(timeRemaining)}`;
             cardElement.classList.add('border-accent');
             countdownElement.classList.add('text-accent');
+            if (!isCardFocused) { // Solo pulsa la tarjeta si no hay un input enfocado
+                cardElement.classList.add('animate-pulse');
+            }
         } else if (timeRemaining < 3600000) { // Less than 1 hour (60 * 60 * 1000 ms)
             allMatchesClosed = false;
             countdownElement.textContent = `Cierra en: ${formatTime(timeRemaining)}`;
