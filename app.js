@@ -148,6 +148,7 @@ async function cargarPartidos() {
     // Escuchar cambios en la fecha
     dateFilter.onchange = (e) => {
         renderizarPartidosPorFecha(e.target.value);
+        renderDatePills(e.target.value);
         startCountdowns(); // Restart countdowns for new set of matches
     };
 
@@ -158,6 +159,7 @@ async function cargarPartidos() {
 
     cargarPodio(); // Inicializar Podio Ideal antes de renderizar partidos
     renderizarPartidosPorFecha(hoy);
+    renderDatePills(hoy);
     startCountdowns(); // Start countdowns on initial load
     window.initTheme(); // Inicializar el switch de tema
 }
@@ -414,6 +416,52 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
     });
 }
 
+function renderDatePills(fechaSeleccionada) {
+    const container = document.getElementById('date-pills-container');
+    if (!container) return;
+
+    // Extraer fechas únicas que tienen partidos programados
+    const uniqueDates = [...new Set(allMatches.map(m => {
+        const d = parseMatchDate(m.match_date);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }))].sort();
+
+    container.innerHTML = '';
+    
+    uniqueDates.forEach(dateStr => {
+        const dateObj = new Date(dateStr + 'T12:00:00');
+        const isActive = dateStr === fechaSeleccionada;
+        
+        const btn = document.createElement('button');
+        // Diseño minimalista y moderno para las "pills"
+        btn.className = `flex-shrink-0 btn h-16 w-14 flex flex-col items-center justify-center gap-0.5 border-none transition-all duration-300 ${
+            isActive 
+            ? 'btn-primary shadow-lg scale-110 z-10' 
+            : 'bg-base-100 hover:bg-base-300 opacity-60 hover:opacity-100'
+        }`;
+        
+        const dayName = dateObj.toLocaleDateString('es-ES', { weekday: 'short' }).toUpperCase().replace('.', '');
+        const dayNum = dateObj.getDate();
+        const monthName = dateObj.toLocaleDateString('es-ES', { month: 'short' }).toUpperCase().replace('.', '');
+
+        btn.innerHTML = `
+            <span class="text-[9px] font-bold tracking-tighter">${dayName}</span>
+            <span class="text-xl font-black leading-none">${dayNum}</span>
+            <span class="text-[9px] font-bold opacity-70">${monthName}</span>
+        `;
+        
+        btn.onclick = () => {
+            document.getElementById('match-date-filter').value = dateStr;
+            renderizarPartidosPorFecha(dateStr);
+            renderDatePills(dateStr);
+            startCountdowns();
+        };
+        
+        container.appendChild(btn);
+        if (isActive) setTimeout(() => btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }), 50);
+    });
+}
+
 function formatTime(ms) {
     if (ms <= 0) return "00:00:00";
     const seconds = Math.floor((ms / 1000) % 60);
@@ -531,6 +579,7 @@ window.resetFecha = () => {
     const hoy = `${year}-${month}-${day}`; // Get local date string
     dateFilter.value = hoy;
     renderizarPartidosPorFecha(hoy);
+    renderDatePills(hoy);
     startCountdowns(); // Restart countdowns for the "Hoy" view
 };
 
@@ -548,6 +597,12 @@ window.guardarPronostico = async (matchId) => {
         return alert('El partido ya comenzó, no puedes modificar tu pronóstico.');
     }
 
+    const btn = document.querySelector(`button[onclick="guardarPronostico(${matchId})"]`);
+    if (btn) {
+        btn.classList.add('loading');
+        btn.disabled = true;
+    }
+
     const predictionData = { 
         match_id: matchId, 
         user_id: currentUser, 
@@ -561,9 +616,31 @@ window.guardarPronostico = async (matchId) => {
     if (error) {
         console.error('Error detallado de Supabase:', error);
         alert('No se pudo guardar: ' + error.message);
+        if (btn) {
+            btn.classList.remove('loading');
+            btn.disabled = false;
+        }
     } else {
         alert('¡Pronóstico guardado con éxito! 🤡');
-        location.reload(); // Recargar para actualizar el estado de los botones
+        
+        // Actualizar localmente el array de pronósticos para persistencia sin recargar
+        const index = userPredictions.findIndex(p => p.match_id === matchId);
+        if (index !== -1) {
+            userPredictions[index] = { ...userPredictions[index], ...predictionData };
+        } else {
+            userPredictions.push(predictionData);
+        }
+
+        // Actualizar visualmente el botón sin refrescar la página
+        if (btn) {
+            btn.classList.remove('loading', 'btn-primary');
+            btn.classList.add('btn-secondary');
+            btn.disabled = false;
+            btn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                Actualizar
+            `;
+        }
     }
 }
 
