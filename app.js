@@ -80,7 +80,8 @@ const userConfig = {
     'rodrigo': { emoji: '👾', color: 'ring-info' },
     'chamba': { emoji: '👹', color: 'ring-success' },
     'dario': { emoji: '👺', color: 'ring-warning' },
-    'andrea': { emoji: '💃', color: 'ring-secondary' }
+    'andrea': { emoji: '💃', color: 'ring-secondary' },
+    'merino': { emoji: '🐑', color: 'ring-primary' }
 };
 
 let allMatches = []; // Variable global para almacenar todos los partidos
