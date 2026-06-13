@@ -147,7 +147,7 @@
         const currentUser = localStorage.getItem('currentUser');
         if (currentUser) {
             const userDisplay = document.getElementById('user-display');
-            const config = userConfig[currentUser] || { emoji: '👤', color: 'ring-neutral' };
+            const config = userConfig[currentUser] || { emoji: '👤', color: 'ring-primary' };
             userDisplay.innerHTML = `
                 <div class="flex items-center gap-2">
                     <div class="avatar placeholder">

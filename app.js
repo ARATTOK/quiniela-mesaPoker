@@ -98,7 +98,7 @@ async function cargarPartidos() {
 
     const userDisplay = document.getElementById('user-display');
     if (userDisplay) {
-        const config = userConfig[currentUser] || { emoji: '👤', color: 'ring-neutral' };
+        const config = userConfig[currentUser] || { emoji: '👤', color: 'ring-primary' };
         userDisplay.innerHTML = `
             <div class="flex items-center gap-2">
                 <div class="avatar placeholder">
@@ -334,10 +334,22 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
         const homePred = existingPrediction?.home_score_pred ?? '';
         const awayPred = existingPrediction?.away_score_pred ?? '';
         const penaltyPred = existingPrediction ? existingPrediction.penalty_winner_pred : '';
+        const pointsEarned = existingPrediction?.points ?? 0;
+
+        // Determinar color según puntos ganados
+        const pointsColor = pointsEarned >= 12 ? 'success' : 
+                           pointsEarned >= 8 ? 'info' : 
+                           pointsEarned >= 5 ? 'warning' : 
+                           pointsEarned >= 2 ? 'accent' : 'error';
         
         const isDisabled = hasStarted ? 'disabled' : ''; 
         const div = document.createElement('div')
-        div.className = 'card bg-base-100 shadow-xl animate-fade-in-up min-h-[200px]'; // Border will be set dynamically
+        const isExact = pointsEarned >= 12;
+        const borderClass = (match.status === 'finished') 
+            ? (isExact ? 'border-gold' : `border-2 border-${pointsColor}`) 
+            : '';
+        div.className = `card bg-base-100 shadow-xl animate-fade-in-up min-h-[200px] ${borderClass}`;
+        div.setAttribute('data-status', match.status);
         div.style.animationDelay = `${index * 0.1}s`
         div.setAttribute('data-match-id', match.id); // Store match ID
         div.setAttribute('data-match-date', match.match_date); // Store match date for countdown
@@ -382,6 +394,14 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
                     <option value="${match.home_team}" ${penaltyPred === match.home_team ? 'selected' : ''}>${getFlag(match.home_team)}</option>
                     <option value="${match.away_team}" ${penaltyPred === match.away_team ? 'selected' : ''}>${getFlag(match.away_team)}</option>
                 </select>` : ''}
+                ${match.status === 'finished' ? `
+                <div class="flex justify-center items-center mb-4 bg-${pointsColor}/10 rounded-xl p-3 border border-${pointsColor}/20 animate-pulse">
+                    <div class="text-center">
+                        <span class="text-[10px] uppercase font-black text-${pointsColor} tracking-widest block">Puntos Logrados</span>
+                        <span class="text-2xl font-black text-${pointsColor}">${pointsEarned} <small class="text-xs">PTS</small></span>
+                    </div>
+                </div>
+                ` : ''}
                 <div class="card-actions">
                     <div id="countdown-${match.id}" class="text-sm font-bold text-center mb-2"></div>
                     <button class="btn ${buttonClass} btn-block btn-sm" onclick="guardarPronostico(${match.id})" ${isDisabled}>
@@ -392,6 +412,19 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
             </div>
         `
         container.appendChild(div)
+
+        // Efecto de Confeti Dorado para resultados exactos (se dispara al renderizar si es exacto)
+        if (match.status === 'finished' && isExact) {
+            setTimeout(() => {
+                confetti({
+                    particleCount: 60,
+                    spread: 70,
+                    origin: { y: 0.8 },
+                    colors: ['#FFD700', '#FFA500', '#ffffff'],
+                    disableForReducedMotion: true
+                });
+            }, 500 + (index * 150));
+        }
     })
 
     // Añadir listeners para pausar el pulso de la tarjeta al interactuar con los inputs/botones
@@ -493,6 +526,7 @@ function updateCountdowns() {
     document.querySelectorAll('.card[data-match-id]').forEach(cardElement => {
         const matchId = cardElement.getAttribute('data-match-id');
         const matchDateStr = cardElement.getAttribute('data-match-date');
+        const matchStatus = cardElement.getAttribute('data-status');
         const matchTime = parseMatchDate(matchDateStr);
         const countdownElement = cardElement.querySelector(`#countdown-${matchId}`);
         
@@ -501,6 +535,15 @@ function updateCountdowns() {
         // Limpiar clases antes de aplicar el nuevo estado
         cardElement.classList.remove('border-primary', 'border-warning', 'border-accent', 'border-error', 'animate-pulse');
         countdownElement.classList.remove('text-primary', 'text-warning', 'text-accent', 'text-error', 'text-success');
+
+        // Si el partido ya finalizó, detenemos la lógica de bordes de countdown para no sobreescribir los de puntos
+        if (matchStatus === 'finished') {
+            if (countdownElement.textContent !== 'Partido Finalizado') {
+                countdownElement.textContent = 'Partido Finalizado';
+                countdownElement.classList.add('text-success');
+            }
+            return;
+        }
 
         const homeInput = cardElement.querySelector(`#home-${matchId}`);
         const awayInput = cardElement.querySelector(`#away-${matchId}`);

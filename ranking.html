@@ -133,7 +133,7 @@
             window.location.href = 'index.html'
         } else {
             const userDisplay = document.getElementById('user-display');
-            const config = userConfig[currentUser] || { emoji: '👤', color: 'ring-neutral' };
+            const config = userConfig[currentUser] || { emoji: '👤', color: 'ring-primary' };
             userDisplay.innerHTML = `
                 <div class="flex items-center gap-2">
                     <div class="avatar placeholder">
@@ -207,7 +207,7 @@
 
                 const medalEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1);
                 const otherPoints = player.total_points - (player.exact_scores * 12);
-                const config = userConfig[player.username] || { emoji: '👤', color: 'ring-neutral' };
+                const config = userConfig[player.username] || { emoji: '👤', color: 'ring-primary' };
 
                 row.innerHTML = `
                     <th class="text-center ${isTop3 ? 'text-2xl' : 'opacity-50'}">${medalEmoji}</th>
