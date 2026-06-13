@@ -144,22 +144,26 @@ async function cargarPartidos() {
     const day = String(today.getDate()).padStart(2, '0');
     const dateFilter = document.getElementById('match-date-filter');
     const hoy = `${year}-${month}-${day}`; // Get local date string
-    dateFilter.value = hoy;
 
-    // Escuchar cambios en la fecha
-    dateFilter.onchange = (e) => {
-        renderizarPartidosPorFecha(e.target.value);
-        renderDatePills(e.target.value);
-        startCountdowns(); // Restart countdowns for new set of matches
-    };
+    if (dateFilter) {
+        dateFilter.value = hoy;
+        // Escuchar cambios en la fecha
+        dateFilter.onchange = (e) => {
+            renderizarPartidosPorFecha(e.target.value);
+            renderDatePills(e.target.value);
+            startCountdowns(); // Restart countdowns for new set of matches
+        };
+    }
 
     // Abrir modal de ayuda para Bennet si el usuario actual es 'bennett'
-    if (currentUser === 'bennett') {
-        document.getElementById('help_modal_bennet').showModal();
-    };
+    const bennetModal = document.getElementById('help_modal_bennet');
+    if (currentUser === 'bennett' && bennetModal) {
+        bennetModal.showModal();
+    }
 
     cargarPodio(); // Inicializar Podio Ideal antes de renderizar partidos
     renderizarPartidosPorFecha(hoy);
+    actualizarGraficoPuntos();
     renderDatePills(hoy);
     startCountdowns(); // Start countdowns on initial load
     window.initTheme(); // Inicializar el switch de tema
@@ -282,8 +286,85 @@ async function cargarPodio() {
     }
 }
 
+function actualizarGraficoPuntos() {
+    const ctx = document.getElementById('puntosChart');
+    const chartSection = document.getElementById('chart-section');
+    const noDataAlert = document.getElementById('no-data-alert');
+    if (!ctx || !allMatches.length) return;
+
+    // Agrupar puntos por fecha
+    const pointsByDate = {};
+    
+    // Filtrar predicciones de partidos finalizados y ordenar por fecha
+    const finishedPreds = userPredictions
+        .map(p => ({ pred: p, match: allMatches.find(m => m.id === p.match_id) }))
+        .filter(item => item.match && item.match.status === 'finished')
+        .sort((a, b) => parseMatchDate(a.match.match_date) - parseMatchDate(b.match.match_date));
+
+    finishedPreds.forEach(item => {
+        const d = parseMatchDate(item.match.match_date);
+        const dateLabel = d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }).toUpperCase();
+        pointsByDate[dateLabel] = (pointsByDate[dateLabel] || 0) + (item.pred.points || 0);
+    });
+
+    const labels = Object.keys(pointsByDate);
+    const data = Object.values(pointsByDate);
+
+    if (labels.length === 0) {
+        if (noDataAlert) noDataAlert.classList.remove('hidden');
+        ctx.parentElement.style.display = 'none';
+        return;
+    }
+
+    if (noDataAlert) noDataAlert.classList.add('hidden');
+    ctx.parentElement.style.display = 'block';
+    if (chartSection) chartSection.classList.remove('hidden');
+
+    // Destruir instancia previa si existe para evitar errores al recargar
+    if (window.myChart instanceof Chart) {
+        window.myChart.destroy();
+    }
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#A6ADBB' : '#1f2937';
+    const barColor = isDark ? '#641ae6' : '#570df8';
+
+    window.myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Puntos logrados',
+                data: data,
+                backgroundColor: barColor,
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: textColor, stepSize: 5 },
+                    grid: { color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }
+                },
+                x: {
+                    ticks: { color: textColor },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+
 function renderizarPartidosPorFecha(fechaSeleccionada) {
     const container = document.getElementById('matches-container')
+    if (!container) return; // Robustez para páginas sin contenedor de partidos
     container.innerHTML = '' // Limpiar contenedor
     
     // Filtrado robusto comparando año-mes-día localmente
