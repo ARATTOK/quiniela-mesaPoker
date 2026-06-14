@@ -81,7 +81,8 @@ const userConfig = {
     'chamba': { emoji: '👹', color: 'ring-success' },
     'dario': { emoji: '👺', color: 'ring-warning' },
     'andrea': { emoji: '💃', color: 'ring-secondary' },
-    'merino': { emoji: '🐑', color: 'ring-primary' }
+    'merino': { emoji: '🐑', color: 'ring-primary' },
+    'pati': { emoji: '💅', color: 'ring-secondary' }
 };
 
 let allMatches = []; // Variable global para almacenar todos los partidos
@@ -216,8 +217,8 @@ async function cargarPodio() {
         }
     }
 
-    // Lógica de Fecha Límite y Contador para el Podio
-    const deadline = new Date(2026, 5, 15); // 15 de Junio 00:00:00 (Fin del día 14)
+    // Lógica de Fecha Límite y Contador para el Podio: Finaliza el martes 16 de Junio a las 23:59:59
+    const deadline = new Date(2026, 5, 16, 23, 59, 59); 
     const updatePodiumCountdown = () => {
         const now = new Date();
         const timeRemaining = deadline - now;
