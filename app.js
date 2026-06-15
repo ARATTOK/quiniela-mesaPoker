@@ -82,7 +82,8 @@ const userConfig = {
     'dario': { emoji: '👺', color: 'ring-warning' },
     'andrea': { emoji: '💃', color: 'ring-secondary' },
     'merino': { emoji: '🐑', color: 'ring-primary' },
-    'pati': { emoji: '💅', color: 'ring-secondary' }
+    'pati': { emoji: '💅', color: 'ring-secondary' },
+    'reynaldo': { emoji: '👑', color: 'ring-warning' }
 };
 
 let allMatches = []; // Variable global para almacenar todos los partidos
