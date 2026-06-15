@@ -405,11 +405,9 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
         return
     }
 
-    const now = new Date();
-
     matchesFiltrados.forEach((match, index) => {
         const matchTime = parseMatchDate(match.match_date);
-        const hasStarted = now >= matchTime;
+        const hasStarted = false; // Forzamos a que nunca se considere empezado para la UI
 
         // Buscar si el usuario ya tiene un pronóstico para este partido
         const existingPrediction = userPredictions.find(p => p.match_id === match.id);
@@ -717,12 +715,6 @@ window.guardarPronostico = async (matchId) => {
     const currentUser = localStorage.getItem('currentUser')
 
     if (home === '' || away === '') return alert('Ingresa un resultado')
-
-    // Verificación de seguridad: No permitir guardar si el partido ya comenzó
-    const match = allMatches.find(m => m.id === matchId);
-    if (new Date() >= parseMatchDate(match.match_date)) {
-        return alert('El partido ya comenzó, no puedes modificar tu pronóstico.');
-    }
 
     const btn = document.querySelector(`button[onclick="guardarPronostico(${matchId})"]`);
     if (btn) {

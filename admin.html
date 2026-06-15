@@ -264,6 +264,9 @@
         
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
+        // Exponer a la consola para pruebas desde Chrome
+        window.supabase = supabase;
+
         let allTeams = [];
         let allMatches = [];
         let selectedDate = '';
@@ -760,9 +763,13 @@
 
         // 3. Función para actualizar y calcular
         window.actualizarResultado = async (id) => {
-            const home = document.getElementById(`home-${id}`).value
-            const away = document.getElementById(`away-${id}`).value
-            const penalty = document.getElementById(`penalty-${id}`)?.value || null
+            const homeInput = document.getElementById(`home-${id}`);
+            const awayInput = document.getElementById(`away-${id}`);
+            const penaltyInput = document.getElementById(`penalty-${id}`);
+
+            const home = homeInput ? homeInput.value : '';
+            const away = awayInput ? awayInput.value : '';
+            const penalty = penaltyInput ? penaltyInput.value : null;
             
             if (home === '' || away === '') return alert('Por favor, ingresa los goles.')
 
@@ -774,16 +781,21 @@
                 status: 'finished' 
             }).eq('id', id)
             
-            if (updateError) return alert('Error al actualizar: ' + updateError.message)
+            if (updateError) {
+                console.error('Error al actualizar partido:', updateError);
+                return alert('Error al actualizar tabla matches: ' + updateError.message);
+            }
 
             // B. Llamar a la función SQL de cálculo
-            const { error: rpcError } = await supabase.rpc('calcular_puntos_partido', { p_match_id: id })
+            // Forzamos parseInt(id) para asegurar que el RPC reciba el tipo correcto
+            const { error: rpcError } = await supabase.rpc('calcular_puntos_partido', { p_match_id: parseInt(id) })
             
             if (rpcError) {
-                alert('Resultado guardado, pero falló el cálculo: ' + rpcError.message)
+                console.error('Error en RPC:', rpcError);
+                alert('Resultado guardado en tabla matches, pero falló el cálculo de puntos: ' + rpcError.message)
             } else {
                 alert('Resultado guardado y puntos calculados exitosamente.')
-                cargarPartidosAdmin()
+                await cargarPartidosAdmin();
             }
         }
 
