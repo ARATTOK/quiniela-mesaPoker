@@ -219,7 +219,7 @@ async function cargarPodio() {
     }
 
     // Lógica de Fecha Límite y Contador para el Podio: Finaliza el martes 16 de Junio a las 23:59:59
-    const deadline = new Date(2026, 5, 16, 23, 59, 59); 
+    const deadline = new Date(2026, 5, 18, 23, 59, 59); // Nueva fecha límite: Jueves 18 de Junio 23:59:59
     const updatePodiumCountdown = () => {
         const now = new Date();
         const timeRemaining = deadline - now;
