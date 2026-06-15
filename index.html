@@ -181,23 +181,23 @@
         }
 
         const userConfig = {
-            'admin': { pw: 'CircoAdmin!2026', emoji: '🤡', color: 'ring-primary' },
-            'aaron': { pw: 'AaronRisas#26', emoji: '🥳', color: 'ring-secondary' },
-            'alam': { pw: 'AlamNariz*2026', emoji: '🤪', color: 'ring-accent' },
-            'bennett': { pw: 'BennettMagia$26', emoji: '🤹', color: 'ring-info' },
-            'dennis': { pw: 'DennisTruco!2026', emoji: '🎭', color: 'ring-success' },
-            'jorge': { pw: 'JorgeMalabar#26', emoji: '🃏', color: 'ring-warning' },
-            'kevin': { pw: 'KevinSonrisa*2026', emoji: '🤩', color: 'ring-error' },
-            'luisito': { pw: 'LuisitoAlegre$26', emoji: '🤠', color: 'ring-primary' },
-            'pedro': { pw: 'PedroDisfraz!2026', emoji: '🧐', color: 'ring-secondary' },
-            'takashi': { pw: 'TakashiPeluca#26', emoji: '👽', color: 'ring-accent' },
-            'rodrigo': { pw: 'RodrigoZapatos*2026', emoji: '👾', color: 'ring-info' },
-            'chamba': { pw: 'ChambaCarcajada$26', emoji: '👹', color: 'ring-success' },
-            'dario': { pw: 'DarioMaquillaje!2026', emoji: '👺', color: 'ring-warning' },
-            'andrea': { pw: 'AndreaRisas!2026', emoji: '💃', color: 'ring-secondary' },
-            'merino': { pw: 'MerinoLana!2026', emoji: '🐑', color: 'ring-primary' },
-            'pati': { pw: 'PatiFlores!2026', emoji: '💅', color: 'ring-secondary' },
-            'reynaldo': { pw: 'ReynaldoRey!2026', emoji: '👑', color: 'ring-warning' }
+            'admin': { pw: 'Q2lyY29BZG1pbiEyMDI2', emoji: '🤡', color: 'ring-primary' },
+            'aaron': { pw: 'QWFyb25SaXNhcyMyNg==', emoji: '🥳', color: 'ring-secondary' },
+            'alam': { pw: 'QWxhbU5hrizqKjIwMjY=', emoji: '🤪', color: 'ring-accent' },
+            'bennett': { pw: 'QmVubmV0dE1hZ2lhJDI2', emoji: '🤹', color: 'ring-info' },
+            'dennis': { pw: 'RGVubmlzVHJ1Y28hMjAyNg==', emoji: '🎭', color: 'ring-success' },
+            'jorge': { pw: 'Sm9yZ2VNYWxhYmFyIzI2', emoji: '🃏', color: 'ring-warning' },
+            'kevin': { pw: 'S2V2aW5Tb25yaXNhKjIwMjY=', emoji: '🤩', color: 'ring-error' },
+            'luisito': { pw: 'THVpc2l0b0FsZWdyZSQyNg==', emoji: '🤠', color: 'ring-primary' },
+            'pedro': { pw: 'UGVkcm9EaXNmcmF6ITIwMjY=', emoji: '🧐', color: 'ring-secondary' },
+            'takashi': { pw: 'VGFrYXNoaVBlbHVjYSMyNg==', emoji: '👽', color: 'ring-accent' },
+            'rodrigo': { pw: 'Um9kcmlnb1phcGF0b3MqMjAyNg==', emoji: '👾', color: 'ring-info' },
+            'chamba': { pw: 'Q2hhbWJhQ2FyY2FqYWRhJDI2', emoji: '👹', color: 'ring-success' },
+            'dario': { pw: 'RGFyaW9NYXF1aWxsYWplITIwMjY=', emoji: '👺', color: 'ring-warning' },
+            'andrea': { pw: 'QW5kcmVhUmlzYXMhMjAyNg==', emoji: '💃', color: 'ring-secondary' },
+            'merino': { pw: 'TWVyaW5vTGFuYSEyMDI2', emoji: '🐑', color: 'ring-primary' },
+            'pati': { pw: 'UGF0aUZsb3JlcyEyMDI2', emoji: '💅', color: 'ring-secondary' },
+            'reynaldo': { pw: 'UmV5bmFsZG9SZXkhMjAyNg==', emoji: '👑', color: 'ring-warning' }
         };
 
         let selectedUser = '';
@@ -206,7 +206,7 @@
             if (!emailInput || !password) return alert('Por favor, ingresa tu contraseña');
 
             // Verificación en lista local
-            if (userConfig[emailInput] && userConfig[emailInput].pw === password) {
+            if (userConfig[emailInput] && atob(userConfig[emailInput].pw) === password) {
                 // Limpiar cualquier sesión previa
                 localStorage.clear()
                 
