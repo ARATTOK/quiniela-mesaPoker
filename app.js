@@ -717,10 +717,22 @@ window.guardarPronostico = async (matchId) => {
 
     if (home === '' || away === '') return alert('Ingresa un resultado')
 
-    // Verificación de seguridad: No permitir guardar si el partido ya comenzó o terminó
-    const match = allMatches.find(m => m.id === matchId);
-    const hasStarted = new Date() >= parseMatchDate(match.match_date) || match.status === 'finished';
-    if (hasStarted) return alert('El partido ya comenzó o terminó. No puedes modificar tu pronóstico.');
+    // Verificación de seguridad en tiempo real: 
+    // Consultamos la DB directamente para evitar que datos locales desactualizados permitan guardar.
+    const { data: matchStatus, error: matchError } = await supabase
+        .from('matches')
+        .select('match_date, status')
+        .eq('id', matchId)
+        .single();
+
+    if (matchError || !matchStatus) return alert('Error al verificar el estado del partido.');
+
+    const hasStarted = new Date() >= parseMatchDate(matchStatus.match_date) || matchStatus.status === 'finished';
+    if (hasStarted) {
+        alert('El partido ya comenzó o terminó. No puedes modificar tu pronóstico.');
+        location.reload(); // Recargar para bloquear la interfaz visualmente
+        return;
+    }
 
     const btn = document.querySelector(`button[onclick="guardarPronostico(${matchId})"]`);
     if (btn) {
