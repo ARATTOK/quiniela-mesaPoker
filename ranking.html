@@ -240,7 +240,9 @@
                 }
 
                 const medalEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1);
-                const otherPoints = player.total_points - (player.exact_scores * 12);
+                const totalPoints = player.total_points || 0;
+                const exactScores = player.exact_scores || 0;
+                const otherPoints = Math.max(0, totalPoints - (exactScores * 12));
                 const config = userConfig[player.username] || { emoji: '👤', color: 'ring-primary' };
                 const avatarShineClass = index === 0 ? 'leader-avatar-shine' : ''; // Aplica solo al líder
 
@@ -260,13 +262,13 @@
                         </div>
                     </td>
                     <td class="text-center">
-                        <div class="badge ${player.exact_scores > 0 ? 'badge-success' : 'badge-ghost opacity-30'} font-bold">🎯 ${player.exact_scores || 0}</div>
+                        <div class="badge ${exactScores > 0 ? 'badge-success' : 'badge-ghost opacity-30'} font-bold">🎯 ${exactScores}</div>
                     </td>
                     <td class="text-center">
                         <div class="text-xs opacity-70">${otherPoints} pts</div>
                     </td>
                     <td class="text-right pr-8">
-                        <div class="text-xl font-black">${player.total_points}</div>
+                        <div class="text-xl font-black">${totalPoints}</div>
                     </td>
                 `;
             });
