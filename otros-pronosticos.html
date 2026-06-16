@@ -190,11 +190,14 @@
             container.innerHTML = '<div class="col-span-full flex justify-center py-10"><span class="loading loading-spinner loading-lg text-warning"></span></div>';
             document.getElementById('status-message').classList.remove('hidden');
 
-            const { data: matches } = await supabase.from('matches').select('*').order('match_date');
-            const { data: preds } = await supabase.from('predictions').select('*').eq('user_id', targetUser);
+            // Usamos la nueva vista que ya trae todo unido
+            const { data: vistaData, error } = await supabase
+                .from('vista_puntos_por_partido')
+                .select('*')
+                .eq('user_id', targetUser);
 
             const now = new Date();
-            const filtered = matches.filter(m => {
+            const filtered = (vistaData || []).filter(m => {
                 const d = parseMatchDate(m.match_date);
                 const mYear = d.getFullYear();
                 const mMonth = String(d.getMonth() + 1).padStart(2, '0');
@@ -211,7 +214,6 @@
             filtered.forEach(m => {
                 const matchTime = parseMatchDate(m.match_date);
                 const isClosed = now >= matchTime;
-                const p = preds?.find(x => x.match_id === m.id);
                 
                 const card = document.createElement('div');
                 card.className = `card bg-base-100 shadow-xl border-t-4 ${isClosed ? 'border-success' : 'border-error opacity-60'} animate-fade-in-up`;
@@ -225,7 +227,7 @@
                         <div class="flex items-center justify-between gap-4 font-bold text-sm">
                             <div class="flex-1 text-right">${m.home_team}</div>
                             <div class="flex gap-2 bg-base-200 px-3 py-1 rounded-lg">
-                                ${isClosed ? `<span>${p?.home_score_pred ?? '-'}</span> : <span>${p?.away_score_pred ?? '-'}</span>` : '<span class="text-error italic text-[10px]">OCULTO</span>'}
+                                ${isClosed ? `<span>${m.mi_prediccion_home ?? '-'}</span> : <span>${m.mi_prediccion_away ?? '-'}</span>` : '<span class="text-error italic text-[10px]">OCULTO</span>'}
                             </div>
                             <div class="flex-1 text-left">${m.away_team}</div>
                         </div>

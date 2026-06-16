@@ -257,7 +257,11 @@
                             </div>
                             <div>
                                 <div class="${isTop3 ? 'text-lg' : 'font-bold'} capitalize">${player.username}</div>
-                                <div class="text-[10px] opacity-50 uppercase tracking-tighter">Participante Activo</div>
+                                <div class="text-[10px] opacity-50 uppercase tracking-tighter">
+                                    ${player.username === 'bennett' ? '<span class="text-error font-black">🚫 Sancionado (Hack attempt)</span>' : 
+                                      player.username === 'luisito' ? '<span class="text-success font-black">🛡️ Bonus Caza-Hackers</span>' : 
+                                      'Participante Activo'}
+                                </div>
                             </div>
                         </div>
                     </td>
@@ -281,7 +285,16 @@
             
             if (error) return console.error('Error al cargar el ranking:', error.message)
             
-            fullRankingData = ranking.sort((a, b) => b.total_points - a.total_points);
+            // Ordenamiento robusto con desempates: Puntos > Exactos > Diferencia
+            fullRankingData = ranking.sort((a, b) => {
+                if (b.total_points !== a.total_points) {
+                    return b.total_points - a.total_points;
+                }
+                if (b.exact_scores !== a.exact_scores) {
+                    return b.exact_scores - a.exact_scores;
+                }
+                return (b.correct_winner_diff || 0) - (a.correct_winner_diff || 0);
+            });
             renderRanking(fullRankingData);
         }
 

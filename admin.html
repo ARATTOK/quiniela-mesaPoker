@@ -794,10 +794,6 @@
                 console.error('Error en RPC:', rpcError);
                 alert('Resultado guardado en tabla matches, pero falló el cálculo de puntos: ' + rpcError.message)
             } else {
-                // C. Sincronizar el leaderboard global
-                const { error: syncError } = await supabase.rpc('recalcular_todo_el_ranking');
-                if (syncError) console.error('Error al sincronizar ranking:', syncError);
-
                 alert('Resultado guardado, puntos calculados y leaderboard actualizado.')
                 await cargarPartidosAdmin();
             }
