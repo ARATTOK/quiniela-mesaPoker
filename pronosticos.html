@@ -57,6 +57,10 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.5 4.5L21.75 4.5M21.75 4.5V9m0-4.5H17.25" /></svg>
                     <span class="hidden sm:inline">Estadísticas</span>
                 </a></li>
+                <li><a href="extras.html" class="p-2 sm:p-4 hover:text-amber-500 transition-all duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg>
+                    <span class="hidden sm:inline">Extras</span>
+                </a></li>
                 <li><a href="reglamento.html" class="p-2 sm:p-4 hover:text-accent transition-all duration-300">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
                     <span class="hidden sm:inline">Reglas</span>
@@ -82,54 +86,6 @@
     </div>
 
     <div class="container mx-auto p-4 lg:p-10">
-        <!-- Podio Ideal Section -->
-        <div id="podium-container" class="mb-10 hidden animate-fade-in-up">
-            <div class="card bg-base-100 shadow-xl border border-warning/20">
-                <div class="card-body p-6">
-                    <h2 class="card-title text-warning flex items-center gap-2">
-                        🏆 Podio Ideal
-                        <div class="badge badge-warning badge-outline font-normal text-xs uppercase tracking-widest">+ Puntos Extra</div>
-                    </h2>
-                    <p class="text-sm opacity-70 mb-4">Selecciona tus predicciones para los tres mejores equipos del mundial.</p>
-                    
-                    <div id="podium-deadline-alert" class="alert alert-warning shadow-lg mb-6 py-3 border-2 border-warning/50 animate-pulse">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                            <span class="text-xs sm:text-sm font-bold uppercase tracking-tight">¡Importante! Tienes hasta el jueves 18 de Junio (23:59) para guardar tu podio.</span>
-                            <span id="podium-timer" class="badge badge-neutral font-mono text-xs py-3 px-4">Calculando...</span>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="form-control">
-                            <label class="label"><span class="label-text font-bold text-xs uppercase opacity-70">🥇 Campeón (20 pts)</span></label>
-                            <select id="podium-1" class="select select-bordered select-warning w-full">
-                                <option value="" disabled selected>Seleccionar...</option>
-                            </select>
-                        </div>
-                        <div class="form-control">
-                            <label class="label"><span class="label-text font-bold text-xs uppercase opacity-70">🥈 Subcampeón (10 pts)</span></label>
-                            <select id="podium-2" class="select select-bordered select-secondary w-full">
-                                <option value="" disabled selected>Seleccionar...</option>
-                            </select>
-                        </div>
-                        <div class="form-control">
-                            <label class="label"><span class="label-text font-bold text-xs uppercase opacity-70">🥉 Tercer puesto (6 pts)</span></label>
-                            <select id="podium-3" class="select select-bordered select-accent w-full">
-                                <option value="" disabled selected>Seleccionar...</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="card-actions justify-end mt-6">
-                        <button id="save-podium" class="btn btn-warning btn-sm px-8 shadow-lg">
-                            Guardar Podio
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="flex flex-col gap-8 mb-10">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div class="flex items-center gap-4">

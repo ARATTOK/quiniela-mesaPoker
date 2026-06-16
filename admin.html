@@ -72,6 +72,9 @@
             <a role="tab" class="tab transition-all" onclick="switchTab(this, 'section-api')">
                 <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg> Sincronización</span>
             </a>
+            <a role="tab" class="tab transition-all" onclick="switchTab(this, 'section-podio')">
+                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg> Podio</span>
+            </a>
         </div>
 
         <!-- API Automation -->
@@ -95,6 +98,49 @@
                         <button class="btn btn-outline btn-error flex-1 font-normal text-xs" onclick="recalcularRankingCompleto()">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
                             Recalcular Todo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Podio Ideal (Extras) -->
+        <section id="section-podio" class="tab-content space-y-4">
+            <h2 class="text-2xl font-bold border-l-4 border-amber-500 pl-4 text-amber-500 uppercase tracking-wider text-sm">Podio Ideal - Resultados Finales</h2>
+            <div class="card bg-base-100 shadow-xl border border-amber-500/20">
+                <div class="card-body">
+                    <div class="alert alert-warning shadow-lg mb-6 py-3 border-2 border-warning/50">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        <div>
+                            <span class="text-xs sm:text-sm font-bold uppercase tracking-tight">Usa esta sección SOLO al finalizar el mundial.</span>
+                            <p class="text-xs opacity-70 mt-1">Selecciona los 3 equipos ganadores reales y presiona "Calcular Puntos" para asignar 50/30/20 pts a los que acertaron.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="form-control">
+                            <label class="label"><span class="label-text font-bold text-xs uppercase opacity-70">🥇 Campeón (50 pts)</span></label>
+                            <select id="admin-podium-1" class="select select-bordered select-warning w-full">
+                                <option value="" disabled selected>Seleccionar...</option>
+                            </select>
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text font-bold text-xs uppercase opacity-70">🥈 Subcampeón (30 pts)</span></label>
+                            <select id="admin-podium-2" class="select select-bordered select-secondary w-full">
+                                <option value="" disabled selected>Seleccionar...</option>
+                            </select>
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text font-bold text-xs uppercase opacity-70">🥉 Tercer puesto (20 pts)</span></label>
+                            <select id="admin-podium-3" class="select select-bordered select-accent w-full">
+                                <option value="" disabled selected>Seleccionar...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-actions justify-end mt-6">
+                        <button class="btn btn-ghost btn-sm" onclick="limpiarPodioAdmin()">Limpiar</button>
+                        <button class="btn btn-warning px-8 shadow-lg" onclick="calcularPuntosPodio()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+                            Calcular Puntos Podio
                         </button>
                     </div>
                 </div>
@@ -365,6 +411,7 @@
             if (isAdminSession || (user && user.email === 'dario.aratto@gmail.com')) {
                 cargarPartidosAdmin()
                 cargarEquipos()
+                cargarPodioAdmin()
                 
                 const today = new Date();
                 selectedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -835,6 +882,79 @@
             if (error) alert('Error al eliminar el partido: ' + error.message)
             else cargarPartidosAdmin()
         }
+
+        window.cargarPodioAdmin = async () => {
+            const { data: teams, error } = await supabase
+                .from('teams')
+                .select('name')
+                .order('name', { ascending: true });
+
+            if (error) return console.error('Error cargando equipos:', error.message);
+
+            ['1', '2', '3'].forEach(pos => {
+                const select = document.getElementById(`admin-podium-${pos}`);
+                if (select) {
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="" disabled selected>Seleccionar equipo...</option>';
+                    teams.forEach(t => {
+                        const option = document.createElement('option');
+                        option.value = t.name;
+                        option.textContent = getFlag(t.name);
+                        select.appendChild(option);
+                    });
+                    if (currentValue) select.value = currentValue;
+                }
+            });
+        };
+
+        window.limpiarPodioAdmin = () => {
+            ['1', '2', '3'].forEach(pos => {
+                const select = document.getElementById(`admin-podium-${pos}`);
+                if (select) select.value = '';
+            });
+        };
+
+        window.calcularPuntosPodio = async () => {
+            const champion = document.getElementById('admin-podium-1').value;
+            const runner_up = document.getElementById('admin-podium-2').value;
+            const third_place = document.getElementById('admin-podium-3').value;
+
+            if (!champion || !runner_up || !third_place) {
+                return alert('Por favor, selecciona los tres lugares del podio.');
+            }
+            if (new Set([champion, runner_up, third_place]).size !== 3) {
+                return alert('No puedes seleccionar el mismo equipo en varias posiciones.');
+            }
+            if (!confirm(`¿Estás seguro de que estos son los resultados finales?\n\n🥇 ${champion}\n🥈 ${runner_up}\n🥉 ${third_place}\n\nSe asignarán 50, 30 y 20 pts respectivamente a quienes acertaron.`)) return;
+
+            const btn = document.querySelector('button[onclick="calcularPuntosPodio()"]');
+            if (btn) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+            }
+
+            try {
+                const { data, error } = await supabase.rpc('calcular_puntos_podio', {
+                    p_champion: champion,
+                    p_runner_up: runner_up,
+                    p_third_place: third_place
+                });
+
+                if (error) throw error;
+
+                const totalJugadores = data ? data.length : 0;
+                alert(`✅ ¡Puntos del Podio calculados exitosamente!\nSe actualizaron ${totalJugadores} jugadores.`);
+                playHorn();
+            } catch (err) {
+                console.error(err);
+                alert('Error: ' + err.message + '. Asegúrate de haber creado la función calcular_puntos_podio en Supabase SQL primero.');
+            } finally {
+                if (btn) {
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                }
+            }
+        };
 
         window.logout = async () => {
             await supabase.auth.signOut()

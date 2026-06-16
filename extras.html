@@ -6,53 +6,19 @@
     <script>
         document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
     </script>
-    <title>Quiniela - Ranking</title>
+    <title>Quiniela - Extras</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤡</text></svg>">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
-        @keyframes shine {
-            to { background-position: 200% center; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .metallic-row {
-            background-size: 200% auto;
-            animation: shine 5s linear infinite;
-            transition: all 0.3s ease;
-        }
-        .metallic-row:hover { 
-            transform: scale(1.005);
-            filter: brightness(1.05);
-        }
-        
-        .total-points-badge {
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        /* Oro */
-        .rank-1 {
-            background-image: linear-gradient(110deg, #fdf6e3 0%, #f5d142 20%, #fdf6e3 40%, #f5d142 60%, #fdf6e3 80%, #f5d142 100%);
-            color: #7a5100 !important;
-        }
-        /* Plata */
-        
-        /* Animación para el avatar del líder */
-        @keyframes avatar-glow {
-            0% { box-shadow: 0 0 0px 0px rgba(255, 215, 0, 0.7); }
-            50% { box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.9); }
-            100% { box-shadow: 0 0 0px 0px rgba(255, 215, 0, 0.7); }
-        }
-        .leader-avatar-shine {
-            animation: avatar-glow 2s infinite ease-in-out;
-        }
-        .rank-2 {
-            background-image: linear-gradient(110deg, #f8fafc 0%, #cbd5e1 20%, #f8fafc 40%, #cbd5e1 60%, #f8fafc 80%, #cbd5e1 100%);
-            color: #334155 !important;
-        }
-        /* Bronce */
-        .rank-3 {
-            background-image: linear-gradient(110deg, #fff7ed 0%, #d97706 20%, #fff7ed 40%, #d97706 60%, #fff7ed 80%, #d97706 100%);
-            color: #78350f !important;
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
         }
     </style>
 </head>
@@ -69,7 +35,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>
                     <span class="hidden sm:inline">Espiar</span>
                 </a></li>
-                <li><a href="ranking.html" class="active p-2 sm:p-4 hover:text-secondary transition-all duration-300">
+                <li><a href="ranking.html" class="p-2 sm:p-4 hover:text-secondary transition-all duration-300">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
                     <span class="hidden sm:inline">Ranking</span>
                 </a></li>
@@ -77,7 +43,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.5 4.5L21.75 4.5M21.75 4.5V9m0-4.5H17.25" /></svg>
                     <span class="hidden sm:inline">Estadísticas</span>
                 </a></li>
-                <li><a href="extras.html" class="p-2 sm:p-4 hover:text-amber-500 transition-all duration-300">
+                <li><a href="extras.html" class="active p-2 sm:p-4 text-amber-500 transition-all duration-300">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg>
                     <span class="hidden sm:inline">Extras</span>
                 </a></li>
@@ -105,32 +71,73 @@
         </div>
     </div>
 
-    <div class="container mx-auto p-2 sm:p-4 lg:p-10 max-w-5xl">
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-            <h1 class="text-3xl sm:text-4xl font-black border-l-8 border-secondary pl-4 text-secondary uppercase tracking-tighter italic">Leaderboard</h1>
-            <div class="form-control">
-                <label class="label cursor-pointer gap-3 bg-base-100 px-4 py-2 rounded-xl shadow-sm border border-base-300 hover:border-secondary transition-all">
-                    <span class="label-text font-black text-[10px] sm:text-xs uppercase opacity-70">Filtrar Exactos 🎯</span> 
-                    <input type="checkbox" id="filter-exacts" class="checkbox checkbox-secondary" onchange="window.applyFilters()" />
-                </label>
+    <div class="container mx-auto p-4 lg:p-10 max-w-4xl">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold border-l-4 border-amber-500 pl-4 text-amber-500 tracking-tight">Extras</h1>
+            <div class="badge badge-outline gap-2 p-4 italic opacity-70">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                </span>
+                Pronósticos adicionales
             </div>
         </div>
 
-        <div class="card bg-base-100 shadow-2xl border border-base-300 overflow-hidden">
-            <table class="table w-full" id="ranking-table">
-                <thead>
-                    <tr class="text-base-content/60 uppercase text-[10px] sm:text-xs font-black tracking-[0.2em] bg-base-200/50 border-b border-base-300">
-                        <th class="w-12 sm:w-20 text-center">Pos</th>
-                        <th class="pl-2">Payasito</th>
-                        <th class="text-center px-1 sm:px-4">Exactos</th>
-                        <th class="text-center hidden sm:table-cell">Otros</th>
-                        <th class="text-right pr-4 sm:pr-10">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Aquí se cargarán los datos del ranking -->
-                </tbody>
-            </table>
+        <div id="podium-container" class="hidden animate-fade-in-up">
+            <div class="card bg-base-100 shadow-xl border border-warning/20">
+                <div class="card-body p-6">
+                    <h2 class="card-title text-warning flex items-center gap-2">
+                        🏆 Podio Ideal
+                        <div class="badge badge-warning badge-outline font-normal text-xs uppercase tracking-widest">+ Puntos Extra</div>
+                    </h2>
+                    <p class="text-sm opacity-70 mb-4">Selecciona tus predicciones para los tres mejores equipos del mundial.</p>
+                    
+                    <div id="podium-deadline-alert" class="alert alert-warning shadow-lg mb-6 py-3 border-2 border-warning/50 animate-pulse">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                            <span class="text-xs sm:text-sm font-bold uppercase tracking-tight">¡Importante! Tienes hasta el jueves 18 de Junio (23:59) para guardar tu podio.</span>
+                            <span id="podium-timer" class="badge badge-neutral font-mono text-xs py-3 px-4">Calculando...</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="form-control">
+                            <label class="label"><span class="label-text font-bold text-xs uppercase opacity-70">🥇 Campeón (50 pts)</span></label>
+                            <select id="podium-1" class="select select-bordered select-warning w-full">
+                                <option value="" disabled selected>Seleccionar...</option>
+                            </select>
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text font-bold text-xs uppercase opacity-70">🥈 Subcampeón (30 pts)</span></label>
+                            <select id="podium-2" class="select select-bordered select-secondary w-full">
+                                <option value="" disabled selected>Seleccionar...</option>
+                            </select>
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text font-bold text-xs uppercase opacity-70">🥉 Tercer puesto (20 pts)</span></label>
+                            <select id="podium-3" class="select select-bordered select-accent w-full">
+                                <option value="" disabled selected>Seleccionar...</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="card-actions justify-end mt-6">
+                        <button id="save-podium" class="btn btn-warning btn-sm px-8 shadow-lg">
+                            Guardar Podio
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="animate-fade-in-up" style="animation-delay: 0.2s">
+            <div class="card bg-base-100 shadow-xl border border-base-300">
+                <div class="card-body p-6 text-center">
+                    <div class="text-4xl mb-4 opacity-30">✨</div>
+                    <h3 class="font-bold text-lg mb-2 opacity-60">Más pronósticos pronto</h3>
+                    <p class="text-sm opacity-40 italic">Aquí aparecerán nuevos pronósticos especiales durante el mundial.</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -143,7 +150,7 @@
         </p>
         <div class="divider w-24 mx-auto opacity-20"></div>
         <p class="text-[10px] opacity-40 uppercase tracking-[0.2em]">
-          © 2026 - El Olimpo de los Payasitos
+          © 2026 - Hecho por y para payasitos de corazón
         </p>
       </aside>
     </footer>
@@ -172,26 +179,6 @@
             'reynaldo': { emoji: '👑', color: 'ring-warning' }
         };
 
-        // Verificar sesión al cargar (Movido después de declarar userConfig)
-        const currentUser = localStorage.getItem('currentUser');
-        if (!currentUser) {
-            window.location.href = 'index.html'
-        } else {
-            const userDisplay = document.getElementById('user-display');
-            const config = userConfig[currentUser] || { emoji: '👤', color: 'ring-primary' };
-            userDisplay.innerHTML = `
-                <div class="flex items-center gap-2">
-                    <div class="avatar placeholder">
-                            <div class="bg-neutral text-neutral-content rounded-full w-6 ring ${config.color} ring-offset-base-100 ring-offset-1 shadow-md">
-                            <span class="text-[10px]">${config.emoji}</span>
-                        </div>
-                    </div>
-                    <span class="capitalize font-bold text-xs">${currentUser}</span>
-                </div>
-            `;
-            userDisplay.parentElement.classList.remove('italic', 'opacity-70', 'lowercase');
-        }
-
         const flags = {
             'Argentina': '🇦🇷', 'Brasil': '🇧🇷', 'Uruguay': '🇺🇾', 'Colombia': '🇨🇴',
             'Chile': '🇨🇱', 'Perú': '🇵🇪', 'Ecuador': '🇪🇨', 'Paraguay': '🇵🇾',
@@ -207,10 +194,142 @@
             'Costa Rica': '🇨🇷', 'Panamá': '🇵🇦', 'Jamaica': '🇯🇲', 'Sudáfrica': '🇿🇦',
             'Chequia': '🇨🇿', 'Bosnia y Herzegovina': '🇧🇦', 'Haití': '🇭🇹', 'Curazao': '🇨🇼',
             'Suecia': '🇸🇪', 'Túnez': '🇹🇳', 'Nueva Zelanda': '🇳🇿', 'Islas de Cabo Verde': '🇨🇻', 'Cabo Verde': '🇨🇻',
-            'Irak': '🇮🇶', 'Noruega': '🇳🇴', 'Austria': '�🇹', 'Jordania': '🇯🇴', 'RD Congo': '🇨🇩',
+            'Irak': '🇮🇶', 'Noruega': '🇳🇴', 'Austria': '🇦🇹', 'Jordania': '🇯🇴', 'RD Congo': '🇨🇩',
             'RD del Congo': '🇨🇩',
             'Uzbekistán': '🇺🇿'
         };
+
+        const getFlag = (team) => `${flags[team] || '🏳️'} ${team}`;
+
+        // Verificar sesión
+        const currentUser = localStorage.getItem('currentUser');
+        if (!currentUser) {
+            window.location.href = 'index.html'
+        } else {
+            const userDisplay = document.getElementById('user-display');
+            const config = userConfig[currentUser] || { emoji: '👤', color: 'ring-primary' };
+            userDisplay.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <div class="avatar placeholder">
+                        <div class="bg-neutral text-neutral-content rounded-full w-6 ring ${config.color} ring-offset-base-100 ring-offset-1">
+                            <span class="text-[10px]">${config.emoji}</span>
+                        </div>
+                    </div>
+                    <span class="capitalize font-bold text-xs">${currentUser}</span>
+                </div>
+            `;
+            userDisplay.parentElement.classList.remove('italic', 'opacity-70', 'lowercase');
+        }
+
+        async function cargarPodio() {
+            const currentUser = localStorage.getItem('currentUser');
+            const container = document.getElementById('podium-container');
+            if (!currentUser || !container) return;
+
+            const { data: teams, error: teamsError } = await supabase
+                .from('teams')
+                .select('name')
+                .order('name', { ascending: true });
+
+            if (teamsError) return console.error('Error cargando equipos:', teamsError.message);
+
+            ['1', '2', '3'].forEach(pos => {
+                const select = document.getElementById(`podium-${pos}`);
+                if (select) {
+                    select.innerHTML = '<option value="" disabled selected>Seleccionar equipo...</option>';
+                    teams.forEach(t => {
+                        const option = document.createElement('option');
+                        option.value = t.name;
+                        option.textContent = getFlag(t.name);
+                        select.appendChild(option);
+                    });
+                }
+            });
+
+            const { data: savedPodium } = await supabase
+                .from('podium_predictions')
+                .select('*')
+                .eq('user_id', currentUser)
+                .maybeSingle();
+
+            if (savedPodium) {
+                document.getElementById('podium-1').value = savedPodium.champion || '';
+                document.getElementById('podium-2').value = savedPodium.runner_up || '';
+                document.getElementById('podium-3').value = savedPodium.third_place || '';
+                
+                const saveBtn = document.getElementById('save-podium');
+                if (saveBtn) {
+                    saveBtn.innerHTML = '<span>🔄 Actualizar Podio</span>';
+                    saveBtn.classList.remove('btn-warning');
+                    saveBtn.classList.add('btn-outline', 'btn-secondary');
+                }
+            }
+
+            const deadline = new Date(2026, 5, 18, 23, 59, 59);
+            const updatePodiumCountdown = () => {
+                const now = new Date();
+                const timeRemaining = deadline - now;
+                const timerDisplay = document.getElementById('podium-timer');
+                const saveBtn = document.getElementById('save-podium');
+                const deadlineAlert = document.getElementById('podium-deadline-alert');
+
+                if (timeRemaining <= 0) {
+                    document.querySelectorAll('#podium-container select').forEach(el => el.disabled = true);
+                    if (saveBtn) saveBtn.remove();
+                    if (deadlineAlert) {
+                        deadlineAlert.classList.remove('animate-pulse', 'alert-warning');
+                        deadlineAlert.classList.add('alert-error');
+                        deadlineAlert.querySelector('span').textContent = 'El plazo para el podio ha finalizado. Solo lectura.';
+                        if (timerDisplay) timerDisplay.remove();
+                    }
+                    return true;
+                }
+
+                if (timerDisplay) {
+                    const d = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+                    const h = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const m = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+                    if (timeRemaining < 86400000) {
+                        timerDisplay.classList.remove('badge-neutral');
+                        timerDisplay.classList.add('badge-error', 'animate-pulse');
+                    }
+
+                    timerDisplay.textContent = `Faltan: ${d}d ${h}h ${m}m ${s}s`;
+                }
+                return false;
+            };
+
+            setInterval(updatePodiumCountdown, 1000);
+            updatePodiumCountdown();
+
+            container.classList.remove('hidden');
+
+            const savePodiumBtn = document.getElementById('save-podium');
+            if (savePodiumBtn) {
+                savePodiumBtn.onclick = async () => {
+                    if (new Date() >= deadline) {
+                        alert('¡Demasiado tarde! El plazo ha vencido.');
+                        location.reload();
+                        return;
+                    }
+                    const champion = document.getElementById('podium-1').value;
+                    const runner_up = document.getElementById('podium-2').value;
+                    const third_place = document.getElementById('podium-3').value;
+
+                    if (!champion || !runner_up || !third_place) return alert('Por favor, completa los tres lugares del podio.');
+                    if (new Set([champion, runner_up, third_place]).size !== 3) return alert('No puedes seleccionar el mismo equipo en varias posiciones.');
+
+                    const { error } = await supabase
+                        .from('podium_predictions')
+                        .upsert({ user_id: currentUser, champion, runner_up, third_place }, { onConflict: 'user_id' });
+
+                    if (error) alert('Error al guardar podio: ' + error.message);
+                    else alert('¡Podio Ideal guardado exitosamente! 🤡🏆');
+                };
+            }
+        }
 
         const initTheme = () => {
             const themeToggle = document.getElementById('theme-toggle');
@@ -225,96 +344,6 @@
                 };
             }
         };
-
-        const getFlag = (team) => `${flags[team] || ''} ${team}`;
-
-        let fullRankingData = [];
-
-        window.applyFilters = () => {
-            const showOnlyExacts = document.getElementById('filter-exacts').checked;
-            const filteredData = showOnlyExacts 
-                ? fullRankingData.filter(p => (p.exact_scores || 0) > 0)
-                : fullRankingData;
-            renderRanking(filteredData);
-        };
-
-        function renderRanking(data) {
-            const tbody = document.querySelector('#ranking-table tbody');
-            tbody.innerHTML = '';
-
-            data.forEach((player, index) => {
-                const row = tbody.insertRow();
-                const isTop3 = index < 3;
-                
-                if (isTop3) {
-                    row.className = `metallic-row rank-${index + 1} font-black`;
-                }
-
-                const medalEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1);
-                const totalPoints = player.total_points || 0;
-                const exactScores = player.exact_scores || 0;
-                const otherPoints = Math.max(0, totalPoints - (exactScores * 12));
-                const config = userConfig[player.username] || { emoji: '👤', color: 'ring-primary' };
-                const avatarShineClass = index === 0 ? 'leader-avatar-shine' : ''; // Aplica solo al líder
-                
-                // Estilo destacado para el puntaje total
-                const pointsBadgeClass = isTop3 ? 'bg-black/10' : 'bg-primary text-primary-content';
-
-                row.innerHTML = `
-                    <th class="text-center ${isTop3 ? 'text-2xl sm:text-3xl' : 'text-sm opacity-40'} font-black">${medalEmoji}</th>
-                    <td class="pl-2">
-                        <div class="flex items-center gap-2 sm:gap-4">
-                            <div class="avatar placeholder">
-                                <div class="bg-neutral text-neutral-content rounded-full w-9 sm:w-12 ring ${config.color} ring-offset-base-100 ring-offset-1 ${avatarShineClass}">
-                                    <span class="text-xl sm:text-2xl">${config.emoji}</span>
-                                </div>
-                            </div>
-                            <div class="max-w-[120px] sm:max-w-none">
-                                <div class="${isTop3 ? 'text-base sm:text-xl' : 'text-sm sm:text-base'} font-black capitalize leading-none mb-1">${player.username}</div>
-                                <div class="text-[9px] sm:text-[10px] opacity-60 uppercase font-bold tracking-tight leading-none">
-                                    ${player.username === 'bennett' ? '<span class="text-error">🚫 Sancionado</span>' : 
-                                      player.username === 'luisito' ? '<span class="text-success">🛡️ Bonus Caza-Hack</span>' : 
-                                      'Participante Activo'}
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="text-center px-1">
-                        <div class="badge badge-sm sm:badge-md ${exactScores > 0 ? 'badge-success' : 'badge-ghost opacity-20'} font-black shadow-sm">
-                            <span class="hidden sm:inline mr-1">🎯</span> ${exactScores}
-                        </div>
-                    </td>
-                    <td class="text-center hidden sm:table-cell">
-                        <div class="text-xs font-bold opacity-50">${otherPoints} <span class="text-[8px] uppercase">pts</span></div>
-                    </td>
-                    <td class="text-right pr-4 sm:pr-10">
-                        <div class="inline-flex items-center justify-center min-w-[45px] sm:min-w-[70px] ${pointsBadgeClass} total-points-badge rounded-xl py-1 sm:py-2 px-2 sm:px-4">
-                            <span class="text-xl sm:text-3xl font-black italic tracking-tighter">${totalPoints}</span>
-                        </div>
-                    </td>
-                `;
-            });
-        }
-
-        async function cargarRanking() {
-            const { data: ranking, error } = await supabase
-                .from('ranking_view') // Nombre de la vista que creaste en SQL
-                .select('*')
-            
-            if (error) return console.error('Error al cargar el ranking:', error.message)
-            
-            // Ordenamiento robusto con desempates: Puntos > Exactos > Diferencia
-            fullRankingData = ranking.sort((a, b) => {
-                if (b.total_points !== a.total_points) {
-                    return b.total_points - a.total_points;
-                }
-                if (b.exact_scores !== a.exact_scores) {
-                    return b.exact_scores - a.exact_scores;
-                }
-                return (b.correct_winner_diff || 0) - (a.correct_winner_diff || 0);
-            });
-            renderRanking(fullRankingData);
-        }
 
         window.logout = async () => {
             await supabase.auth.signOut()
@@ -348,7 +377,7 @@
             }
         }
 
-        cargarRanking()
+        cargarPodio()
         initTheme()
     </script>
 </body>
