@@ -69,13 +69,91 @@
     </div>
 
     <div class="container mx-auto p-4 lg:p-10 max-w-4xl">
-        <h1 class="text-3xl font-bold mb-8 border-l-4 border-info pl-4 text-info tracking-tight">Estadísticas de Rendimiento</h1>
-        
-        <div id="chart-section" class="mb-10 animate-fade-in-up">
-            <div class="card bg-base-100 shadow-xl border border-info/20">
-                <div class="card-body p-4 sm:p-6 text-center">
-                    <h2 class="card-title text-info flex justify-center items-center gap-2 mb-4">
-                        Puntos por Fecha
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold border-l-4 border-info pl-4 text-info tracking-tight">Análisis de Juego</h1>
+            <div class="badge badge-outline gap-2 p-4 italic opacity-70">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
+                </span>
+                Datos en Tiempo Real
+            </div>
+        </div>
+
+        <!-- Grid de Gráficos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            
+            <!-- Evolución Temporal -->
+            <div class="card bg-base-100 shadow-xl border border-base-300 animate-fade-in-up md:col-span-2">
+                <div class="card-body">
+                    <h2 class="card-title text-sm uppercase tracking-widest opacity-60">Evolución de Puntos</h2>
+                    <div class="h-64 w-full">
+                        <canvas id="puntosChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Distribución de Puntos -->
+            <div class="card bg-base-100 shadow-xl border border-base-300 animate-fade-in-up" style="animation-delay: 0.1s">
+                <div class="card-body">
+                    <h2 class="card-title text-sm uppercase tracking-widest opacity-60">Calidad de Pronósticos</h2>
+                    <div class="h-64 w-full">
+                        <canvas id="efectividadChart"></canvas>
+                    </div>
+                    <p class="text-[10px] text-center opacity-50 mt-2 italic">A mayor proporción de verde, más exactos has acertado.</p>
+                </div>
+            </div>
+
+            <!-- Comparativa Grupal -->
+            <div class="card bg-base-100 shadow-xl border border-base-300 animate-fade-in-up" style="animation-delay: 0.2s">
+                <div class="card-body">
+                    <h2 class="card-title text-sm uppercase tracking-widest opacity-60">Tú vs El Olimpo</h2>
+                    <div class="h-64 w-full">
+                        <canvas id="comparativaChart"></canvas>
+                    </div>
+                    <div class="mt-4 p-3 bg-base-200 rounded-xl text-center">
+                        <p class="text-xs font-bold italic" id="comparativa-label">Cargando análisis...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Consejos -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in-up" style="animation-delay: 0.3s">
+            <div class="alert shadow-lg bg-info/10 border-info/20">
+                <div class="flex flex-col items-start gap-1">
+                    <span class="font-bold text-info">🎯 Objetivo</span>
+                    <span class="text-xs opacity-70 italic text-left">Los marcadores exactos dan 12 pts. Arriesga más en equipos con defensa débil.</span>
+                </div>
+            </div>
+            <div class="alert shadow-lg bg-warning/10 border-warning/20">
+                <div class="flex flex-col items-start gap-1">
+                    <span class="font-bold text-warning">⚖️ Equilibrio</span>
+                    <span class="text-xs opacity-70 italic text-left">El 8 pts es tu seguro de vida. Acertar la diferencia es clave para subir.</span>
+                </div>
+            </div>
+            <div class="alert shadow-lg bg-success/10 border-success/20">
+                <div class="flex flex-col items-start gap-1">
+                    <span class="font-bold text-success">🥇 Estrategia</span>
+                    <span class="text-xs opacity-70 italic text-left">Revisa los "Otros Pronósticos" para ver si el líder está cometiendo errores.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer footer-center p-10 bg-base-100 text-base-content border-t border-primary/20 mt-10">
+      <aside>
+        <div class="text-5xl mb-4">🤡</div>
+        <p class="font-bold text-lg">Mesa Poker Mundial 2026</p> 
+        <p class="italic opacity-80 max-w-xs sm:max-w-md">
+          "Un hechizo simple pero inquebrantable: Gay el que vulnere el código" 🪄✨
+        </p>
+        <div class="divider w-24 mx-auto opacity-20"></div>
+        <p class="text-[10px] opacity-40 uppercase tracking-[0.2em]">
+          © 2026 - Estadísticas de Alto Circo
+        </p>
+      </aside>
+    </footer>
                     </h2>
                     <div id="no-data-alert" class="hidden alert alert-info py-2 text-xs">Aún no hay partidos finalizados para mostrar datos.</div>
                     <div class="h-80 w-full">

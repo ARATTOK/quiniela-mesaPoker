@@ -88,6 +88,7 @@ const userConfig = {
 
 let allMatches = []; // Variable global para almacenar todos los partidos
 let userPredictions = []; // Variable global para almacenar los pronósticos del usuario
+let globalRanking = []; // Nueva variable para comparativas
 let countdownInterval = null;
 
 async function cargarPartidos() {
@@ -138,6 +139,13 @@ async function cargarPartidos() {
     } else {
         userPredictions = predictions; // Almacenar los pronósticos del usuario
     }
+
+    // Obtener ranking global para comparativas
+    const { data: rankingData } = await supabase
+        .from('ranking_view')
+        .select('*');
+    
+    globalRanking = rankingData || [];
 
     // Configurar el filtro de fecha inicial (Hoy)
     const today = new Date();
@@ -290,11 +298,15 @@ async function cargarPodio() {
 
 function actualizarGraficoPuntos() {
     const ctx = document.getElementById('puntosChart');
-    const chartSection = document.getElementById('chart-section');
-    const noDataAlert = document.getElementById('no-data-alert');
-    if (!ctx || !allMatches.length) return;
+    if (!ctx || !allMatches.length || !userPredictions.length) return;
 
-    // Agrupar puntos por fecha
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#A6ADBB' : '#1f2937';
+    const accentColor = '#3b82f6';
+    const secondaryColor = '#d926a9';
+    const successColor = '#00ff9f';
+
+    // --- 1. GRÁFICO DE EVOLUCIÓN (EXISTENTE MEJORADO) ---
     const pointsByDate = {};
     
     // Filtrar predicciones de partidos finalizados y ordenar por fecha
@@ -312,56 +324,89 @@ function actualizarGraficoPuntos() {
     const labels = Object.keys(pointsByDate);
     const data = Object.values(pointsByDate);
 
-    if (labels.length === 0) {
-        if (noDataAlert) noDataAlert.classList.remove('hidden');
-        ctx.parentElement.style.display = 'none';
-        return;
-    }
-
-    if (noDataAlert) noDataAlert.classList.add('hidden');
-    ctx.parentElement.style.display = 'block';
-    if (chartSection) chartSection.classList.remove('hidden');
-
-    // Destruir instancia previa si existe para evitar errores al recargar
-    if (window.myChart instanceof Chart) {
-        window.myChart.destroy();
-    }
-
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const textColor = isDark ? '#A6ADBB' : '#1f2937';
-    const barColor = isDark ? '#641ae6' : '#570df8';
-
-    window.myChart = new Chart(ctx, {
+    if (window.chartEvolucion) window.chartEvolucion.destroy();
+    window.chartEvolucion = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [{
                 label: 'Puntos logrados',
                 data: data,
-                backgroundColor: barColor,
+                backgroundColor: accentColor,
                 borderRadius: 8,
-                borderSkipped: false,
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { color: textColor, stepSize: 5 },
-                    grid: { color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }
-                },
-                x: {
-                    ticks: { color: textColor },
-                    grid: { display: false }
-                }
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { 
+                y: { beginAtZero: true, ticks: { color: textColor } },
+                x: { ticks: { color: textColor } }
             }
         }
     });
+
+    // --- 2. GRÁFICO DE DISTRIBUCIÓN DE EFECTIVIDAD (PIE) ---
+    const ctxPie = document.getElementById('efectividadChart');
+    if (ctxPie) {
+        const distribucion = { 'Exacto (12)': 0, 'Diferencia (8)': 0, 'Ganador (5)': 0, 'Goles (2)': 0, 'Cero': 0 };
+        finishedPreds.forEach(item => {
+            const p = item.pred.points;
+            if (p >= 12) distribucion['Exacto (12)']++;
+            else if (p === 8) distribucion['Diferencia (8)']++;
+            else if (p === 5) distribucion['Ganador (5)']++;
+            else if (p === 2) distribucion['Goles (2)']++;
+            else distribucion['Cero']++;
+        });
+
+        if (window.chartPie) window.chartPie.destroy();
+        window.chartPie = new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(distribucion),
+                datasets: [{
+                    data: Object.values(distribucion),
+                    backgroundColor: ['#00ff9f', '#3b82f6', '#f5d142', '#a855f7', '#ff4d4d'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { size: 10 } } } }
+            }
+        });
+    }
+
+    // --- 3. COMPARATIVA VS GRUPO (HORIZONTAL BAR) ---
+    const ctxComp = document.getElementById('comparativaChart');
+    if (ctxComp && globalRanking.length > 0) {
+        const currentUser = localStorage.getItem('currentUser');
+        const myData = globalRanking.find(u => u.username === currentUser) || { total_points: 0 };
+        const avgPoints = globalRanking.reduce((acc, curr) => acc + curr.total_points, 0) / globalRanking.length;
+        const topPoints = globalRanking[0].total_points;
+
+        if (window.chartComp) window.chartComp.destroy();
+        window.chartComp = new Chart(ctxComp, {
+            type: 'bar',
+            data: {
+                labels: ['Tú', 'Promedio', 'Líder'],
+                datasets: [{
+                    data: [myData.total_points, avgPoints, topPoints],
+                    backgroundColor: [secondaryColor, '#94a3b8', successColor],
+                    borderRadius: 10
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    x: { beginAtZero: true, ticks: { color: textColor } },
+                    y: { ticks: { color: textColor, font: { weight: 'bold' } } }
+                }
+            }
+        });
+    }
 }
 
 function renderizarPartidosPorFecha(fechaSeleccionada) {
