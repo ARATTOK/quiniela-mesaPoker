@@ -18,10 +18,17 @@
         .metallic-row {
             background-size: 200% auto;
             animation: shine 5s linear infinite;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
         }
-        .metallic-row:hover { transform: scale(1.01); }
+        .metallic-row:hover { 
+            transform: scale(1.005);
+            filter: brightness(1.05);
+        }
         
+        .total-points-badge {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
         /* Oro */
         .rank-1 {
             background-image: linear-gradient(110deg, #fdf6e3 0%, #f5d142 20%, #fdf6e3 40%, #f5d142 60%, #fdf6e3 80%, #f5d142 100%);
@@ -94,26 +101,26 @@
         </div>
     </div>
 
-    <div class="container mx-auto p-4 lg:p-10">
+    <div class="container mx-auto p-2 sm:p-4 lg:p-10 max-w-5xl">
         <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-            <h1 class="text-3xl font-bold border-l-4 border-secondary pl-4 text-secondary tracking-tight">Clasificación Mundial</h1>
+            <h1 class="text-3xl sm:text-4xl font-black border-l-8 border-secondary pl-4 text-secondary uppercase tracking-tighter italic">Leaderboard</h1>
             <div class="form-control">
-                <label class="label cursor-pointer gap-4 bg-base-100 px-6 py-3 rounded-2xl shadow-md border border-base-300 hover:border-secondary transition-all">
-                    <span class="label-text font-bold text-sm uppercase opacity-70">Solo con marcadores exactos 🎯</span> 
+                <label class="label cursor-pointer gap-3 bg-base-100 px-4 py-2 rounded-xl shadow-sm border border-base-300 hover:border-secondary transition-all">
+                    <span class="label-text font-black text-[10px] sm:text-xs uppercase opacity-70">Filtrar Exactos 🎯</span> 
                     <input type="checkbox" id="filter-exacts" class="checkbox checkbox-secondary" onchange="window.applyFilters()" />
                 </label>
             </div>
         </div>
 
-        <div class="overflow-x-auto card bg-base-100 shadow-2xl border border-base-300">
-            <table class="table table-zebra w-full" id="ranking-table">
+        <div class="card bg-base-100 shadow-2xl border border-base-300 overflow-hidden">
+            <table class="table w-full" id="ranking-table">
                 <thead>
-                    <tr class="text-secondary uppercase text-[10px] tracking-widest bg-base-200">
-                        <th class="w-16 text-center">#</th>
-                        <th>Usuario</th>
-                        <th class="text-center">Exactos (12 pts)</th>
-                        <th class="text-center">Otros (2-8 pts)</th>
-                        <th class="text-right pr-8">Total Puntos</th>
+                    <tr class="text-base-content/60 uppercase text-[10px] sm:text-xs font-black tracking-[0.2em] bg-base-200/50 border-b border-base-300">
+                        <th class="w-12 sm:w-20 text-center">Pos</th>
+                        <th class="pl-2">Payasito</th>
+                        <th class="text-center px-1 sm:px-4">Exactos</th>
+                        <th class="text-center hidden sm:table-cell">Otros</th>
+                        <th class="text-right pr-4 sm:pr-10">Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -171,7 +178,7 @@
             userDisplay.innerHTML = `
                 <div class="flex items-center gap-2">
                     <div class="avatar placeholder">
-                        <div class="bg-neutral text-neutral-content rounded-full w-6 ring ${config.color} ring-offset-base-100 ring-offset-1">
+                            <div class="bg-neutral text-neutral-content rounded-full w-6 ring ${config.color} ring-offset-base-100 ring-offset-1 shadow-md">
                             <span class="text-[10px]">${config.emoji}</span>
                         </div>
                     </div>
@@ -245,34 +252,41 @@
                 const otherPoints = Math.max(0, totalPoints - (exactScores * 12));
                 const config = userConfig[player.username] || { emoji: '👤', color: 'ring-primary' };
                 const avatarShineClass = index === 0 ? 'leader-avatar-shine' : ''; // Aplica solo al líder
+                
+                // Estilo destacado para el puntaje total
+                const pointsBadgeClass = isTop3 ? 'bg-black/10' : 'bg-primary text-primary-content';
 
                 row.innerHTML = `
-                    <th class="text-center ${isTop3 ? 'text-2xl' : 'opacity-50'}">${medalEmoji}</th>
-                    <td>
-                        <div class="flex items-center gap-4">
+                    <th class="text-center ${isTop3 ? 'text-2xl sm:text-3xl' : 'text-sm opacity-40'} font-black">${medalEmoji}</th>
+                    <td class="pl-2">
+                        <div class="flex items-center gap-2 sm:gap-4">
                             <div class="avatar placeholder">
-                                <div class="bg-neutral text-neutral-content rounded-full w-8 sm:w-10 ring ${config.color} ring-offset-base-100 ring-offset-1 ${avatarShineClass}">
-                                    <span class="text-lg">${config.emoji}</span>
+                                <div class="bg-neutral text-neutral-content rounded-full w-9 sm:w-12 ring ${config.color} ring-offset-base-100 ring-offset-1 ${avatarShineClass}">
+                                    <span class="text-xl sm:text-2xl">${config.emoji}</span>
                                 </div>
                             </div>
-                            <div>
-                                <div class="${isTop3 ? 'text-lg' : 'font-bold'} capitalize">${player.username}</div>
-                                <div class="text-[10px] opacity-50 uppercase tracking-tighter">
-                                    ${player.username === 'bennett' ? '<span class="text-error font-black">🚫 Sancionado (Hack attempt)</span>' : 
-                                      player.username === 'luisito' ? '<span class="text-success font-black">🛡️ Bonus Caza-Hackers</span>' : 
+                            <div class="max-w-[120px] sm:max-w-none">
+                                <div class="${isTop3 ? 'text-base sm:text-xl' : 'text-sm sm:text-base'} font-black capitalize leading-none mb-1">${player.username}</div>
+                                <div class="text-[9px] sm:text-[10px] opacity-60 uppercase font-bold tracking-tight leading-none">
+                                    ${player.username === 'bennett' ? '<span class="text-error">🚫 Sancionado</span>' : 
+                                      player.username === 'luisito' ? '<span class="text-success">🛡️ Bonus Caza-Hack</span>' : 
                                       'Participante Activo'}
                                 </div>
                             </div>
                         </div>
                     </td>
-                    <td class="text-center">
-                        <div class="badge ${exactScores > 0 ? 'badge-success' : 'badge-ghost opacity-30'} font-bold">🎯 ${exactScores}</div>
+                    <td class="text-center px-1">
+                        <div class="badge badge-sm sm:badge-md ${exactScores > 0 ? 'badge-success' : 'badge-ghost opacity-20'} font-black shadow-sm">
+                            <span class="hidden sm:inline mr-1">🎯</span> ${exactScores}
+                        </div>
                     </td>
-                    <td class="text-center">
-                        <div class="text-xs opacity-70">${otherPoints} pts</div>
+                    <td class="text-center hidden sm:table-cell">
+                        <div class="text-xs font-bold opacity-50">${otherPoints} <span class="text-[8px] uppercase">pts</span></div>
                     </td>
-                    <td class="text-right pr-8">
-                        <div class="text-xl font-black">${totalPoints}</div>
+                    <td class="text-right pr-4 sm:pr-10">
+                        <div class="inline-flex items-center justify-center min-w-[45px] sm:min-w-[70px] ${pointsBadgeClass} total-points-badge rounded-xl py-1 sm:py-2 px-2 sm:px-4">
+                            <span class="text-xl sm:text-3xl font-black italic tracking-tighter">${totalPoints}</span>
+                        </div>
                     </td>
                 `;
             });
