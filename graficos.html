@@ -96,12 +96,15 @@
             </div>
         </div>
 
+        <!-- Saga Banner -->
+        <div id="saga-banner" class="hidden mb-8 animate-fade-in-up"></div>
+
         <!-- Stats Cards -->
         <div id="stats-cards" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div class="card bg-base-100 shadow-xl border border-base-300 animate-fade-in-up">
                 <div class="card-body p-4 text-center">
                     <div class="stat-card-value font-black text-info">-</div>
-                    <div class="text-xs uppercase font-bold tracking-wider opacity-60 mt-1">Puntos Totales</div>
+                    <div class="stat-label text-xs uppercase font-bold tracking-wider opacity-60 mt-1">Puntos Totales</div>
                 </div>
             </div>
             <div class="card bg-base-100 shadow-xl border border-base-300 animate-fade-in-up" style="animation-delay: 0.05s">
@@ -283,6 +286,7 @@
         let allPredictions = [];
         let globalRanking = [];
         let selectedUser = null;
+        const sagaAdjustments = { 'bennett': -43, 'luisito': 43 };
 
         // Init session
         const sessionUser = localStorage.getItem('currentUser');
@@ -393,7 +397,35 @@
             }
             const streakLabel = streak > 0 ? `🔥 ${streak}` : '💔 0';
 
-            document.querySelector('#stats-cards').children[0].querySelector('.stat-card-value').textContent = totalPts;
+            // Saga adjustment (hardcoded - Bennet hackeó y se transfirieron pts a Luisito)
+            const adjustment = sagaAdjustments[selectedUser] || 0;
+            const effectiveTotal = totalPts + adjustment;
+
+            // Update total points card with saga info
+            const totalCard = document.querySelector('#stats-cards').children[0];
+            const totalValue = totalCard.querySelector('.stat-card-value');
+            const totalLabel = totalCard.querySelector('.stat-label');
+            if (adjustment !== 0) {
+                const sign = adjustment > 0 ? '+' : '';
+                totalValue.innerHTML = `${effectiveTotal} <span class="text-xs font-normal opacity-50">(${totalPts} ${sign}${adjustment})</span>`;
+                totalValue.className = 'stat-card-value font-black ' + (adjustment < 0 ? 'text-error' : 'text-success');
+                const existingBadge = totalLabel.querySelector('.saga-badge');
+                if (existingBadge) {
+                    existingBadge.className = 'saga-badge block text-[9px] uppercase tracking-widest font-black mt-1 ' + (adjustment < 0 ? 'text-error' : 'text-success');
+                    existingBadge.textContent = adjustment < 0 ? '🚫 Sancionado' : '🛡️ Bonus Caza-Hack';
+                } else {
+                    const badge = document.createElement('span');
+                    badge.className = 'saga-badge block text-[9px] uppercase tracking-widest font-black mt-1 ' + (adjustment < 0 ? 'text-error' : 'text-success');
+                    badge.textContent = adjustment < 0 ? '🚫 Sancionado' : '🛡️ Bonus Caza-Hack';
+                    totalLabel.appendChild(badge);
+                }
+            } else {
+                totalValue.textContent = totalPts;
+                totalValue.className = 'stat-card-value font-black text-info';
+                const existingBadge = totalLabel.querySelector('.saga-badge');
+                if (existingBadge) existingBadge.remove();
+            }
+
             document.querySelector('#stats-cards').children[1].querySelector('.stat-card-value').textContent = exacts;
             document.querySelector('#stats-cards').children[2].querySelector('.stat-card-value').textContent = avg;
             document.querySelector('#stats-cards').children[3].querySelector('.stat-card-value').textContent = numFinished;
@@ -402,6 +434,32 @@
             document.querySelector('#stats-cards-2').children[1].querySelector('.stat-card-value').textContent = streakLabel;
             document.querySelector('#stats-cards-2').children[2].querySelector('.stat-card-value').textContent = diffs;
             document.querySelector('#stats-cards-2').children[3].querySelector('.stat-card-value').textContent = zeros;
+
+            // Saga banner
+            const banner = document.getElementById('saga-banner');
+            if (adjustment < 0) {
+                banner.className = 'alert shadow-lg bg-error/10 border-error/20 mb-8 animate-fade-in-up';
+                banner.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6 text-error" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-error">🚫 Bennett intentó hackear el sitio — Sanción aplicada</span>
+                        <span class="text-xs opacity-70">Se le restaron <strong>43 puntos</strong> como penalización. Esos puntos fueron asignados a Luisito como bonus por juego limpio.</span>
+                    </div>
+                `;
+                banner.classList.remove('hidden');
+            } else if (adjustment > 0) {
+                banner.className = 'alert shadow-lg bg-success/10 border-success/20 mb-8 animate-fade-in-up';
+                banner.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6 text-success" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-success">🛡️ Luisito recibió bonus Caza-Hack</span>
+                        <span class="text-xs opacity-70">Se le asignaron <strong>+43 puntos</strong> como recompensa por denunciar el intento de hackeo de Bennett.</span>
+                    </div>
+                `;
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
         }
 
         function renderCharts() {
@@ -568,11 +626,25 @@
             const container = document.getElementById('tips-container');
             if (!container) return;
             container.innerHTML = '';
+
+            const adjustment = sagaAdjustments[selectedUser] || 0;
+
             const tips = [
                 { icon: '🎯', title: 'Precisión', text: `${pct}% de tus pronósticos son exactos (${exacts}/${total}). ${pct > 30 ? '¡Vas muy bien!' : pct > 15 ? 'Puedes mejorar.' : 'Sigue intentando, apunta a equipos sin defensa.'}`, cls: 'info' },
                 { icon: '📊', title: 'Consistencia', text: total > 0 ? `Llevas ${total} partidos pronosticados. ${total > 40 ? '¡Buena constancia!' : total > 20 ? 'Vas bien, no pierdas el ritmo.' : 'Aún quedan muchos partidos.'}` : 'Aún no has pronosticado ningún partido.', cls: 'warning' },
                 { icon: '🏆', title: 'Ranking', text: globalRanking.length > 0 ? `El líder tiene ${globalRanking[0].total_points} pts. ${finished.length > 0 ? `Tú promedias ${(finished.reduce((s, i) => s + (i.pred.points || 0), 0) / Math.max(1, total)).toFixed(1)} pts por partido.` : ''}` : 'Cargando...', cls: 'success' }
             ];
+
+            if (adjustment !== 0) {
+                const cls = adjustment < 0 ? 'error' : 'success';
+                const icon = adjustment < 0 ? '🚫' : '🛡️';
+                const title = adjustment < 0 ? 'Sanción' : 'Bonus';
+                const desc = adjustment < 0
+                    ? `Bennett tiene ${Math.abs(adjustment)} pts de penalización por intento de hackeo. Esos puntos fueron transferidos a Luisito.`
+                    : `Luisito recibió ${adjustment} pts bonus por reportar el intento de hackeo de Bennett.`;
+                tips.push({ icon, title, text: desc, cls });
+            }
+
             tips.forEach(t => {
                 const div = document.createElement('div');
                 div.className = `alert shadow-lg bg-${t.cls}/10 border-${t.cls}/20`;
