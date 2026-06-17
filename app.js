@@ -890,13 +890,19 @@ cargarPartidos()
 window.cerrarGatoEscapado = () => {
     const el = document.getElementById('gato-escapado-banner');
     if (!el) return;
-    el.style.maxHeight = '0px';
-    el.style.opacity = '0';
-    el.style.padding = '0';
-    el.style.margin = '0';
-    el.style.border = 'none';
-    setTimeout(() => el.remove(), 500);
+    el.style.display = 'none';
     localStorage.setItem('gatoDismissed', Date.now().toString());
+};
+window.mostrarGatoEscapado = () => {
+    const el = document.getElementById('gato-escapado-banner');
+    if (!el) return;
+    el.style.display = '';
+    el.style.maxHeight = '300px';
+    el.style.opacity = '1';
+    el.style.padding = '';
+    el.style.margin = '';
+    el.style.border = '';
+    localStorage.removeItem('gatoDismissed');
 };
 (() => {
     const d = localStorage.getItem('gatoDismissed');

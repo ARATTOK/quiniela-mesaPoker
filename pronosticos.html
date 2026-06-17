@@ -86,29 +86,42 @@
     </div>
 
     <!-- Gato Escapado - Noticiero del Mundial -->
-    <div id="gato-escapado-banner" class="relative bg-gradient-to-r from-base-300/90 via-base-200/90 to-base-300/90 border-b border-accent/20 overflow-hidden transition-all duration-500" style="max-height:300px; opacity:1;">
-        <div class="absolute inset-0 bg-gradient-to-r from-accent/5 via-transparent to-accent/5 pointer-events-none"></div>
-        <div class="flex items-center justify-between px-4 sm:px-6 py-1.5 bg-base-300/60">
-            <div class="flex items-center gap-2">
-                <span class="text-lg leading-none">🐱</span>
-                <span class="font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] text-accent">Gato Escapado</span>
-                <span class="badge badge-accent badge-xs animate-pulse">● EN VIVO</span>
-            </div>
-            <button onclick="cerrarGatoEscapado()" class="btn btn-ghost btn-xs btn-square opacity-40 hover:opacity-100 transition-opacity" aria-label="Cerrar noticias">✕</button>
-        </div>
-        <div class="px-4 sm:px-6 py-2.5 space-y-2 text-xs sm:text-sm">
-            <div class="flex items-start gap-3">
-                <span class="text-lg shrink-0 mt-0.5">🇵🇹</span>
-                <div>
-                    <span class="font-bold uppercase text-[10px] tracking-wider text-accent/70">Internacional</span>
-                    <p class="leading-snug opacity-90"><strong class="text-accent">Portugal decepciona en su debut</strong> — La selección lusa empató 1-1 ante Congo en un partido gris, dejando serias dudas sobre su capacidad ofensiva de cara al resto del torneo.</p>
+    <div id="gato-escapado-banner" class="card bg-base-100 shadow-xl mx-4 sm:mx-6 lg:mx-20 mt-4 border border-accent/20 overflow-hidden transition-all duration-500" style="max-height:360px; opacity:1;">
+        <div class="card-body p-0">
+            <!-- Header -->
+            <div class="flex items-center justify-between px-5 py-2.5 bg-gradient-to-r from-accent/10 via-accent/5 to-transparent border-b border-accent/10">
+                <div class="flex items-center gap-2.5">
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-error"></span>
+                    </span>
+                    <span class="text-sm sm:text-base leading-none">🐱</span>
+                    <span class="font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] text-accent">Gato Escapado</span>
+                    <span class="badge badge-error badge-xs font-bold text-[8px] tracking-widest">EN VIVO</span>
                 </div>
+                <button onclick="cerrarGatoEscapado()" class="btn btn-ghost btn-xs btn-square opacity-30 hover:opacity-100 transition-all hover:bg-error/10 hover:text-error rounded-full" aria-label="Cerrar noticias">✕</button>
             </div>
-            <div class="flex items-start gap-3">
-                <span class="text-lg shrink-0 mt-0.5">🐐</span>
-                <div>
-                    <span class="font-bold uppercase text-[10px] tracking-wider text-warning/70">Polémica</span>
-                    <p class="leading-snug opacity-90"><strong class="text-warning">Messi debuta con hat-trick entre controversias</strong> — La Pulga marcó tres goles en su presentación mundialista, pero una flagrante roja no sancionada a un defensor rival encendió la polémica arbitral en el cierre del partido.</p>
+            <!-- News Items -->
+            <div class="px-5 py-3 space-y-3 text-xs sm:text-sm">
+                <div class="flex items-start gap-4 p-3 rounded-2xl bg-base-200/60 hover:bg-base-200 transition-colors">
+                    <span class="text-2xl shrink-0 mt-1">🇵🇹</span>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-bold uppercase text-[9px] tracking-wider text-accent/70 badge badge-accent badge-xs badge-outline">Internacional</span>
+                            <span class="text-[10px] opacity-40">• 17 Jun 2026</span>
+                        </div>
+                        <p class="leading-relaxed opacity-85 mt-1"><strong class="text-accent">Portugal decepciona en su debut</strong> — La selección lusa empató 1-1 ante Congo en un partido gris, dejando serias dudas sobre su capacidad ofensiva de cara al resto del torneo.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4 p-3 rounded-2xl bg-base-200/60 hover:bg-base-200 transition-colors">
+                    <span class="text-2xl shrink-0 mt-1">🐐</span>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-bold uppercase text-[9px] tracking-wider text-warning/70 badge badge-warning badge-xs badge-outline">Polémica</span>
+                            <span class="text-[10px] opacity-40">• 17 Jun 2026</span>
+                        </div>
+                        <p class="leading-relaxed opacity-85 mt-1"><strong class="text-warning">Messi debuta con hat-trick entre controversias</strong> — La Pulga marcó tres goles en su presentación mundialista, pero una flagrante roja no sancionada a un defensor rival encendió la polémica arbitral en el cierre del partido.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -119,7 +132,15 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div class="flex items-center gap-4">
                     <h1 class="text-3xl font-bold border-l-4 border-primary pl-4 text-primary tracking-tight">Mis Pronósticos</h1>
-                    <button class="btn btn-accent btn-xs sm:btn-sm animate-bounce shadow-lg gap-1" onclick="document.getElementById('help_modal_bennet').showModal()">
+                    <button onclick="mostrarGatoEscapado()" class="btn btn-error btn-xs sm:btn-sm shadow-lg gap-1.5 border-2 border-error/30 hover:border-error transition-all" title="Abrir noticias">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                        </span>
+                        <span class="text-sm">🐱</span>
+                        <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white">Gato Escapado</span>
+                    </button>
+                    <button class="btn btn-ghost btn-xs sm:btn-sm gap-1 opacity-60 hover:opacity-100" onclick="document.getElementById('help_modal_bennet').showModal()">
                         <span class="text-base">💪</span>
                         <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Guía Bennet</span>
                     </button>
