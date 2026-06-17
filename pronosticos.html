@@ -130,20 +130,22 @@
     <div class="container mx-auto p-4 lg:p-10">
         <div class="flex flex-col gap-8 mb-10">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div class="flex items-center gap-4">
-                    <h1 class="text-3xl font-bold border-l-4 border-primary pl-4 text-primary tracking-tight">Mis Pronósticos</h1>
-                    <button onclick="mostrarGatoEscapado()" class="btn btn-error btn-xs sm:btn-sm shadow-lg gap-1.5 border-2 border-error/30 hover:border-error transition-all" title="Abrir noticias">
-                        <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                        </span>
-                        <span class="text-sm">🐱</span>
-                        <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white">Gato Escapado</span>
-                    </button>
-                    <button class="btn btn-ghost btn-xs sm:btn-sm gap-1 opacity-60 hover:opacity-100" onclick="document.getElementById('help_modal_bennet').showModal()">
-                        <span class="text-base">💪</span>
-                        <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Guía Bennet</span>
-                    </button>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                    <h1 class="text-2xl sm:text-3xl font-bold border-l-4 border-primary pl-3 sm:pl-4 text-primary tracking-tight shrink-0">Mis Pronósticos</h1>
+                    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <button onclick="mostrarGatoEscapado()" class="btn btn-error btn-xs sm:btn-sm shadow-lg gap-1 border-2 border-error/30 hover:border-error transition-all" title="Abrir noticias">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                            </span>
+                            <span class="text-sm leading-none">🐱</span>
+                            <span class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-white leading-none">Gato Escapado</span>
+                        </button>
+                        <button class="btn btn-ghost btn-xs sm:btn-sm gap-1 opacity-60 hover:opacity-100" onclick="document.getElementById('help_modal_bennet').showModal()">
+                            <span class="text-sm leading-none">💪</span>
+                            <span class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest leading-none">Guía Bennet</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="flex items-center gap-2 bg-base-100 p-1.5 rounded-2xl shadow-sm border border-base-300">
                     <input type="date" id="match-date-filter" class="input input-ghost input-xs sm:input-sm focus:bg-transparent" />
