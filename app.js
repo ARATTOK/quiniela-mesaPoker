@@ -455,33 +455,33 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
         const matchTime = parseMatchDate(match.match_date);
         const hasStarted = now >= matchTime || match.status === 'finished';
 
-        // Buscar si el usuario ya tiene un pronóstico para este partido
         const existingPrediction = userPredictions.find(p => p.match_id === match.id);
 
         const homePred = existingPrediction?.home_score_pred ?? '';
         const awayPred = existingPrediction?.away_score_pred ?? '';
         const penaltyPred = existingPrediction ? existingPrediction.penalty_winner_pred : '';
         const pointsEarned = existingPrediction?.points ?? 0;
+        const isFinished = match.status === 'finished';
 
-        // Determinar color según puntos ganados
-        const pointsColor = pointsEarned >= 12 ? 'success' : 
-                           pointsEarned >= 8 ? 'info' : 
-                           pointsEarned >= 5 ? 'warning' : 
+        const noPrediction = isFinished && !existingPrediction;
+        const pointsColor = noPrediction ? 'ghost' :
+                           pointsEarned >= 12 ? 'warning' :
+                           pointsEarned >= 8 ? 'info' :
+                           pointsEarned >= 5 ? 'success' :
                            pointsEarned >= 2 ? 'accent' : 'error';
-        
-        const isDisabled = hasStarted ? 'disabled' : ''; 
-        const div = document.createElement('div')
+
+        const isDisabled = hasStarted ? 'disabled' : '';
+        const div = document.createElement('div');
         const isExact = pointsEarned >= 12;
-        const borderClass = (match.status === 'finished') 
-            ? (isExact ? 'border-gold' : `border-2 border-${pointsColor}`) 
-            : '';
-        div.className = `card bg-base-100 shadow-xl animate-fade-in-up min-h-[200px] ${borderClass}`;
+
+        div.className = `card bg-base-100 shadow-xl animate-fade-in-up min-h-[200px] relative overflow-hidden ${isFinished ? (noPrediction ? 'ring-1 ring-base-300' : `ring-1 ring-${pointsColor}/30`) : ''}`;
         div.setAttribute('data-status', match.status);
-        div.style.animationDelay = `${index * 0.1}s`
-        div.setAttribute('data-match-id', match.id); // Store match ID
-        div.setAttribute('data-match-date', match.match_date); // Store match date for countdown
+        div.style.animationDelay = `${index * 0.1}s`;
+        div.setAttribute('data-match-id', match.id);
+        div.setAttribute('data-match-date', match.match_date);
         const isKnockout = ['Octavos', 'Cuartos', 'Semis', 'Final'].includes(match.stage)
-        
+        const matchTimeFormatted = parseMatchDate(match.match_date).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
+
         let buttonText = existingPrediction ? 'Actualizar' : 'Guardar';
         let buttonClass = 'btn-primary';
 
@@ -492,53 +492,80 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
             buttonClass = 'btn-secondary';
         }
 
+        const predDiff = isFinished && existingPrediction
+            ? `(tu pronóstico: ${homePred} - ${awayPred})`
+            : '';
+
         div.innerHTML = `
-            <div class="card-body p-4 sm:p-5">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="badge badge-primary badge-outline badge-sm text-[10px] sm:text-xs">${match.stage}</span>
-                    <span class="text-[10px] sm:text-xs opacity-50 font-mono">${parseMatchDate(match.match_date).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
+            ${isFinished ? `<div class="absolute top-0 left-0 right-0 h-1.5 ${noPrediction ? 'bg-base-300' : `bg-${pointsColor}`}"></div>` : ''}
+            <div class="card-body p-4 sm:p-5 ${isFinished ? (noPrediction ? 'bg-base-200' : `bg-${pointsColor}/5`) : ''}">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-3">
+                    <span class="badge badge-${isFinished ? (noPrediction ? 'ghost' : pointsColor) : 'primary'} ${!noPrediction ? 'badge-outline' : ''} badge-sm text-[10px] sm:text-xs">${match.stage}</span>
+                    <span class="text-[10px] sm:text-xs opacity-50 font-mono flex items-center gap-1">
+                        ${!hasStarted ? `<span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-success"></span></span>` : ''}
+                        ${matchTimeFormatted}
+                    </span>
                 </div>
-                <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1 sm:gap-3 mb-6 text-center">
-                    <div class="tooltip tooltip-top" data-tip="${match.home_team}">
-                        <div class="font-bold text-xs sm:text-base md:text-lg whitespace-normal leading-tight">
-                            ${getFlag(match.home_team)}
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <input type="number" id="home-${match.id}" class="input input-bordered input-sm w-9 sm:w-12 text-center px-1" value="${homePred}" ${isDisabled}>
-                        <span class="opacity-30 text-[10px] font-bold">vs</span>
-                        <input type="number" id="away-${match.id}" class="input input-bordered input-sm w-9 sm:w-12 text-center px-1" value="${awayPred}" ${isDisabled}>
-                    </div>
-                    <div class="tooltip tooltip-top" data-tip="${match.away_team}">
-                        <div class="font-bold text-xs sm:text-base md:text-lg whitespace-normal leading-tight">
-                            ${getFlag(match.away_team)}
-                        </div>
-                    </div>
-                </div>
-                ${isKnockout ? `
-                <select id="penalty-${match.id}" class="select select-bordered select-sm w-full mb-4" ${isDisabled}>
-                    <option value="">¿Quién clasifica?</option>
-                    <option value="${match.home_team}" ${penaltyPred === match.home_team ? 'selected' : ''}>${getFlag(match.home_team)}</option>
-                    <option value="${match.away_team}" ${penaltyPred === match.away_team ? 'selected' : ''}>${getFlag(match.away_team)}</option>
-                </select>` : ''}
-                ${match.status === 'finished' ? `
-                <div class="flex justify-center items-center mb-4 bg-${pointsColor}/10 rounded-xl p-3 border border-${pointsColor}/20 animate-pulse">
+
+                <!-- Teams -->
+                <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 mb-4">
                     <div class="text-center">
-                        <span class="text-[10px] uppercase font-black text-${pointsColor} tracking-widest block">Puntos Logrados</span>
-                        <span class="text-2xl font-black text-${pointsColor}">${pointsEarned} <small class="text-xs">PTS</small></span>
+                        <div class="text-3xl sm:text-4xl mb-1">${flags[match.home_team] || '🏳️'}</div>
+                        <div class="text-[11px] sm:text-sm font-bold opacity-80 truncate max-w-[90px] sm:max-w-[140px] mx-auto leading-tight">${match.home_team}</div>
+                        <input type="number" id="home-${match.id}" class="input input-bordered input-sm w-12 sm:w-14 text-center font-bold mt-2 text-base" value="${homePred}" ${isDisabled}>
+                    </div>
+
+                    <div class="flex flex-col items-center min-w-[40px]">
+                        <span class="text-xs font-black opacity-20 uppercase tracking-widest">vs</span>
+                        ${isFinished ? `
+                        <div class="text-center mt-1">
+                            <span class="text-lg sm:text-2xl font-black ${noPrediction ? 'opacity-30' : `text-${pointsColor}`}">${match.home_score ?? '?'}</span>
+                            <span class="text-lg sm:text-2xl font-black ${noPrediction ? 'opacity-30' : `text-${pointsColor}`} mx-0.5">-</span>
+                            <span class="text-lg sm:text-2xl font-black ${noPrediction ? 'opacity-30' : `text-${pointsColor}`}">${match.away_score ?? '?'}</span>
+                            ${predDiff ? `<div class="text-[9px] sm:text-[10px] opacity-50 italic mt-0.5">${predDiff}</div>` : ''}
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="text-center">
+                        <div class="text-3xl sm:text-4xl mb-1">${flags[match.away_team] || '🏳️'}</div>
+                        <div class="text-[11px] sm:text-sm font-bold opacity-80 truncate max-w-[90px] sm:max-w-[140px] mx-auto leading-tight">${match.away_team}</div>
+                        <input type="number" id="away-${match.id}" class="input input-bordered input-sm w-12 sm:w-14 text-center font-bold mt-2 text-base" value="${awayPred}" ${isDisabled}>
+                    </div>
+                </div>
+
+                ${isKnockout ? `
+                <div class="mb-3">
+                    <select id="penalty-${match.id}" class="select select-bordered select-sm w-full text-xs" ${isDisabled}>
+                        <option value="">⚖️ ¿Quién clasifica?</option>
+                        <option value="${match.home_team}" ${penaltyPred === match.home_team ? 'selected' : ''}>${flags[match.home_team] || '🏳️'} ${match.home_team}</option>
+                        <option value="${match.away_team}" ${penaltyPred === match.away_team ? 'selected' : ''}>${flags[match.away_team] || '🏳️'} ${match.away_team}</option>
+                    </select>
+                </div>` : ''}
+
+                ${isFinished ? `
+                <div class="flex justify-center items-center my-2">
+                    <div class="inline-flex items-center gap-2 ${noPrediction ? 'bg-base-300' : `bg-${pointsColor}/10 border border-${pointsColor}/20`} rounded-2xl px-5 py-3 shadow-lg ${isExact ? 'animate-bounce' : ''}">
+                        <span class="text-2xl sm:text-3xl font-black ${noPrediction ? 'opacity-30' : `text-${pointsColor}`}">${pointsEarned}</span>
+                        <div class="flex flex-col items-start">
+                            <span class="text-[9px] uppercase font-black ${noPrediction ? 'opacity-30' : `text-${pointsColor}`} tracking-widest leading-none">${noPrediction ? 'Sin pronóstico' : 'Puntos'}</span>
+                            ${isExact ? '<span class="text-[8px] text-warning font-bold leading-none mt-0.5">🎯 EXACTO</span>' : ''}
+                            ${noPrediction ? '<span class="text-[8px] opacity-30 font-bold leading-none mt-0.5">🙈 No pronosticaste</span>' : ''}
+                        </div>
                     </div>
                 </div>
                 ` : ''}
-                <div class="card-actions">
-                    <div id="countdown-${match.id}" class="text-sm font-bold text-center mb-2"></div>
-                    <button class="btn ${buttonClass} btn-block btn-sm" onclick="guardarPronostico(${match.id})" ${isDisabled}>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                        ${buttonText}
+
+                <div class="card-actions mt-1">
+                    <div id="countdown-${match.id}" class="text-xs font-bold text-center w-full mb-1 opacity-60"></div>
+                    <button class="btn ${buttonClass} btn-block btn-sm gap-1.5" onclick="guardarPronostico(${match.id})" ${isDisabled}>
+                        ${hasStarted ? '🔒' : '💾'} ${buttonText}
                     </button>
                 </div>
             </div>
-        `
-        container.appendChild(div)
+        `;
+        container.appendChild(div);
 
         // Efecto de Confeti Dorado para resultados exactos (se dispara al renderizar si es exacto)
         if (match.status === 'finished' && isExact) {
