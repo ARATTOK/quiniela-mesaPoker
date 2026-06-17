@@ -81,7 +81,8 @@ const userConfig = {
     'andrea': { emoji: '💃', color: 'ring-secondary' },
     'merino': { emoji: '🐑', color: 'ring-primary' },
     'pati': { emoji: '💅', color: 'ring-secondary' },
-    'reynaldo': { emoji: '👑', color: 'ring-warning' }
+    'reynaldo': { emoji: '👑', color: 'ring-warning' },
+    'oscar': { emoji: '🎪', color: 'ring-accent' }
 };
 
 const avatarHtml = (c, w = 'w-6', t = 'text-[10px]') => c.img
