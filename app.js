@@ -885,3 +885,23 @@ window.playHorn = () => {
 }
 
 cargarPartidos()
+
+// Gato Escapado - Noticiero del Mundial
+window.cerrarGatoEscapado = () => {
+    const el = document.getElementById('gato-escapado-banner');
+    if (!el) return;
+    el.style.maxHeight = '0px';
+    el.style.opacity = '0';
+    el.style.padding = '0';
+    el.style.margin = '0';
+    el.style.border = 'none';
+    setTimeout(() => el.remove(), 500);
+    localStorage.setItem('gatoDismissed', Date.now().toString());
+};
+(() => {
+    const d = localStorage.getItem('gatoDismissed');
+    if (d && (Date.now() - parseInt(d)) < 86400000) {
+        const el = document.getElementById('gato-escapado-banner');
+        if (el) el.style.display = 'none';
+    }
+})();
