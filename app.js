@@ -70,7 +70,7 @@ const userConfig = {
     'admin': { emoji: '🤡', color: 'ring-primary' },
     'aaron': { emoji: '🥳', color: 'ring-secondary' },
     'alam': { emoji: '🤪', color: 'ring-accent' },
-    'bennett': { emoji: '🤹', color: 'ring-info' },
+    'bennett': { emoji: '🤹', img: 'images/perfilbennet.png', color: 'ring-info' },
     'dennis': { emoji: '🎭', color: 'ring-success' },
     'jorge': { emoji: '🃏', color: 'ring-warning' },
     'kevin': { emoji: '🤩', color: 'ring-error' },
@@ -85,6 +85,10 @@ const userConfig = {
     'pati': { emoji: '💅', color: 'ring-secondary' },
     'reynaldo': { emoji: '👑', color: 'ring-warning' }
 };
+
+const avatarHtml = (c, w = 'w-6', t = 'text-[10px]') => c.img
+  ? `<div class="avatar"><div class="${w} rounded-full ring ${c.color} ring-offset-base-100 ring-offset-1"><img src="${c.img}" class="rounded-full object-cover w-full h-full" alt="" /></div></div>`
+  : `<div class="avatar placeholder"><div class="bg-neutral text-neutral-content rounded-full ${w} ring ${c.color} ring-offset-base-100 ring-offset-1"><span class="${t}">${c.emoji}</span></div></div>`;
 
 let allMatches = []; // Variable global para almacenar todos los partidos
 let userPredictions = []; // Variable global para almacenar los pronósticos del usuario
@@ -104,11 +108,7 @@ async function cargarPartidos() {
         const config = userConfig[currentUser] || { emoji: '👤', color: 'ring-primary' };
         userDisplay.innerHTML = `
             <div class="flex items-center gap-2">
-                <div class="avatar placeholder">
-                    <div class="bg-neutral text-neutral-content rounded-full w-6 ring ${config.color} ring-offset-base-100 ring-offset-1">
-                        <span class="text-[10px]">${config.emoji}</span>
-                    </div>
-                </div>
+                ${avatarHtml(config)}
                 <span class="capitalize font-bold text-xs">${currentUser}</span>
             </div>
         `;

@@ -184,7 +184,7 @@
             'admin': { pw: 'Q2lyY29BZG1pbiEyMDI2', emoji: '🤡', color: 'ring-primary' },
             'aaron': { pw: 'QWFyb25SaXNhcyMyNg==', emoji: '🥳', color: 'ring-secondary' },
             'alam': { pw: 'QWxhbU5hrizqKjIwMjY=', emoji: '🤪', color: 'ring-accent' },
-            'bennett': { pw: 'QmVubmV0dE1hZ2lhJDI2', emoji: '🤹', color: 'ring-info' },
+            'bennett': { pw: 'QmVubmV0dE1hZ2lhJDI2', emoji: '🤹', img: 'images/perfilbennet.png', color: 'ring-info' },
             'dennis': { pw: 'RGVubmlzVHJ1Y28hMjAyNg==', emoji: '🎭', color: 'ring-success' },
             'jorge': { pw: 'Sm9yZ2VNYWxhYmFyIzI2', emoji: '🃏', color: 'ring-warning' },
             'kevin': { pw: 'S2V2aW5Tb25yaXNhKjIwMjY=', emoji: '🤩', color: 'ring-error' },
@@ -201,6 +201,9 @@
         };
 
         let selectedUser = '';
+        const avatarHtml = (c, w = 'w-6', t = 'text-[10px]', innerCls = '', outerCls = '') => c.img
+          ? `<div class="avatar ${outerCls}"><div class="${w} rounded-full ring ${c.color} ring-offset-base-100 ring-offset-2 ${innerCls}"><img src="${c.img}" class="rounded-full object-cover w-full h-full" alt="" /></div></div>`
+          : `<div class="avatar placeholder ${outerCls}"><div class="bg-neutral text-neutral-content rounded-full ${w} ring ${c.color} ring-offset-base-100 ring-offset-2 ${innerCls}"><span class="${t}">${c.emoji}</span></div></div>`;
 
         window.login = async (emailInput, password) => {
             if (!emailInput || !password) return alert('Por favor, ingresa tu contraseña');
@@ -242,11 +245,7 @@
                 userDiv.onclick = () => openLogin(username);
                 
                 userDiv.innerHTML = `
-                    <div class="avatar placeholder group-hover:scale-110 transition-all duration-300">
-                        <div class="bg-neutral text-neutral-content rounded-full w-20 shadow-lg ring ${config.color} ring-offset-base-100 ring-offset-2 opacity-80 group-hover:opacity-100">
-                            <span class="text-4xl">${config.emoji}</span>
-                        </div>
-                    </div>
+                    ${avatarHtml(config, 'w-20', 'text-4xl', 'shadow-lg opacity-80 group-hover:opacity-100', 'group-hover:scale-110 transition-all duration-300')}
                     <span class="text-xs font-bold opacity-60 group-hover:text-primary group-hover:opacity-100 transition-all truncate w-full text-center capitalize">${username}</span>
                 `;
                 grid.appendChild(userDiv);
@@ -276,11 +275,15 @@
             const avatarContainer = document.getElementById('modal-avatar-container');
             
             nameDisplay.innerText = username;
-            emojiDisplay.innerText = userConfig[username].emoji;
+            const cfg = userConfig[username];
+            if (cfg.img) {
+                emojiDisplay.innerHTML = `<img src="${cfg.img}" class="rounded-full object-cover w-full h-full" alt="" />`;
+                avatarContainer.className = `rounded-full w-20 ring ${cfg.color} ring-offset-base-100 ring-offset-2`;
+            } else {
+                emojiDisplay.innerText = cfg.emoji;
+                avatarContainer.className = `bg-neutral text-neutral-content rounded-full w-20 ring ${cfg.color} ring-offset-base-100 ring-offset-2`;
+            }
             passwordInput.value = '';
-            
-            // Actualizar color del anillo en el modal
-            avatarContainer.className = `bg-neutral text-neutral-content rounded-full w-20 ring ${userConfig[username].color} ring-offset-base-100 ring-offset-2`;
             
             modal.showModal();
             
