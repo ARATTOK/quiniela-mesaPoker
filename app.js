@@ -25,22 +25,20 @@ const parseMatchDate = (isoString) => {
     return date;
 };
 
-window.initTheme = () => {
+const initTheme = () => {
     const themeToggle = document.getElementById('theme-toggle');
     const currentTheme = localStorage.getItem('theme') || 'dark';
-    
-    // Aplicar el tema inmediatamente
     document.documentElement.setAttribute('data-theme', currentTheme);
-    
     if (themeToggle) {
         themeToggle.checked = currentTheme === 'light';
-        themeToggle.onchange = () => {
+        themeToggle.addEventListener('change', () => {
             const newTheme = themeToggle.checked ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
-        };
+        });
     }
 };
+initTheme();
 
 const supabase = createClient('https://gvoadjrnrlzhgeqsdhyi.supabase.co', 'sb_publishable_XiqzVY4Sh3VTQsqGEu6eHA_akxwyJZK')
 
@@ -176,7 +174,6 @@ async function cargarPartidos() {
     actualizarGraficoPuntos();
     renderDatePills(hoy);
     startCountdowns(); // Start countdowns on initial load
-    window.initTheme(); // Inicializar el switch de tema
 }
 
 async function cargarPodio() {

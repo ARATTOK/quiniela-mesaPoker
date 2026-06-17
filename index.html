@@ -11,39 +11,71 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤡</text></svg>">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+        .float-emoji { animation: float 3s ease-in-out infinite; }
+        .user-avatar-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .user-avatar-card:hover {
+            transform: translateY(-4px) scale(1.05);
+        }
+        .user-avatar-card:active {
+            transform: scale(0.95);
+        }
+        .bg-grid {
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
 </head>
 <body class="min-h-screen bg-base-200">
     <div class="fixed top-4 right-4 z-50">
-        <label class="btn btn-ghost btn-circle swap swap-rotate shadow-lg bg-base-100">
+        <label class="btn btn-ghost btn-circle swap swap-rotate shadow-lg bg-base-100/80 backdrop-blur-sm">
             <input type="checkbox" id="theme-toggle" />
-            <!-- Sol -->
-            <svg class="swap-on fill-current w-6 h-6 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,17.05l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,18.36,17ZM12,8a4,4,0,1,0,4,4A4,4,0,0,0,12,8Z"/></svg>
-            <!-- Luna -->
-            <svg class="swap-off fill-current w-6 h-6 text-indigo-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.91,0,0,1,.25-1A1,1,0,0,0,8,3.23,9,9,0,1,0,21.64,13Zm-9.5,6.69A7,7,0,1,1,14.63,6a9,9,0,0,0-1.3,4A8.15,8.15,0,0,0,21.37,18,7,7,0,0,1,12.14,19.69Z"/></svg>
+            <span class="swap-on text-lg text-yellow-500">☀️</span>
+            <span class="swap-off text-lg text-indigo-400">🌙</span>
         </label>
     </div>
-    <div class="container mx-auto px-4 py-10">
-        <div class="hero bg-base-100 rounded-box shadow-xl mb-10 p-6">
-            <div class="hero-content text-center">
-                <div class="max-w-md">
-                    <h1 class="text-4xl sm:text-6xl font-extrabold text-primary mb-2 animate-bounce">🤡</h1>
-                    <h1 class="text-4xl sm:text-6xl font-extrabold text-primary mb-4 tracking-tighter">Mesa Poker</h1>
-                    <p class="py-2 opacity-70 text-sm sm:text-base px-2 sm:px-4">Compite contra tus payasitos favoritos prediciendo los resultados del mundial 2026.</p>
-                    <div class="flex justify-center mb-6">
-                        <button class="btn btn-info btn-md sm:btn-lg shadow-lg" onclick="document.getElementById('rules_modal').showModal()">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.967 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.967 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>
-                            Reglas
+    <div class="container mx-auto px-4 py-6 sm:py-10">
+        <div class="hero min-h-[70vh] bg-gradient-to-br from-primary/20 via-base-100 to-secondary/20 rounded-3xl shadow-2xl mb-10 p-6 sm:p-12 relative overflow-hidden">
+            <div class="absolute inset-0 bg-grid opacity-50"></div>
+            <div class="hero-content text-center relative z-10 w-full">
+                <div class="max-w-3xl mx-auto">
+                    <div class="float-emoji text-6xl sm:text-8xl mb-4 sm:mb-6 drop-shadow-2xl">🤡</div>
+                    <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold mb-3 sm:mb-4 tracking-tighter bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">Mesa Poker</h1>
+                    <p class="text-sm sm:text-lg opacity-60 max-w-xl mx-auto mb-6 sm:mb-8 leading-relaxed">Compite contra tus payasitos favoritos prediciendo los resultados del mundial 2026.</p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-10">
+                        <button class="btn btn-outline btn-sm sm:btn-md gap-2 shadow-lg" onclick="document.getElementById('rules_modal').showModal()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 sm:w-5 sm:h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.967 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.967 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>
+                            <span class="hidden sm:inline">Reglamento</span>
+                            <span class="sm:hidden">Reglas</span>
+                        </button>
+                        <button class="btn btn-accent btn-sm sm:btn-lg gap-2 shadow-xl px-6 sm:px-8" onclick="document.getElementById('user_selection_modal').showModal()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 sm:w-6 sm:h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0-3.741-4.794S13.011 13 12 13s-1.259.926-1.259.926P1.106 18.723A9.094 9.094 0 0 0 12 21a9.094 9.094 0 0 0 8.741-2.28Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" /></svg>
+                            Elegir Payasito
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 sm:w-5 sm:h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
                         </button>
                     </div>
-                    <img src="images/clowns.jpeg" alt="Mesa Poker Mundial 2026" class="w-full max-w-lg mx-auto rounded-box shadow-2xl mb-6 sm:mb-8 border-4 border-primary/10" />
-                    <button class="btn btn-accent btn-lg shadow-xl mt-4" onclick="document.getElementById('user_selection_modal').showModal()">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0-3.741-4.794S13.011 13 12 13s-1.259.926-1.259.926P1.106 18.723A9.094 9.094 0 0 0 12 21a9.094 9.094 0 0 0 8.741-2.28Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" /></svg>
-                        Seleccionar Usuario
-                    </button>
+                    <div class="rounded-2xl overflow-hidden shadow-2xl ring-1 ring-base-300 max-w-2xl mx-auto">
+                        <img src="images/clowns.jpeg" alt="Mesa Poker Mundial 2026" class="w-full h-auto" />
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- La cuadrícula de usuarios ahora estará dentro de un modal -->
     </div>
 
     <footer class="footer footer-center p-10 bg-base-100 text-base-content border-t border-primary/20">
@@ -256,13 +288,14 @@
             const themeToggle = document.getElementById('theme-toggle');
             const currentTheme = localStorage.getItem('theme') || 'dark';
             document.documentElement.setAttribute('data-theme', currentTheme);
-            themeToggle.checked = currentTheme === 'light';
-            
-            themeToggle.onchange = () => {
-                const newTheme = themeToggle.checked ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-            };
+            if (themeToggle) {
+                themeToggle.checked = currentTheme === 'light';
+                themeToggle.addEventListener('change', () => {
+                    const newTheme = themeToggle.checked ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+            }
         }
 
         window.openLogin = (username) => {
