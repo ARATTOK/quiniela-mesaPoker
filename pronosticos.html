@@ -85,24 +85,23 @@
         </div>
     </div>
 
-    <!-- Gato Escapado - Noticiero del Mundial -->
-    <div id="gato-escapado-banner" class="card bg-base-100 shadow-xl mx-4 sm:mx-6 lg:mx-20 mt-4 border border-accent/20 overflow-hidden transition-all duration-500" style="max-height:360px; opacity:1;">
-        <div class="card-body p-0">
+    <!-- Gato Escapado - Noticiero del Mundial (Modal) -->
+    <dialog id="gato_news_modal" class="modal">
+        <div class="modal-box border-2 border-error/40 shadow-2xl max-w-lg">
             <!-- Header -->
-            <div class="flex items-center justify-between px-5 py-2.5 bg-gradient-to-r from-accent/10 via-accent/5 to-transparent border-b border-accent/10">
+            <div class="flex items-center justify-between pb-3 border-b border-error/10 mb-4">
                 <div class="flex items-center gap-2.5">
                     <span class="relative flex h-3 w-3">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-3 w-3 bg-error"></span>
                     </span>
-                    <span class="text-sm sm:text-base leading-none">🐱</span>
-                    <span class="font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] text-accent">Gato Escapado</span>
+                    <span class="text-base leading-none">🐱</span>
+                    <span class="font-black text-xs uppercase tracking-[0.2em] text-accent">Gato Escapado</span>
                     <span class="badge badge-error badge-xs font-bold text-[8px] tracking-widest">EN VIVO</span>
                 </div>
-                <button onclick="cerrarGatoEscapado()" class="btn btn-ghost btn-xs btn-square opacity-30 hover:opacity-100 transition-all hover:bg-error/10 hover:text-error rounded-full" aria-label="Cerrar noticias">✕</button>
             </div>
             <!-- News Items -->
-            <div class="px-5 py-3 space-y-3 text-xs sm:text-sm">
+            <div class="space-y-3 text-sm">
                 <div class="flex items-start gap-4 p-3 rounded-2xl bg-base-200/60 hover:bg-base-200 transition-colors">
                     <span class="text-2xl shrink-0 mt-1">🇵🇹</span>
                     <div class="min-w-0">
@@ -124,8 +123,19 @@
                     </div>
                 </div>
             </div>
+            <div class="modal-action mt-4">
+                <form method="dialog">
+                    <button class="btn btn-error btn-sm w-full gap-1">
+                        <span class="text-sm">🐱</span>
+                        Cerrar Noticias
+                    </button>
+                </form>
+            </div>
         </div>
-    </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
 
     <div class="container mx-auto p-4 lg:p-10">
         <div class="flex flex-col gap-8 mb-10">
@@ -133,15 +143,15 @@
                 <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                     <h1 class="text-2xl sm:text-3xl font-bold border-l-4 border-primary pl-3 sm:pl-4 text-primary tracking-tight">Mis Pronósticos</h1>
                     <div class="flex items-center gap-1.5">
-                        <button onclick="mostrarGatoEscapado()" class="btn btn-error btn-xs sm:btn-xs shadow-sm gap-1" title="Abrir noticias">
-                            <span class="relative flex h-2 w-2">
+                        <button onclick="document.getElementById('gato_news_modal').showModal()" class="btn btn-error btn-xs shadow-sm gap-1" title="Abrir noticias">
+                            <span class="relative flex h-1.5 w-1.5">
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                                <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
                             </span>
-                            <span class="text-base leading-none">🐱</span>
-                            <span class="text-[9px] font-black uppercase tracking-wider text-white leading-none">NEWS</span>
+                            <span class="text-xs leading-none">🐱</span>
+                            <span class="text-[8px] font-black uppercase tracking-wider text-white leading-none">NEWS</span>
                         </button>
-                        <button class="btn btn-accent btn-xs sm:btn-xs shadow-sm gap-1" onclick="document.getElementById('help_modal_bennet').showModal()" title="Guía Bennet"><span class="text-base leading-none">💪</span><span class="text-[9px] font-black uppercase tracking-wider text-white leading-none">Guía</span></button>
+                        <button class="btn btn-accent btn-xs shadow-sm gap-1" onclick="document.getElementById('help_modal_bennet').showModal()" title="Guía Bennet"><span class="text-xs leading-none">💪</span><span class="text-[8px] font-black uppercase tracking-wider text-white leading-none">GUÍA</span></button>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 bg-base-100 p-1.5 rounded-2xl shadow-sm border border-base-300">
