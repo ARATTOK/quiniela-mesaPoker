@@ -22,7 +22,6 @@
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        #user-dropdown.user-dropdown-open>.dropdown-content{opacity:1;visibility:visible;transform:scaleY(1);pointer-events:auto}
     </style>
 </head>
 <body class="bg-base-200 min-h-screen">
@@ -84,7 +83,7 @@
                         <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                     </svg>
                 </div>
-                <ul class="dropdown-content z-[50] menu p-2 shadow bg-base-100 rounded-box w-52 mt-4">
+                <ul class="dropdown-content z-[50] menu p-2 shadow bg-base-100 rounded-box w-52 mt-4" hidden>
                     <li id="user-dropdown-info" class="px-4 py-2 text-sm font-bold capitalize border-b border-base-300 mb-1 flex items-center gap-2"></li>
                     <li class="menu-title px-4 py-1"><span>Apariencia</span></li>
                     <li>
@@ -257,11 +256,19 @@
         if (userDropdown && userDropdownTrigger) {
             userDropdownTrigger.addEventListener('click', (e) => {
                 e.stopPropagation()
-                userDropdown.classList.toggle('user-dropdown-open')
+                const content = userDropdown.querySelector('.dropdown-content')
+                if (content) {
+                    content.hidden = !content.hidden
+                    userDropdown.classList.toggle('dropdown-open')
+                }
             })
             document.addEventListener('click', (e) => {
                 if (!userDropdown.contains(e.target)) {
-                    userDropdown.classList.remove('user-dropdown-open')
+                    const content = userDropdown.querySelector('.dropdown-content')
+                    if (content) {
+                        content.hidden = true
+                        userDropdown.classList.remove('dropdown-open')
+                    }
                 }
             })
         }

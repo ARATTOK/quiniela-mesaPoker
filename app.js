@@ -119,11 +119,19 @@ async function cargarPartidos() {
     if (userDropdown && userDropdownTrigger) {
         userDropdownTrigger.addEventListener('click', (e) => {
             e.stopPropagation()
-            userDropdown.classList.toggle('user-dropdown-open')
+            const content = userDropdown.querySelector('.dropdown-content')
+                if (content) {
+                    content.hidden = !content.hidden
+                    userDropdown.classList.toggle('dropdown-open')
+                }
         })
         document.addEventListener('click', (e) => {
             if (!userDropdown.contains(e.target)) {
-                userDropdown.classList.remove('user-dropdown-open')
+                const content = userDropdown.querySelector('.dropdown-content')
+                if (content) {
+                    content.hidden = true
+                    userDropdown.classList.remove('dropdown-open')
+                }
             }
         })
     }
