@@ -113,6 +113,21 @@ async function cargarPartidos() {
         userDisplay.parentElement.classList.remove('italic', 'opacity-70', 'lowercase');
     }
 
+    // User dropdown toggle
+    const userDropdown = document.getElementById('user-dropdown')
+    const userDropdownTrigger = document.getElementById('user-dropdown-trigger')
+    if (userDropdown && userDropdownTrigger) {
+        userDropdownTrigger.addEventListener('click', (e) => {
+            e.stopPropagation()
+            userDropdown.classList.toggle('user-dropdown-open')
+        })
+        document.addEventListener('click', (e) => {
+            if (!userDropdown.contains(e.target)) {
+                userDropdown.classList.remove('user-dropdown-open')
+            }
+        })
+    }
+
     const { data: matches, error } = await supabase
         .from('matches')
         .select('*')
