@@ -343,7 +343,7 @@
                                         ${n.visible === false ? '<span class="badge badge-ghost badge-xs text-[8px]">OCULTA</span>' : ''}
                                     </div>
                                     <h3 class="text-base sm:text-lg font-bold ${cs.title}">${n.title}</h3>
-                                    <p class="text-sm opacity-80 leading-relaxed mt-1">${n.body}</p>
+                                    <p class="text-sm opacity-80 leading-relaxed mt-1">${n.body.replace(/\n/g, '<br>')}</p>
                                 </div>
                             </div>
                             ${canEdit ? `<div class="flex items-center gap-1 shrink-0">

@@ -950,7 +950,7 @@ window.cargarNoticias = async () => {
                     <span class="font-bold uppercase text-[9px] tracking-wider opacity-70 badge badge-xs badge-outline ${cs.badge}">${n.category}</span>
                     <span class="text-[10px] opacity-40">• ${dateStr}</span>
                 </div>
-                <p class="leading-relaxed opacity-85 mt-1"><strong class="${cs.title}">${n.title}</strong> — ${n.body}</p>
+                <p class="leading-relaxed opacity-85 mt-1"><strong class="${cs.title}">${n.title}</strong> — ${n.body.replace(/\n/g, '<br>')}</p>
             </div>
         </div>`;
     }).join('');
