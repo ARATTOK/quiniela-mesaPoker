@@ -106,12 +106,9 @@ async function cargarPartidos() {
     const userDisplay = document.getElementById('user-display');
     if (userDisplay) {
         const config = userConfig[currentUser] || { emoji: '👤', color: 'ring-primary' };
-        userDisplay.innerHTML = `
-            <div class="flex items-center gap-2">
-                ${avatarHtml(config)}
-                <span class="capitalize font-bold text-xs">${currentUser}</span>
-            </div>
-        `;
+        userDisplay.innerHTML = `<div class="flex items-center gap-2">${avatarHtml(config)}</div>`;
+        const dropdownInfo = document.getElementById('user-dropdown-info');
+        if (dropdownInfo) dropdownInfo.innerHTML = `${avatarHtml(config)} <span class="capitalize">${currentUser}</span>`;
         // Limpiar estilos antiguos del botón padre
         userDisplay.parentElement.classList.remove('italic', 'opacity-70', 'lowercase');
     }

@@ -65,6 +65,7 @@
                     </svg>
                 </div>
                 <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-4">
+                    <li id="user-dropdown-info" class="px-4 py-2 text-sm font-bold capitalize border-b border-base-300 mb-1 flex items-center gap-2"></li>
                     <li class="menu-title px-4 py-1"><span>Apariencia</span></li>
                     <li>
                         <label class="flex items-center justify-between gap-2 cursor-pointer px-4 py-2 rounded-lg hover:bg-base-200 transition-colors">
@@ -320,12 +321,9 @@
         const initUserDisplay = () => {
             const userDisplay = document.getElementById('user-display');
             const config = userConfig[sessionUser] || { emoji: '👤', color: 'ring-primary' };
-            userDisplay.innerHTML = `
-                <div class="flex items-center gap-2">
-                    ${avatarHtml(config)}
-                    <span class="capitalize font-bold text-xs">${sessionUser}</span>
-                </div>
-            `;
+            userDisplay.innerHTML = `<div class="flex items-center gap-2">${avatarHtml(config)}</div>`;
+            const dropdownInfo = document.getElementById('user-dropdown-info');
+            if (dropdownInfo) dropdownInfo.innerHTML = `${avatarHtml(config)} <span class="capitalize">${sessionUser}</span>`;
             userDisplay.parentElement.classList.remove('italic', 'opacity-70', 'lowercase');
         };
 
