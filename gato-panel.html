@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
+    </script>
+    <title>Gato Escapado - Panel de Noticias</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐱</text></svg>">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-base-200 min-h-screen pb-20">
+    <div class="navbar bg-base-100 shadow-lg px-2 sm:px-4 lg:px-20 border-b border-error/20">
+        <div class="flex-1 flex items-center gap-3">
+            <a href="javascript:void(0)" onclick="playHorn()" class="text-2xl sm:text-3xl hover:scale-110 active:scale-90 transition-transform duration-200 inline-block">🤡</a>
+            <span class="h-6 w-px bg-base-300 hidden sm:block"></span>
+            <div class="hidden sm:flex items-center gap-2">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-error"></span>
+                </span>
+                <span class="text-sm font-bold tracking-tight text-error">Gato Escapado</span>
+                <span class="badge badge-error badge-xs font-bold text-[8px] tracking-widest">EN VIVO</span>
+            </div>
+        </div>
+        <div class="flex-none flex items-center gap-1 sm:gap-2">
+            <ul id="gato-nav" class="menu menu-horizontal px-0 sm:px-1 gap-0 sm:gap-2 text-xs sm:text-sm font-medium">
+                <li><a href="noticias.html" class="p-2 sm:p-4 hover:text-error transition-all duration-300 gap-1">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-error"></span>
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" /></svg>
+                    <span class="hidden sm:inline">Noticias</span>
+                </a></li>
+                <li><a href="gato-panel.html" class="active p-2 sm:p-4 hover:text-error transition-all duration-300 font-bold gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>
+                    <span class="hidden sm:inline">Panel</span>
+                </a></li>
+            </ul>
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-sm italic opacity-70 lowercase">
+                    <span id="user-display"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 opacity-50">
+                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-4">
+                    <li class="menu-title px-4 py-1"><span>Apariencia</span></li>
+                    <li>
+                        <label class="flex items-center justify-between gap-2 cursor-pointer px-4 py-2 rounded-lg hover:bg-base-200 transition-colors">
+                            <span class="flex items-center gap-2">
+                                <span class="swap swap-rotate">
+                                    <input type="checkbox" id="theme-toggle" />
+                                    <span class="swap-on text-base text-yellow-500">☀️</span>
+                                    <span class="swap-off text-base text-indigo-400">🌙</span>
+                                </span>
+                                <span class="text-sm">Tema</span>
+                            </span>
+                        </label>
+                    </li>
+                    <li><hr class="my-1 border-base-300" /></li>
+                    <li><a href="noticias.html" class="text-sm flex items-center gap-2">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-error"></span>
+                        </span>
+                        Ver Noticias
+                    </a></li>
+                    <li><hr class="my-1 border-base-300" /></li>
+                    <li><button onclick="logout()" class="text-error font-bold text-left">Cerrar Sesión</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto p-4 lg:p-10 space-y-8">
+        <div class="flex items-center gap-3">
+            <h1 class="text-2xl font-bold border-l-4 border-error pl-4 text-error tracking-tight">Gato Escapado</h1>
+            <span class="relative flex h-3 w-3">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-error"></span>
+            </span>
+            <span class="badge badge-error badge-xs font-bold text-[8px] tracking-widest">EN VIVO</span>
+        </div>
+
+        <!-- Crear / Editar Noticia -->
+        <div id="news-editor" class="hidden">
+            <div class="card bg-base-100 shadow-xl border border-error/20">
+                <div class="card-body">
+                    <h3 class="font-bold text-sm uppercase tracking-wider opacity-70 mb-4 flex items-center gap-2">
+                        <span id="news-form-title">Crear Nueva Noticia</span>
+                        <input type="hidden" id="news-id" value="" />
+                        <button id="news-cancel-edit" class="btn btn-ghost btn-xs hidden gap-1 text-xs" onclick="cancelarEdicionNoticia()">✕ Cancelar</button>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-control">
+                            <label class="label"><span class="label-text text-xs font-bold opacity-50">Título</span></label>
+                            <input type="text" id="news-title" class="input input-bordered input-sm" placeholder="Ej: Portugal decepciona en su debut" />
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text text-xs font-bold opacity-50">Emoji</span></label>
+                            <input type="text" id="news-emoji" class="input input-bordered input-sm" placeholder="🇵🇹" value="📰" />
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text text-xs font-bold opacity-50">Categoría</span></label>
+                            <select id="news-category" class="select select-bordered select-sm">
+                                <option value="Internacional">Internacional</option>
+                                <option value="Polémica">Polémica</option>
+                                <option value="Felicitaciones">Felicitaciones</option>
+                                <option value="Bebé en Camino">Bebé en Camino</option>
+                                <option value="General">General</option>
+                            </select>
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text text-xs font-bold opacity-50">Fecha</span></label>
+                            <input type="date" id="news-date" class="input input-bordered input-sm" />
+                        </div>
+                        <div class="form-control md:col-span-2">
+                            <label class="label"><span class="label-text text-xs font-bold opacity-50">Cuerpo de la noticia</span></label>
+                            <textarea id="news-body" class="textarea textarea-bordered textarea-sm h-20" placeholder="Describe la noticia..."></textarea>
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer gap-3 justify-start">
+                                <input type="checkbox" id="news-visible" class="checkbox checkbox-error checkbox-xs" checked />
+                                <span class="label-text text-xs font-bold opacity-50">Visible para los usuarios</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="card-actions justify-end mt-4">
+                        <button type="button" class="btn btn-error btn-sm shadow-lg gap-1" onclick="guardarNoticia()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                            <span id="news-submit-text">Publicar Noticia</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Listado de Noticias -->
+        <div class="card bg-base-100 shadow-xl border border-base-300">
+            <div class="card-body">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-sm uppercase tracking-wider opacity-70">Noticias Publicadas</h3>
+                    <button class="btn btn-error btn-outline btn-xs gap-1" onclick="toggleEditor()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                        Nueva Noticia
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3 mb-4">
+                    <div class="flex items-center gap-2 bg-base-200 p-1.5 rounded-2xl">
+                        <input type="date" id="news-date-filter" class="input input-ghost input-xs focus:bg-transparent" />
+                        <button class="btn btn-primary btn-xs rounded-xl px-3" onclick="resetNewsFecha()">Hoy</button>
+                    </div>
+                </div>
+
+                <div id="gato-panel-date-pills" class="flex overflow-x-auto gap-3 py-2 mb-4 no-scrollbar scroll-smooth">
+                    <!-- Se carga dinámicamente -->
+                </div>
+
+                <div id="gato-panel-news-list" class="space-y-3">
+                    <div class="flex justify-center py-8 opacity-50">
+                        <span class="loading loading-dots loading-md"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer footer-center p-10 bg-base-100 text-base-content border-t border-base-300 mt-10">
+      <aside>
+        <div class="text-5xl mb-4">🐱</div>
+        <p class="font-bold text-lg">Gato Escapado - Noticiero del Mundial</p> 
+        <p class="italic opacity-80 max-w-xs sm:max-w-md">
+          "La verdad siempre sale a la luz, incluso si tiene que escaparse" 🐈💨
+        </p>
+        <div class="divider w-24 mx-auto opacity-20"></div>
+        <p class="text-[10px] opacity-40 uppercase tracking-[0.2em]">
+          © 2026 - Gato Escapado News Network
+        </p>
+      </aside>
+    </footer>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+        const SUPABASE_URL = 'https://gvoadjrnrlzhgeqsdhyi.supabase.co'
+        const SUPABASE_KEY = 'sb_publishable_XiqzVY4Sh3VTQsqGEu6eHA_akxwyJZK'
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+        window.supabase = supabase
+
+        const currentUser = localStorage.getItem('currentUser')
+        if (!currentUser) { window.location.href = 'index.html' }
+
+        const userConfig = {
+            'admin': { emoji: '🤡', color: 'ring-primary' },
+            'aaron': { emoji: '🥳', color: 'ring-secondary' },
+            'alam': { emoji: '🤪', color: 'ring-accent' },
+            'bennett': { emoji: '🤹', img: 'images/perfilbennet.png', color: 'ring-info' },
+            'dennis': { emoji: '🎭', color: 'ring-success' },
+            'jorge': { emoji: '🃏', color: 'ring-warning' },
+            'kevin': { emoji: '🤩', color: 'ring-error' },
+            'luisito': { emoji: '🤠', color: 'ring-primary' },
+            'pedro': { emoji: '🧐', color: 'ring-secondary' },
+            'takashi': { emoji: '👽', color: 'ring-accent' },
+            'rodrigo': { emoji: '👾', color: 'ring-info' },
+            'chamba': { emoji: '👹', color: 'ring-success' },
+            'dario': { emoji: '👺', color: 'ring-warning' },
+            'andrea': { emoji: '💃', color: 'ring-secondary' },
+            'merino': { emoji: '🐑', color: 'ring-primary' },
+            'pati': { emoji: '💅', color: 'ring-secondary' },
+            'reynaldo': { emoji: '👑', color: 'ring-warning' },
+            'oscar': { emoji: '🎪', color: 'ring-accent' },
+            'gato': { emoji: '🐱', color: 'ring-error' }
+        }
+
+        const avatarHtml = (c, w = 'w-6', t = 'text-[10px]') => c.img
+          ? `<div class="avatar"><div class="${w} rounded-full ring ${c.color} ring-offset-base-100 ring-offset-1"><img src="${c.img}" class="rounded-full object-cover w-full h-full" alt="" /></div></div>`
+          : `<div class="avatar placeholder"><div class="bg-neutral text-neutral-content rounded-full ${w} ring ${c.color} ring-offset-base-100 ring-offset-1"><span class="${t}">${c.emoji}</span></div></div>`
+
+        // User display
+        const cfg = userConfig[currentUser] || { emoji: '👤', color: 'ring-primary' }
+        const userDisplay = document.getElementById('user-display')
+        if (userDisplay) {
+            userDisplay.innerHTML = `<div class="flex items-center gap-2">${avatarHtml(cfg)} <span class="capitalize font-bold text-xs">${currentUser}</span></div>`
+            userDisplay.parentElement.classList.remove('italic', 'opacity-70', 'lowercase')
+        }
+
+        // Show editor if authorized
+        if (currentUser === 'gato' || currentUser === 'admin') {
+            document.getElementById('news-editor').classList.remove('hidden')
+        }
+
+        // Theme toggle
+        const initTheme = () => {
+            const t = document.getElementById('theme-toggle')
+            const cur = localStorage.getItem('theme') || 'dark'
+            document.documentElement.setAttribute('data-theme', cur)
+            if (t) {
+                t.checked = cur === 'light'
+                t.addEventListener('change', () => {
+                    const n = t.checked ? 'light' : 'dark'
+                    document.documentElement.setAttribute('data-theme', n)
+                    localStorage.setItem('theme', n)
+                })
+            }
+        }
+        initTheme()
+
+        const categoryBadgeAdmin = {
+            'Internacional': 'badge-accent',
+            'Polémica': 'badge-warning',
+            'Felicitaciones': 'badge-primary',
+            'Bebé en Camino': 'badge-secondary',
+        }
+        const categoryRingsAdmin = {
+            'Felicitaciones': 'ring-1 ring-primary/30',
+            'Bebé en Camino': 'ring-1 ring-secondary/30',
+        }
+
+        let allNews = []
+        let selectedNewsDate = ''
+
+        // Toggle editor visibility for "Nueva Noticia" button
+        window.toggleEditor = () => {
+            const editor = document.getElementById('news-editor')
+            if (editor.classList.contains('hidden')) {
+                editor.classList.remove('hidden')
+                cancelarEdicionNoticia()
+                document.getElementById('news-title').scrollIntoView({ behavior: 'smooth', block: 'center' })
+            } else {
+                cancelarEdicionNoticia()
+                editor.classList.add('hidden')
+            }
+        }
+
+        function renderNewsAdmin(noticias) {
+            const container = document.getElementById('gato-panel-news-list')
+            if (!container) return
+            if (!noticias || noticias.length === 0) {
+                container.innerHTML = '<div class="flex justify-center py-10 opacity-40 text-xs">No hay noticias para esta fecha</div>'
+                return
+            }
+            container.innerHTML = noticias.map(n => {
+                const badge = categoryBadgeAdmin[n.category] || 'badge-ghost'
+                const ring = categoryRingsAdmin[n.category] || ''
+                const d = new Date(n.date + 'T12:00:00')
+                const dateStr = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+                return `<div class="flex items-start justify-between gap-4 p-3 rounded-2xl bg-base-200/60 hover:bg-base-200 transition-colors ${ring} ${n.visible === false ? 'opacity-50' : ''}">
+                    <div class="flex items-start gap-3 min-w-0">
+                        <span class="text-xl shrink-0 mt-0.5">${n.emoji}</span>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-bold uppercase text-[9px] tracking-wider badge badge-xs badge-outline ${badge}">${n.category}</span>
+                                <span class="text-[10px] opacity-40">• ${dateStr}</span>
+                                ${n.visible === false ? '<span class="badge badge-ghost badge-xs text-[8px]">OCULTA</span>' : ''}
+                            </div>
+                            <p class="text-sm font-bold mt-0.5">${n.title}</p>
+                            <p class="text-xs opacity-70 leading-relaxed line-clamp-2">${n.body}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button class="btn btn-ghost btn-xs btn-square" onclick="editarNoticia(${n.id})" title="Editar">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>
+                        </button>
+                        <button class="btn btn-ghost btn-xs btn-square" onclick="toggleVisibleNoticia(${n.id}, ${n.visible !== false})" title="${n.visible !== false ? 'Ocultar' : 'Mostrar'}">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 ${n.visible !== false ? 'text-success' : 'text-base-content/30'}"><path stroke-linecap="round" stroke-linejoin="round" d="${n.visible !== false ? 'M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z' : 'M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88'}"></svg>
+                        </button>
+                        <button class="btn btn-ghost btn-xs btn-square text-error" onclick="eliminarNoticia(${n.id})" title="Eliminar">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                        </button>
+                    </div>
+                </div>`
+            }).join('')
+        }
+
+        function renderDatePills(fechaSeleccionada) {
+            const container = document.getElementById('gato-panel-date-pills')
+            if (!container) return
+            const uniqueDates = [...new Set(allNews.map(n => n.date))].sort().reverse()
+            if (uniqueDates.length <= 1) { container.innerHTML = ''; return }
+            container.innerHTML = ''
+            uniqueDates.forEach(dateStr => {
+                const isActive = dateStr === fechaSeleccionada
+                const d = new Date(dateStr + 'T12:00:00')
+                const btn = document.createElement('button')
+                btn.className = `flex-shrink-0 btn h-14 w-14 flex flex-col items-center justify-center gap-0.5 border-none transition-all duration-300 ${
+                    isActive
+                    ? 'btn-error shadow-lg scale-110 z-10'
+                    : 'bg-base-100 hover:bg-base-300 opacity-60 hover:opacity-100'
+                }`
+                btn.innerHTML = `
+                    <span class="text-[9px] font-bold tracking-tighter">${d.toLocaleDateString('es-ES', { weekday: 'short' }).toUpperCase().replace('.', '')}</span>
+                    <span class="text-lg font-black leading-none">${d.getDate()}</span>
+                    <span class="text-[8px] font-bold opacity-70">${d.toLocaleDateString('es-ES', { month: 'short' }).toUpperCase().replace('.', '')}</span>
+                `
+                btn.onclick = () => {
+                    document.getElementById('news-date-filter').value = dateStr
+                    selectedNewsDate = dateStr
+                    renderDatePills(dateStr)
+                    renderNewsAdmin(allNews.filter(n => n.date === dateStr))
+                }
+                container.appendChild(btn)
+                if (isActive) setTimeout(() => btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }), 50)
+            })
+        }
+
+        window.resetNewsFecha = () => {
+            const dateFilter = document.getElementById('news-date-filter')
+            const hoy = new Date().toISOString().split('T')[0]
+            dateFilter.value = hoy
+            selectedNewsDate = hoy
+            renderDatePills(hoy)
+            renderNewsAdmin(allNews.filter(n => n.date === hoy))
+        }
+
+        async function cargarNoticiasAdmin() {
+            const container = document.getElementById('gato-panel-news-list')
+            if (!container) return
+            let query = supabase.from('news').select('*')
+            const { data: news, error } = await query
+                .order('date', { ascending: false })
+                .order('id', { ascending: false })
+            if (error) {
+                container.innerHTML = '<div class="flex justify-center py-10 opacity-40 text-xs">Error al cargar noticias</div>'
+                return
+            }
+            if (!news || news.length === 0) {
+                container.innerHTML = '<div class="flex justify-center py-10 opacity-40 text-xs">No hay noticias disponibles</div>'
+                renderDatePills('')
+                return
+            }
+            allNews = news
+            const hoy = new Date().toISOString().split('T')[0]
+            selectedNewsDate = hoy
+            document.getElementById('news-date-filter').value = hoy
+            renderDatePills(hoy)
+            renderNewsAdmin(news.filter(n => n.date === hoy))
+        }
+
+        window.guardarNoticia = async () => {
+            const id = document.getElementById('news-id').value
+            const title = document.getElementById('news-title').value.trim()
+            const body = document.getElementById('news-body').value.trim()
+            const category = document.getElementById('news-category').value
+            const emoji = document.getElementById('news-emoji').value.trim() || '📰'
+            const dateInput = document.getElementById('news-date').value
+            const visible = document.getElementById('news-visible').checked
+
+            if (!title || !body) return alert('Completa al menos el título y el cuerpo de la noticia.')
+
+            const btn = document.querySelector('button[onclick="guardarNoticia()"]')
+            if (btn) { btn.classList.add('loading'); btn.disabled = true }
+
+            try {
+                if (id) {
+                    const { error } = await supabase.from('news').update({
+                        title, body, category, emoji, visible,
+                        date: dateInput || new Date().toISOString().split('T')[0]
+                    }).eq('id', id)
+                    if (error) throw error
+                } else {
+                    const { error } = await supabase.from('news').insert([{
+                        title, body, category, emoji, visible,
+                        date: dateInput || new Date().toISOString().split('T')[0]
+                    }])
+                    if (error) throw error
+                }
+                cancelarEdicionNoticia()
+                cargarNoticiasAdmin()
+                if (typeof playHorn === 'function') playHorn()
+            } catch (err) {
+                alert('Error: ' + err.message)
+            } finally {
+                if (btn) { btn.classList.remove('loading'); btn.disabled = false }
+            }
+        }
+
+        window.editarNoticia = async (id) => {
+            const { data, error } = await supabase.from('news').select('*').eq('id', id).single()
+            if (error || !data) return alert('Error al cargar la noticia')
+            document.getElementById('news-editor').classList.remove('hidden')
+            document.getElementById('news-id').value = data.id
+            document.getElementById('news-title').value = data.title
+            document.getElementById('news-body').value = data.body
+            document.getElementById('news-category').value = data.category
+            document.getElementById('news-emoji').value = data.emoji
+            document.getElementById('news-date').value = data.date
+            document.getElementById('news-visible').checked = data.visible !== false
+            document.getElementById('news-form-title').textContent = 'Editar Noticia'
+            document.getElementById('news-submit-text').textContent = 'Guardar Cambios'
+            document.getElementById('news-cancel-edit').classList.remove('hidden')
+            document.getElementById('news-title').scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+
+        window.cancelarEdicionNoticia = cancelarEdicionNoticia
+        function cancelarEdicionNoticia() {
+            document.getElementById('news-id').value = ''
+            document.getElementById('news-title').value = ''
+            document.getElementById('news-body').value = ''
+            document.getElementById('news-emoji').value = '📰'
+            document.getElementById('news-date').value = ''
+            document.getElementById('news-visible').checked = true
+            document.getElementById('news-form-title').textContent = 'Crear Nueva Noticia'
+            document.getElementById('news-submit-text').textContent = 'Publicar Noticia'
+            document.getElementById('news-cancel-edit').classList.add('hidden')
+        }
+
+        window.toggleVisibleNoticia = async (id, currentlyVisible) => {
+            try {
+                const { error } = await supabase.from('news').update({ visible: !currentlyVisible }).eq('id', id)
+                if (error) throw error
+                cargarNoticiasAdmin()
+            } catch (err) {
+                alert('Error: ' + err.message)
+            }
+        }
+
+        window.eliminarNoticia = async (id) => {
+            if (!confirm('¿Eliminar esta noticia?')) return
+            try {
+                const { error } = await supabase.from('news').delete().eq('id', id)
+                if (error) throw error
+                cargarNoticiasAdmin()
+            } catch (err) {
+                alert('Error: ' + err.message)
+            }
+        }
+
+        window.logout = async () => {
+            await supabase.auth.signOut()
+            localStorage.clear()
+            window.location.href = 'index.html'
+        }
+
+        const circusSounds = [
+            'https://assets.mixkit.co/active_storage/sfx/611/611-preview.mp3',
+            'https://assets.mixkit.co/active_storage/sfx/607/607-preview.mp3',
+            'https://assets.mixkit.co/active_storage/sfx/608/608-preview.mp3'
+        ].map(src => { const a = new Audio(src); a.load(); return a })
+
+        window.playHorn = () => {
+            const h = circusSounds[Math.floor(Math.random() * circusSounds.length)]
+            h.currentTime = 0; h.playbackRate = 0.8 + Math.random() * 0.7; h.play()
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 100, spread: 70, origin: { x: 0.1, y: 0.1 }, colors: ['#ef4444', '#f5d142', '#3b82f6', '#10b981', '#a855f7'] })
+            }
+        }
+
+        cargarNoticiasAdmin()
+
+        document.getElementById('news-date-filter')?.addEventListener('change', (e) => {
+            const val = e.target.value
+            selectedNewsDate = val
+            renderDatePills(val)
+            renderNewsAdmin(allNews.filter(n => n.date === val))
+        })
+    </script>
+</body>
+</html>

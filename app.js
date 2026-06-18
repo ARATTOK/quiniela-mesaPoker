@@ -82,7 +82,8 @@ const userConfig = {
     'merino': { emoji: '🐑', color: 'ring-primary' },
     'pati': { emoji: '💅', color: 'ring-secondary' },
     'reynaldo': { emoji: '👑', color: 'ring-warning' },
-    'oscar': { emoji: '🎪', color: 'ring-accent' }
+    'oscar': { emoji: '🎪', color: 'ring-accent' },
+    'gato': { emoji: '🐱', color: 'ring-error' }
 };
 
 const avatarHtml = (c, w = 'w-6', t = 'text-[10px]') => c.img
@@ -885,3 +886,55 @@ window.playHorn = () => {
 }
 
 cargarPartidos()
+
+// Gato Escapado - Cargar noticias desde la BD
+const categoryStyles = {
+    'Internacional': { badge: 'badge-accent', title: 'text-accent' },
+    'Polémica': { badge: 'badge-warning', title: 'text-warning' },
+    'Felicitaciones': { badge: 'badge-primary', title: 'text-primary' },
+    'Bebé en Camino': { badge: 'badge-secondary', title: 'text-secondary' },
+};
+const categoryRings = {
+    'Felicitaciones': 'ring-1 ring-primary/30',
+    'Bebé en Camino': 'ring-1 ring-secondary/30',
+};
+
+window.cargarNoticias = async () => {
+    const container = document.getElementById('gato-news-container');
+    if (!container) return;
+    const hoy = new Date().toISOString().split('T')[0];
+    const { data: news, error } = await supabase
+        .from('news')
+        .select('*')
+        .eq('visible', true)
+        .eq('date', hoy)
+        .order('date', { ascending: false })
+        .order('id', { ascending: false });
+    if (error) {
+        container.innerHTML = '<div class="flex justify-center py-8 opacity-40 text-xs">Error al cargar noticias</div>';
+        return;
+    }
+    if (!news || news.length === 0) {
+        container.innerHTML = '<div class="flex justify-center py-8 opacity-40 text-xs">No hay noticias disponibles</div>';
+        return;
+    }
+    container.innerHTML = news.map(n => {
+        const cs = categoryStyles[n.category] || { badge: 'badge-ghost', title: 'text-base-content' };
+        const ring = categoryRings[n.category] || '';
+        const d = new Date(n.date + 'T12:00:00');
+        const dateStr = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+        return `<div class="flex items-start gap-4 p-3 rounded-2xl bg-base-200/60 hover:bg-base-200 transition-colors ${ring}">
+            <span class="text-2xl shrink-0 mt-1">${n.emoji}</span>
+            <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-bold uppercase text-[9px] tracking-wider opacity-70 badge badge-xs badge-outline ${cs.badge}">${n.category}</span>
+                    <span class="text-[10px] opacity-40">• ${dateStr}</span>
+                </div>
+                <p class="leading-relaxed opacity-85 mt-1"><strong class="${cs.title}">${n.title}</strong> — ${n.body}</p>
+            </div>
+        </div>`;
+    }).join('');
+};
+
+// Cargar noticias en segundo plano
+cargarNoticias()

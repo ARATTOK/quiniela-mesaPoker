@@ -230,7 +230,8 @@
             'merino': { pw: 'TWVyaW5vTGFuYSEyMDI2', emoji: '🐑', color: 'ring-primary' },
             'pati': { pw: 'UGF0aUZsb3JlcyEyMDI2', emoji: '💅', color: 'ring-secondary' },
             'reynaldo': { pw: 'UmV5bmFsZG9SZXkhMjAyNg==', emoji: '👑', color: 'ring-warning' },
-            'oscar': { pw: 'T3NjYXJQYXlhc28lMjAyNg==', emoji: '🎪', color: 'ring-accent' }
+            'oscar': { pw: 'T3NjYXJQYXlhc28lMjAyNg==', emoji: '🎪', color: 'ring-accent' },
+            'gato': { pw: 'R2F0b05vdGljaWFzMjAyNg==', emoji: '🐱', color: 'ring-error' }
         };
 
         let selectedUser = '';
@@ -250,6 +251,9 @@
                 if (emailInput === 'admin') {
                     localStorage.setItem('adminSession', 'true')
                     window.location.href = 'admin.html'
+                } else if (emailInput === 'gato') {
+                    localStorage.setItem('adminSession', 'false')
+                    window.location.href = 'gato-panel.html'
                 } else {
                     localStorage.setItem('adminSession', 'false')
                     window.location.href = 'pronosticos.html'
@@ -270,8 +274,9 @@
         }
 
         function renderUsers() {
-            const grid = document.getElementById('users-grid'); // Ahora dentro del modal
+            const grid = document.getElementById('users-grid');
             Object.keys(userConfig).forEach(username => {
+                if (username === 'admin' || username === 'gato') return;
                 const config = userConfig[username];
                 const userDiv = document.createElement('div');
                 userDiv.className = 'flex flex-col items-center gap-3 cursor-pointer group w-24';
@@ -280,6 +285,22 @@
                 userDiv.innerHTML = `
                     ${avatarHtml(config, 'w-20', 'text-4xl', 'shadow-lg opacity-80 group-hover:opacity-100', 'group-hover:scale-110 transition-all duration-300')}
                     <span class="text-xs font-bold opacity-60 group-hover:text-primary group-hover:opacity-100 transition-all truncate w-full text-center capitalize">${username}</span>
+                `;
+                grid.appendChild(userDiv);
+            });
+            // Admin & Gato - acceso especial
+            const divider = document.createElement('div');
+            divider.className = 'col-span-full flex items-center gap-4 opacity-30 mt-2 mb-2';
+            divider.innerHTML = '<div class="flex-1 h-px bg-base-content/20"></div><span class="text-[10px] font-bold uppercase tracking-widest shrink-0">Accesos</span><div class="flex-1 h-px bg-base-content/20"></div>';
+            grid.appendChild(divider);
+            ['admin', 'gato'].forEach(username => {
+                const config = userConfig[username];
+                const userDiv = document.createElement('div');
+                userDiv.className = 'flex flex-col items-center gap-2 cursor-pointer group w-20';
+                userDiv.onclick = () => openLogin(username);
+                userDiv.innerHTML = `
+                    ${avatarHtml(config, 'w-14', 'text-2xl', 'shadow-md opacity-60 group-hover:opacity-100 ring-1', 'group-hover:scale-110 transition-all duration-300')}
+                    <span class="text-[10px] font-bold opacity-40 group-hover:opacity-100 transition-all truncate w-full text-center capitalize flex items-center justify-center gap-1">${username} ${username === 'admin' ? '⚙️' : '🐱'}</span>
                 `;
                 grid.appendChild(userDiv);
             });
