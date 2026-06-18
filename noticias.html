@@ -10,6 +10,8 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤡</text></svg>">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
         @keyframes fadeInUp {
@@ -138,7 +140,7 @@
                     </div>
                     <div class="form-control md:col-span-2">
                         <label class="label"><span class="label-text text-xs font-bold opacity-50">Cuerpo de la noticia</span></label>
-                        <textarea id="news-body" class="textarea textarea-bordered textarea-sm h-20" placeholder="Describe la noticia..."></textarea>
+                        <div id="news-editor-container" class="h-32"></div>
                     </div>
                     <div class="form-control">
                         <label class="label cursor-pointer gap-3 justify-start">
@@ -234,6 +236,24 @@
             'reynaldo': { emoji: '👑', color: 'ring-warning' },
             'oscar': { emoji: '🎪', color: 'ring-accent' },
             'gato': { emoji: '🐱', color: 'ring-error' }
+        }
+
+        // Rich text editor
+        const quill = new Quill('#news-editor-container', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['clean']
+                ]
+            }
+        })
+
+        function formatBody(body) {
+            if (!body) return ''
+            if (/<[a-z][\s\S]*>/i.test(body)) return body
+            return body.replace(/\n/g, '<br>')
         }
 
         const avatarHtml = (c, w = 'w-6', t = 'text-[10px]') => c.img
@@ -343,7 +363,7 @@
                                         ${n.visible === false ? '<span class="badge badge-ghost badge-xs text-[8px]">OCULTA</span>' : ''}
                                     </div>
                                     <h3 class="text-base sm:text-lg font-bold ${cs.title}">${n.title}</h3>
-                                    <p class="text-sm opacity-80 leading-relaxed mt-1">${n.body.replace(/\n/g, '<br>')}</p>
+                                    <p class="text-sm opacity-80 leading-relaxed mt-1">${formatBody(n.body)}</p>
                                 </div>
                             </div>
                             ${canEdit ? `<div class="flex items-center gap-1 shrink-0">
@@ -440,7 +460,7 @@
         window.guardarNoticia = async () => {
             const id = document.getElementById('news-id').value
             const title = document.getElementById('news-title').value.trim()
-            const body = document.getElementById('news-body').value.trim()
+            const body = quill.root.innerHTML.trim()
             const category = document.getElementById('news-category').value
             const emoji = document.getElementById('news-emoji').value.trim() || '📰'
             const dateInput = document.getElementById('news-date').value
@@ -480,7 +500,7 @@
             if (error || !data) return alert('Error al cargar la noticia')
             document.getElementById('news-id').value = data.id
             document.getElementById('news-title').value = data.title
-            document.getElementById('news-body').value = data.body
+            quill.root.innerHTML = data.body || ''
             document.getElementById('news-category').value = data.category
             document.getElementById('news-emoji').value = data.emoji
             document.getElementById('news-date').value = data.date
@@ -495,7 +515,7 @@
         function cancelarEdicionNoticia() {
             document.getElementById('news-id').value = ''
             document.getElementById('news-title').value = ''
-            document.getElementById('news-body').value = ''
+            quill.root.innerHTML = ''
             document.getElementById('news-emoji').value = '📰'
             document.getElementById('news-date').value = ''
             document.getElementById('news-visible').checked = true
