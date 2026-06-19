@@ -258,11 +258,11 @@
                         </select>
                     </div>
 
-                    <div id="prev-predictions">
+                        <div id="prev-predictions">
                         <div class="flex flex-col items-center justify-center py-16 opacity-40 text-center">
                             <div class="text-5xl mb-4 opacity-30">🔍</div>
                             <p class="text-sm font-bold">Selecciona un usuario para ver sus pronósticos</p>
-                            <p class="text-xs opacity-60 mt-1">Podio Ideal y Preguntas Bonus de consultas anteriores</p>
+                            <p class="text-xs opacity-60 mt-1">Solo se muestran consultas cerradas</p>
                         </div>
                     </div>
                 </div>
@@ -631,6 +631,9 @@
                 filterSelect.appendChild(opt);
             });
 
+            const bonusDeadline = new Date('2026-06-27T05:59:59Z');
+            const isBonusClosed = new Date() >= bonusDeadline;
+
             filterSelect.onchange = async () => {
                 const userId = filterSelect.value;
                 const container = document.getElementById('prev-predictions');
@@ -638,14 +641,14 @@
 
                 const [podiumResult, bonusResult] = await Promise.all([
                     supabase.from('podium_predictions').select('*').eq('user_id', userId).maybeSingle(),
-                    supabase.from('bonus_predictions').select('*').eq('user_id', userId).maybeSingle()
+                    ...(isBonusClosed ? [supabase.from('bonus_predictions').select('*').eq('user_id', userId).maybeSingle()] : [Promise.resolve({ data: null })])
                 ]);
 
                 const podium = podiumResult.data;
                 const bonus = bonusResult.data;
                 const config = userConfig[userId] || { emoji: '👤', color: 'ring-primary' };
 
-                if (!podium && !bonus) {
+                if (!podium) {
                     container.innerHTML = `
                         <div class="flex flex-col items-center justify-center py-16 opacity-40 text-center">
                             <div class="text-5xl mb-4 opacity-30">📭</div>
@@ -664,6 +667,7 @@
                             <div class="flex items-center gap-2 mb-4">
                                 <span class="text-lg">🏆</span>
                                 <span class="font-bold text-sm uppercase tracking-wider opacity-70">Podio Ideal</span>
+                                <span class="badge badge-xs badge-ghost font-normal">Cerrada</span>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div class="bg-base-100 rounded-xl p-3 border border-warning/30 text-center">
@@ -682,7 +686,7 @@
                         </div>`;
                 }
 
-                if (bonus) {
+                if (bonus && isBonusClosed) {
                     html += `
                         <div class="bg-base-200 rounded-2xl p-5 border border-info/20">
                             <div class="flex items-center gap-2 mb-4">
