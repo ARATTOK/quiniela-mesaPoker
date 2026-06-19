@@ -101,7 +101,70 @@
             </div>
         </div>
 
-        <div id="podium-container" class="hidden animate-fade-in-up">
+        <!-- Consultation Switcher -->
+        <div role="tablist" class="tabs tabs-boxed bg-base-100 p-2 shadow-lg mb-8 overflow-x-auto no-scrollbar">
+            <a role="tab" class="tab tab-active whitespace-nowrap" onclick="switchConsulta('actual', this)">
+                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg> Consulta Actual</span>
+            </a>
+            <a role="tab" class="tab whitespace-nowrap" onclick="switchConsulta('anteriores', this)">
+                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg> Consultas Anteriores</span>
+            </a>
+        </div>
+
+        <div id="consulta-actual">
+        <!-- Bonus (abierto hasta 26 Jun) -->
+        <div id="bonus-container" class="hidden animate-fade-in-up mb-8 md:mb-10" style="animation-delay: 0.15s">
+            <div class="card bg-base-100 shadow-2xl border-2 border-info/30 relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-info to-secondary"></div>
+                <div class="card-body p-6 sm:p-8">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                        <div>
+                            <h2 class="card-title text-info text-xl sm:text-2xl flex items-center gap-2">
+                                🎯 Preguntas Bonus
+                                <div class="badge badge-info font-normal text-[10px] uppercase tracking-widest">+50 pts c/u</div>
+                            </h2>
+                            <p class="text-sm opacity-60 mt-1">Acierta qué equipo anotará más goles y cuál recibirá más goles en todo el mundial.</p>
+                        </div>
+                    </div>
+
+                    <div id="bonus-deadline-alert" class="bg-info/5 border border-info/20 rounded-2xl p-5 sm:p-7 mb-8 text-center">
+                        <div class="flex items-center justify-center gap-2 text-info font-bold text-xs uppercase tracking-widest mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                            Tiempo restante para guardar tus respuestas
+                        </div>
+                        <div id="bonus-timer" class="font-mono font-black text-3xl sm:text-5xl md:text-6xl tracking-widest text-info drop-shadow-lg mb-3">Calculando...</div>
+                        <div class="text-[10px] opacity-40 uppercase tracking-widest">Fecha límite: Viernes 26 de Junio 2026 — 23:59 hrs (El Salvador)</div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8">
+                        <div class="form-control">
+                            <label class="label pb-1"><span class="label-text font-black text-info text-sm sm:text-base">⚽ Más goles a favor</span></label>
+                            <span class="text-[10px] opacity-40 uppercase tracking-wider mb-2 block">50 puntos</span>
+                            <select id="bonus-1" class="select select-bordered select-info w-full text-sm sm:text-base">
+                                <option value="" disabled selected>Seleccionar...</option>
+                            </select>
+                        </div>
+                        <div class="form-control">
+                            <label class="label pb-1"><span class="label-text font-black text-secondary text-sm sm:text-base">🛑 Más goles en contra</span></label>
+                            <span class="text-[10px] opacity-40 uppercase tracking-wider mb-2 block">50 puntos</span>
+                            <select id="bonus-2" class="select select-bordered select-secondary w-full text-sm sm:text-base">
+                                <option value="" disabled selected>Seleccionar...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card-actions justify-center mt-2">
+                        <button id="save-bonus" class="btn btn-info btn-lg px-12 shadow-xl gap-2 text-base">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                            Guardar Respuestas
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Podio (cerrado 18 Jun) -->
+        <div id="podium-container" class="hidden animate-fade-in-up mb-8 md:mb-10">
             <div class="card bg-base-100 shadow-2xl border-2 border-warning/30 relative overflow-hidden">
                 <div class="absolute top-0 left-0 right-0 h-2 bg-warning"></div>
                 <div class="card-body p-6 sm:p-8">
@@ -115,7 +178,6 @@
                         </div>
                     </div>
 
-                    <!-- Countdown Hero -->
                     <div id="podium-deadline-alert" class="bg-warning/5 border border-warning/20 rounded-2xl p-5 sm:p-7 mb-8 text-center">
                         <div class="flex items-center justify-center gap-2 text-warning font-bold text-xs uppercase tracking-widest mb-4">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
@@ -125,7 +187,6 @@
                         <div class="text-[10px] opacity-40 uppercase tracking-widest">Fecha límite: Jueves 18 de Junio 2026 — 23:59 hrs</div>
                     </div>
 
-                    <!-- Selects Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
                         <div class="form-control">
                             <label class="label pb-1"><span class="label-text font-black text-warning text-sm sm:text-base">🥇 Campeón</span></label>
@@ -149,7 +210,7 @@
                             </select>
                         </div>
                     </div>
-                    
+
                     <div class="card-actions justify-center mt-2">
                         <button id="save-podium" class="btn btn-warning btn-lg px-12 shadow-xl gap-2 text-base">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
@@ -178,6 +239,31 @@
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-info"></span>
                         </span>
                         Próximamente
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div><!-- /consulta-actual -->
+
+        <div id="consulta-anteriores" class="hidden">
+            <div class="card bg-base-100 shadow-xl border border-base-300">
+                <div class="card-body">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-6 p-4 bg-base-200 rounded-xl">
+                        <label class="label py-0 gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 opacity-50"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+                            <span class="label-text text-xs font-bold opacity-60 uppercase tracking-wider">Consultar pronósticos de:</span>
+                        </label>
+                        <select id="prev-user-filter" class="select select-bordered select-sm w-full sm:max-w-xs">
+                            <option value="" disabled selected>Seleccionar usuario...</option>
+                        </select>
+                    </div>
+
+                    <div id="prev-predictions">
+                        <div class="flex flex-col items-center justify-center py-16 opacity-40 text-center">
+                            <div class="text-5xl mb-4 opacity-30">🔍</div>
+                            <p class="text-sm font-bold">Selecciona un usuario para ver sus pronósticos</p>
+                            <p class="text-xs opacity-60 mt-1">Podio Ideal y Preguntas Bonus de consultas anteriores</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -321,7 +407,7 @@
                 document.getElementById('podium-1').value = savedPodium.champion || '';
                 document.getElementById('podium-2').value = savedPodium.runner_up || '';
                 document.getElementById('podium-3').value = savedPodium.third_place || '';
-                
+
                 const saveBtn = document.getElementById('save-podium');
                 if (saveBtn) {
                     saveBtn.innerHTML = `
@@ -405,6 +491,222 @@
             }
         }
 
+        async function cargarBonus() {
+            const currentUser = localStorage.getItem('currentUser');
+            const container = document.getElementById('bonus-container');
+            if (!currentUser || !container) return;
+
+            const { data: teams, error: teamsError } = await supabase
+                .from('teams')
+                .select('name')
+                .order('name', { ascending: true });
+
+            if (teamsError) return console.error('Error cargando equipos:', teamsError.message);
+
+            ['1', '2'].forEach(pos => {
+                const select = document.getElementById(`bonus-${pos}`);
+                if (select) {
+                    select.innerHTML = '<option value="" disabled selected>Seleccionar equipo...</option>';
+                    teams.forEach(t => {
+                        const option = document.createElement('option');
+                        option.value = t.name;
+                        option.textContent = getFlag(t.name);
+                        select.appendChild(option);
+                    });
+                }
+            });
+
+            const { data: savedBonus } = await supabase
+                .from('bonus_predictions')
+                .select('*')
+                .eq('user_id', currentUser)
+                .maybeSingle();
+
+            if (savedBonus) {
+                document.getElementById('bonus-1').value = savedBonus.most_goals_for || '';
+                document.getElementById('bonus-2').value = savedBonus.most_goals_against || '';
+
+                const saveBtn = document.getElementById('save-bonus');
+                if (saveBtn) {
+                    saveBtn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" /></svg>
+                        Actualizar Respuestas
+                    `;
+                    saveBtn.classList.remove('btn-info');
+                    saveBtn.classList.add('btn-secondary');
+                }
+            }
+
+            const deadline = new Date('2026-06-27T05:59:59Z');
+            const updateBonusCountdown = () => {
+                const now = new Date();
+                const timeRemaining = deadline - now;
+                const timerDisplay = document.getElementById('bonus-timer');
+                const saveBtn = document.getElementById('save-bonus');
+                const deadlineAlert = document.getElementById('bonus-deadline-alert');
+
+                if (timeRemaining <= 0) {
+                    document.querySelectorAll('#bonus-container select').forEach(el => el.disabled = true);
+                    if (saveBtn) saveBtn.remove();
+                    if (deadlineAlert) {
+                        deadlineAlert.className = 'bg-error/10 border border-error/30 rounded-2xl p-5 sm:p-7 mb-8 text-center';
+                        deadlineAlert.innerHTML = `
+                            <div class="flex items-center justify-center gap-2 text-error font-bold text-xs uppercase tracking-widest mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+                                Plazo finalizado
+                            </div>
+                            <div class="font-mono font-black text-3xl sm:text-5xl md:text-6xl tracking-widest text-error drop-shadow-lg mb-3">⏰ CERRADO</div>
+                            <div class="text-[10px] opacity-40 uppercase tracking-widest">El plazo para guardar tus respuestas ha finalizado. Solo lectura.</div>
+                        `;
+                    }
+                    return true;
+                }
+
+                if (timerDisplay) {
+                    const d = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+                    const h = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const m = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+                    if (timeRemaining < 86400000) {
+                        timerDisplay.className = 'font-mono font-black text-3xl sm:text-5xl md:text-6xl tracking-widest text-error drop-shadow-lg mb-3 animate-pulse';
+                    } else {
+                        timerDisplay.className = 'font-mono font-black text-3xl sm:text-5xl md:text-6xl tracking-widest text-info drop-shadow-lg mb-3';
+                    }
+
+                    timerDisplay.innerHTML = `${d}<span class="text-sm sm:text-lg opacity-40">d</span> ${h}<span class="text-sm sm:text-lg opacity-40">h</span> ${m}<span class="text-sm sm:text-lg opacity-40">m</span> ${s}<span class="text-sm sm:text-lg opacity-40">s</span>`;
+                }
+                return false;
+            };
+
+            setInterval(updateBonusCountdown, 1000);
+            updateBonusCountdown();
+
+            container.classList.remove('hidden');
+
+            const saveBonusBtn = document.getElementById('save-bonus');
+            if (saveBonusBtn) {
+                saveBonusBtn.onclick = async () => {
+                    if (new Date() >= deadline) {
+                        alert('¡Demasiado tarde! El plazo ha vencido.');
+                        location.reload();
+                        return;
+                    }
+                    const most_goals_for = document.getElementById('bonus-1').value;
+                    const most_goals_against = document.getElementById('bonus-2').value;
+
+                    if (!most_goals_for || !most_goals_against) return alert('Por favor, selecciona un equipo para cada pregunta.');
+                    if (most_goals_for === most_goals_against) return alert('No puedes seleccionar el mismo equipo para ambas preguntas.');
+
+                    const { error } = await supabase
+                        .from('bonus_predictions')
+                        .upsert({ user_id: currentUser, most_goals_for, most_goals_against }, { onConflict: 'user_id' });
+
+                    if (error) alert('Error al guardar: ' + error.message);
+                    else alert('¡Respuestas guardadas exitosamente! 🎯');
+                };
+            }
+        }
+
+        window.switchConsulta = (mode, el) => {
+            document.querySelectorAll('#consulta-actual, #consulta-anteriores').forEach(c => c.classList.add('hidden'));
+            document.getElementById(mode === 'actual' ? 'consulta-actual' : 'consulta-anteriores').classList.remove('hidden');
+            document.querySelectorAll('[onclick^="switchConsulta"]').forEach(t => t.classList.remove('tab-active'));
+            if (el) el.classList.add('tab-active');
+        };
+
+        async function cargarConsultaAnteriores() {
+            const filterSelect = document.getElementById('prev-user-filter');
+            if (!filterSelect) return;
+
+            const otherUsers = Object.keys(userConfig)
+                .filter(u => u !== 'admin' && u !== 'gato')
+                .sort();
+            filterSelect.innerHTML = '<option value="" disabled selected>Seleccionar usuario...</option>';
+            otherUsers.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u;
+                const cfg = userConfig[u];
+                opt.textContent = `${cfg.emoji || '👤'} ${u.charAt(0).toUpperCase() + u.slice(1)}`;
+                filterSelect.appendChild(opt);
+            });
+
+            filterSelect.onchange = async () => {
+                const userId = filterSelect.value;
+                const container = document.getElementById('prev-predictions');
+                if (!userId) return;
+
+                const [podiumResult, bonusResult] = await Promise.all([
+                    supabase.from('podium_predictions').select('*').eq('user_id', userId).maybeSingle(),
+                    supabase.from('bonus_predictions').select('*').eq('user_id', userId).maybeSingle()
+                ]);
+
+                const podium = podiumResult.data;
+                const bonus = bonusResult.data;
+                const config = userConfig[userId] || { emoji: '👤', color: 'ring-primary' };
+
+                if (!podium && !bonus) {
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-16 opacity-40 text-center">
+                            <div class="text-5xl mb-4 opacity-30">📭</div>
+                            <p class="text-sm font-bold">${config.emoji} ${userId.charAt(0).toUpperCase() + userId.slice(1)} no ha realizado pronósticos</p>
+                            <p class="text-xs opacity-60 mt-1">Aún no hay registros para este usuario en consultas anteriores.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `<div class="space-y-4">`;
+
+                if (podium) {
+                    html += `
+                        <div class="bg-base-200 rounded-2xl p-5 border border-warning/20">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="text-lg">🏆</span>
+                                <span class="font-bold text-sm uppercase tracking-wider opacity-70">Podio Ideal</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="bg-base-100 rounded-xl p-3 border border-warning/30 text-center">
+                                    <span class="text-[10px] uppercase tracking-widest text-warning font-bold block mb-1">Campeón (50 pts)</span>
+                                    <span class="text-lg font-black">${getFlag(podium.champion)}</span>
+                                </div>
+                                <div class="bg-base-100 rounded-xl p-3 border border-secondary/30 text-center">
+                                    <span class="text-[10px] uppercase tracking-widest text-secondary font-bold block mb-1">Subcampeón (30 pts)</span>
+                                    <span class="text-lg font-black">${getFlag(podium.runner_up)}</span>
+                                </div>
+                                <div class="bg-base-100 rounded-xl p-3 border border-accent/30 text-center">
+                                    <span class="text-[10px] uppercase tracking-widest text-accent font-bold block mb-1">Tercero (20 pts)</span>
+                                    <span class="text-lg font-black">${getFlag(podium.third_place)}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                }
+
+                if (bonus) {
+                    html += `
+                        <div class="bg-base-200 rounded-2xl p-5 border border-info/20">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="text-lg">🎯</span>
+                                <span class="font-bold text-sm uppercase tracking-wider opacity-70">Preguntas Bonus</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="bg-base-100 rounded-xl p-3 border border-info/30 text-center">
+                                    <span class="text-[10px] uppercase tracking-widest text-info font-bold block mb-1">⚽ Más goles a favor</span>
+                                    <span class="text-lg font-black">${getFlag(bonus.most_goals_for)}</span>
+                                </div>
+                                <div class="bg-base-100 rounded-xl p-3 border border-secondary/30 text-center">
+                                    <span class="text-[10px] uppercase tracking-widest text-secondary font-bold block mb-1">🛑 Más goles en contra</span>
+                                    <span class="text-lg font-black">${getFlag(bonus.most_goals_against)}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                }
+
+                html += `</div>`;
+                container.innerHTML = html;
+            };
+        }
+
         const initTheme = () => {
             const themeToggle = document.getElementById('theme-toggle');
             const currentTheme = localStorage.getItem('theme') || 'dark';
@@ -452,6 +754,8 @@
         }
 
         cargarPodio()
+        cargarBonus()
+        cargarConsultaAnteriores()
         initTheme()
     </script>
 </body>
