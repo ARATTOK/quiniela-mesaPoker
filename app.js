@@ -91,6 +91,34 @@ const avatarHtml = (c, w = 'w-6', t = 'text-[10px]') => c.img
   : `<div class="avatar placeholder"><div class="bg-neutral text-neutral-content rounded-full ${w} ring ${c.color} ring-offset-base-100 ring-offset-1"><span class="${t}">${c.emoji}</span></div></div>`;
 
 let allMatches = []; // Variable global para almacenar todos los partidos
+
+function getTeamForm(teamName, excludeMatchId) {
+    return allMatches
+        .filter(m => m.status === 'finished' && m.id !== excludeMatchId && (m.home_team === teamName || m.away_team === teamName))
+        .sort((a, b) => new Date(b.match_date) - new Date(a.match_date))
+        .slice(0, 3)
+        .map(m => {
+            const isHome = m.home_team === teamName;
+            const teamScore = parseInt(isHome ? m.home_score : m.away_score);
+            const oppScore = parseInt(isHome ? m.away_score : m.home_score);
+            return {
+                result: teamScore > oppScore ? 'win' : teamScore === oppScore ? 'draw' : 'loss',
+                teamScore: isNaN(teamScore) ? '?' : teamScore,
+                oppScore: isNaN(oppScore) ? '?' : oppScore,
+                opponent: isHome ? m.away_team : m.home_team,
+            };
+        });
+}
+
+function buildTeamForm(teamName, excludeMatchId) {
+    const form = getTeamForm(teamName, excludeMatchId);
+    if (form.length === 0) return '<div class="text-[9px] opacity-20 italic leading-relaxed">Sin historial</div>';
+    return '<div class="flex flex-wrap justify-center gap-1">' + form.map(f => {
+        const cls = f.result === 'win' ? 'badge-success' : f.result === 'draw' ? 'badge-warning' : 'badge-error';
+        return `<span class="badge badge-xs ${cls} gap-0.5">${f.teamScore}-${f.oppScore} ${flags[f.opponent] || ''}</span>`;
+    }).join('') + '</div>';
+}
+
 let userPredictions = []; // Variable global para almacenar los pronósticos del usuario
 let globalRanking = []; // Nueva variable para comparativas
 let countdownInterval = null;
@@ -554,6 +582,18 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
                         <div class="text-3xl sm:text-4xl mb-1">${flags[match.away_team] || '🏳️'}</div>
                         <div class="text-[11px] sm:text-sm font-bold opacity-80 truncate max-w-[90px] sm:max-w-[140px] mx-auto leading-tight">${match.away_team}</div>
                         <input type="number" id="away-${match.id}" class="input input-bordered input-sm w-12 sm:w-14 text-center font-bold mt-2 text-base" value="${awayPred}" ${isDisabled}>
+                    </div>
+                </div>
+
+                <!-- Recent form -->
+                <div class="grid grid-cols-2 gap-2 mt-1 mb-3">
+                    <div class="text-center">
+                        <div class="text-[9px] font-bold opacity-25 uppercase tracking-wider mb-1">Últimos resultados</div>
+                        ${buildTeamForm(match.home_team, match.id)}
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[9px] font-bold opacity-25 uppercase tracking-wider mb-1">Últimos resultados</div>
+                        ${buildTeamForm(match.away_team, match.id)}
                     </div>
                 </div>
 
