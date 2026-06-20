@@ -944,19 +944,39 @@ window.cargarNoticias = async () => {
         container.innerHTML = '<div class="flex justify-center py-8 opacity-40 text-xs">No hay noticias disponibles</div>';
         return;
     }
+
+    // Fetch reactions
+    const newsIds = news.map(n => n.id);
+    const { data: reactions } = await supabase
+        .from('news_reactions')
+        .select('news_id, reaction')
+        .in('news_id', newsIds);
+    const reactionsMap = {};
+    if (reactions) {
+        for (const r of reactions) {
+            if (!reactionsMap[r.news_id]) reactionsMap[r.news_id] = { likes: 0, dislikes: 0 };
+            if (r.reaction === 'like') reactionsMap[r.news_id].likes++;
+            if (r.reaction === 'dislike') reactionsMap[r.news_id].dislikes++;
+        }
+    }
+
     container.innerHTML = news.map(n => {
         const cs = categoryStyles[n.category] || { badge: 'badge-ghost', title: 'text-base-content' };
         const ring = categoryRings[n.category] || '';
         const d = new Date(n.date + 'T12:00:00');
         const dateStr = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+        const rx = reactionsMap[n.id] || { likes: 0, dislikes: 0 };
         return `<div class="flex items-start gap-4 p-3 rounded-2xl bg-base-200/60 hover:bg-base-200 transition-colors ${ring}">
             <span class="text-2xl shrink-0 mt-1">${n.emoji}</span>
-            <div class="min-w-0">
+            <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2 flex-wrap">
                     <span class="font-bold uppercase text-[9px] tracking-wider opacity-70 badge badge-xs badge-outline ${cs.badge}">${n.category}</span>
                     <span class="text-[10px] opacity-40">• ${dateStr}</span>
                 </div>
                 <p class="leading-relaxed opacity-85 mt-1"><strong class="${cs.title}">${n.title}</strong> — ${formatBody(n.body)}</p>
+                <div class="flex items-center gap-3 mt-1.5 text-[10px] opacity-40">
+                    ${rx.likes > 0 || rx.dislikes > 0 ? `<span>👍 ${rx.likes}</span><span>👎 ${rx.dislikes}</span>` : ''}
+                </div>
             </div>
         </div>`;
     }).join('');

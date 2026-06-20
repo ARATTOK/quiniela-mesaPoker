@@ -336,6 +336,7 @@
 
         let allNews = []
         let selectedNewsDate = ''
+        let reactionsMap = {}
 
         function renderNews(noticias) {
             const container = document.getElementById('news-container')
@@ -351,6 +352,7 @@
                 const d = new Date(n.date + 'T12:00:00')
                 const dateStr = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
                 const canEdit = isEditor
+                const rx = reactionsMap[n.id] || { likes: 0, dislikes: 0, user_reaction: null, like_users: [], dislike_users: [] }
                 return `<div class="card bg-base-100 shadow-xl border border-base-300 animate-fade-in-up ${ring} ${n.visible === false ? 'opacity-50' : ''}">
                     <div class="card-body p-4 sm:p-5">
                         <div class="flex items-start justify-between gap-4">
@@ -377,6 +379,16 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
                                 </button>
                             </div>` : ''}
+                        </div>
+                        <div class="flex items-center gap-4 mt-3 pt-3 border-t border-base-300/30">
+                            <button class="btn btn-ghost btn-xs gap-1 ${rx.user_reaction === 'like' ? 'text-primary' : 'text-base-content/50 hover:text-primary'}" id="like-btn-${n.id}" onclick="toggleReaction(${n.id}, 'like')" title="${rx.like_users.length ? '👍 ' + rx.like_users.join(', ') : ''}">
+                                <span class="text-base leading-none">👍</span>
+                                <span id="like-count-${n.id}" class="text-xs font-bold">${rx.likes}</span>
+                            </button>
+                            <button class="btn btn-ghost btn-xs gap-1 ${rx.user_reaction === 'dislike' ? 'text-error' : 'text-base-content/50 hover:text-error'}" id="dislike-btn-${n.id}" onclick="toggleReaction(${n.id}, 'dislike')" title="${rx.dislike_users.length ? '👎 ' + rx.dislike_users.join(', ') : ''}">
+                                <span class="text-base leading-none">👎</span>
+                                <span id="dislike-count-${n.id}" class="text-xs font-bold">${rx.dislikes}</span>
+                            </button>
                         </div>
                     </div>
                 </div>`
@@ -450,11 +462,64 @@
                 return
             }
             allNews = news
+            await fetchReactions()
             const hoy = new Date().toISOString().split('T')[0]
             selectedNewsDate = hoy
             document.getElementById('news-date-filter').value = hoy
             renderNewsDatePills(hoy)
             renderNews(news.filter(n => n.date === hoy))
+        }
+
+        async function fetchReactions() {
+            const newsIds = allNews.map(n => n.id)
+            if (newsIds.length === 0) { reactionsMap = {}; return }
+            const { data: reactions } = await supabase
+                .from('news_reactions')
+                .select('news_id, user_id, reaction')
+                .in('news_id', newsIds)
+            reactionsMap = {}
+            if (reactions) {
+                for (const r of reactions) {
+                    if (!reactionsMap[r.news_id]) reactionsMap[r.news_id] = { likes: 0, dislikes: 0, user_reaction: null, like_users: [], dislike_users: [] }
+                    if (r.reaction === 'like') { reactionsMap[r.news_id].likes++; reactionsMap[r.news_id].like_users.push(r.user_id) }
+                    if (r.reaction === 'dislike') { reactionsMap[r.news_id].dislikes++; reactionsMap[r.news_id].dislike_users.push(r.user_id) }
+                    if (r.user_id === currentUser) reactionsMap[r.news_id].user_reaction = r.reaction
+                }
+            }
+        }
+
+        window.toggleReaction = async (newsId, reaction) => {
+            const { data, error } = await supabase.rpc('toggle_news_reaction', {
+                p_news_id: newsId,
+                p_user_id: currentUser,
+                p_reaction: reaction
+            })
+            if (error || !data) return
+            const likeCount = document.getElementById('like-count-' + newsId)
+            const dislikeCount = document.getElementById('dislike-count-' + newsId)
+            if (likeCount) likeCount.textContent = data.likes
+            if (dislikeCount) dislikeCount.textContent = data.dislikes
+            const likeBtn = document.getElementById('like-btn-' + newsId)
+            const dislikeBtn = document.getElementById('dislike-btn-' + newsId)
+            if (likeBtn) {
+                likeBtn.classList.toggle('text-primary', data.user_reaction === 'like')
+                likeBtn.classList.toggle('text-base-content/50', data.user_reaction !== 'like')
+            }
+            if (dislikeBtn) {
+                dislikeBtn.classList.toggle('text-error', data.user_reaction === 'dislike')
+                dislikeBtn.classList.toggle('text-base-content/50', data.user_reaction !== 'dislike')
+            }
+            // Actualizar tooltip localmente
+            const entry = reactionsMap[newsId]
+            if (entry) {
+                const rmLike = (id) => { const i = entry.like_users.indexOf(id); if (i > -1) entry.like_users.splice(i, 1) }
+                const rmDislike = (id) => { const i = entry.dislike_users.indexOf(id); if (i > -1) entry.dislike_users.splice(i, 1) }
+                if (data.user_reaction === 'like') { rmDislike(currentUser); if (!entry.like_users.includes(currentUser)) entry.like_users.push(currentUser) }
+                else if (data.user_reaction === 'dislike') { rmLike(currentUser); if (!entry.dislike_users.includes(currentUser)) entry.dislike_users.push(currentUser) }
+                else { rmLike(currentUser); rmDislike(currentUser) }
+                if (likeBtn) likeBtn.title = entry.like_users.length ? '👍 ' + entry.like_users.join(', ') : ''
+                if (dislikeBtn) dislikeBtn.title = entry.dislike_users.length ? '👎 ' + entry.dislike_users.join(', ') : ''
+            }
         }
 
         window.guardarNoticia = async () => {
