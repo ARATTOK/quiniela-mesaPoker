@@ -1360,6 +1360,10 @@
             return users.slice(0, 2).join(', ') + ' +' + (users.length - 2);
         }
 
+        function getHoySV() {
+            return new Date().toLocaleDateString('sv-SE', { timeZone: 'America/El_Salvador' });
+        }
+
         window.guardarNoticia = async () => {
             const id = document.getElementById('news-id').value;
             const title = document.getElementById('news-title').value.trim();
@@ -1379,14 +1383,14 @@
                     // Editar existente
                     const { error } = await supabase.from('news').update({
                         title, body, category, emoji, visible,
-                        date: dateInput || new Date().toISOString().split('T')[0]
+                        date: dateInput || getHoySV()
                     }).eq('id', id);
                     if (error) throw error;
                 } else {
                     // Crear nueva
                     const { error } = await supabase.from('news').insert([{
                         title, body, category, emoji, visible,
-                        date: dateInput || new Date().toISOString().split('T')[0]
+                        date: dateInput || getHoySV()
                     }]);
                     if (error) throw error;
                 }

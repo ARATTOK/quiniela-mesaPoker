@@ -928,7 +928,7 @@ const categoryRings = {
 window.cargarNoticias = async () => {
     const container = document.getElementById('gato-news-container');
     if (!container) return;
-    const hoy = new Date().toISOString().split('T')[0];
+    const hoy = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/El_Salvador' });
     const { data: news, error } = await supabase
         .from('news')
         .select('*')

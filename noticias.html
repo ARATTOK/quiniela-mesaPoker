@@ -446,9 +446,13 @@
             renderNews(allNews.filter(n => n.date === selectedNewsDate))
         }
 
+        function getHoySV() {
+            return new Date().toLocaleDateString('sv-SE', { timeZone: 'America/El_Salvador' })
+        }
+
         window.resetNewsFecha = () => {
             const dateFilter = document.getElementById('news-date-filter')
-            const hoy = new Date().toISOString().split('T')[0]
+            const hoy = getHoySV()
             dateFilter.value = hoy
             selectedNewsDate = hoy
             renderNewsDatePills(hoy)
@@ -475,7 +479,7 @@
             }
             allNews = news
             await fetchReactions()
-            const hoy = new Date().toISOString().split('T')[0]
+            const hoy = getHoySV()
             selectedNewsDate = hoy
             document.getElementById('news-date-filter').value = hoy
             renderNewsDatePills(hoy)
@@ -560,13 +564,13 @@
                 if (id) {
                     const { error } = await supabase.from('news').update({
                         title, body, category, emoji, visible,
-                        date: dateInput || new Date().toISOString().split('T')[0]
+                        date: dateInput || getHoySV()
                     }).eq('id', id)
                     if (error) throw error
                 } else {
                     const { error } = await supabase.from('news').insert([{
                         title, body, category, emoji, visible,
-                        date: dateInput || new Date().toISOString().split('T')[0]
+                        date: dateInput || getHoySV()
                     }])
                     if (error) throw error
                 }
