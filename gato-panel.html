@@ -364,14 +364,20 @@
                             <p class="text-sm font-bold mt-0.5">${n.title}</p>
                             <p class="text-xs opacity-70 leading-relaxed line-clamp-2">${formatBody(n.body)}</p>
                             <div class="flex items-center gap-2 mt-1.5 pt-1.5 border-t border-base-300/20">
-                                <button class="btn btn-ghost btn-xs gap-1 ${rx.user_reaction === 'like' ? 'text-primary' : 'text-base-content/40 hover:text-primary'}" id="like-btn-${n.id}" onclick="toggleReaction(${n.id}, 'like')" title="${rx.like_users.length ? '👍 ' + rx.like_users.join(', ') : ''}">
-                                    <span class="text-sm leading-none">👍</span>
-                                    <span id="like-count-${n.id}" class="text-[10px] font-bold">${rx.likes}</span>
-                                </button>
-                                <button class="btn btn-ghost btn-xs gap-1 ${rx.user_reaction === 'dislike' ? 'text-error' : 'text-base-content/40 hover:text-error'}" id="dislike-btn-${n.id}" onclick="toggleReaction(${n.id}, 'dislike')" title="${rx.dislike_users.length ? '👎 ' + rx.dislike_users.join(', ') : ''}">
-                                    <span class="text-sm leading-none">👎</span>
-                                    <span id="dislike-count-${n.id}" class="text-[10px] font-bold">${rx.dislikes}</span>
-                                </button>
+                                <div>
+                                    <button class="btn btn-ghost btn-xs gap-1 ${rx.user_reaction === 'like' ? 'text-primary' : 'text-base-content/40 hover:text-primary'}" id="like-btn-${n.id}" onclick="toggleReaction(${n.id}, 'like')">
+                                        <span class="text-sm leading-none">👍</span>
+                                        <span id="like-count-${n.id}" class="text-[10px] font-bold">${rx.likes}</span>
+                                    </button>
+                                    ${rx.like_users.length ? `<span id="like-users-${n.id}" class="text-[8px] opacity-40 ml-0.5">${formatReactionUsers(rx.like_users)}</span>` : `<span id="like-users-${n.id}" class="hidden"></span>`}
+                                </div>
+                                <div>
+                                    <button class="btn btn-ghost btn-xs gap-1 ${rx.user_reaction === 'dislike' ? 'text-error' : 'text-base-content/40 hover:text-error'}" id="dislike-btn-${n.id}" onclick="toggleReaction(${n.id}, 'dislike')">
+                                        <span class="text-sm leading-none">👎</span>
+                                        <span id="dislike-count-${n.id}" class="text-[10px] font-bold">${rx.dislikes}</span>
+                                    </button>
+                                    ${rx.dislike_users.length ? `<span id="dislike-users-${n.id}" class="text-[8px] opacity-40 ml-0.5">${formatReactionUsers(rx.dislike_users)}</span>` : `<span id="dislike-users-${n.id}" class="hidden"></span>`}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -501,9 +507,23 @@
                 if (data.user_reaction === 'like') { rmDislike(currentUser); if (!entry.like_users.includes(currentUser)) entry.like_users.push(currentUser) }
                 else if (data.user_reaction === 'dislike') { rmLike(currentUser); if (!entry.dislike_users.includes(currentUser)) entry.dislike_users.push(currentUser) }
                 else { rmLike(currentUser); rmDislike(currentUser) }
-                if (likeBtn) likeBtn.title = entry.like_users.length ? '👍 ' + entry.like_users.join(', ') : ''
-                if (dislikeBtn) dislikeBtn.title = entry.dislike_users.length ? '👎 ' + entry.dislike_users.join(', ') : ''
+                const likeUsers = document.getElementById('like-users-' + newsId)
+                const dislikeUsers = document.getElementById('dislike-users-' + newsId)
+                if (likeUsers) {
+                    if (entry.like_users.length) { likeUsers.classList.remove('hidden'); likeUsers.textContent = formatReactionUsers(entry.like_users) }
+                    else { likeUsers.classList.add('hidden') }
+                }
+                if (dislikeUsers) {
+                    if (entry.dislike_users.length) { dislikeUsers.classList.remove('hidden'); dislikeUsers.textContent = formatReactionUsers(entry.dislike_users) }
+                    else { dislikeUsers.classList.add('hidden') }
+                }
             }
+        }
+
+        function formatReactionUsers(users) {
+            if (!users || users.length === 0) return ''
+            if (users.length <= 2) return users.join(', ')
+            return users.slice(0, 2).join(', ') + ' +' + (users.length - 2)
         }
 
         window.guardarNoticia = async () => {
