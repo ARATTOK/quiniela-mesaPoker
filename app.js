@@ -339,7 +339,8 @@ async function cargarPodio() {
 
             if (error) alert('Error al guardar podio: ' + error.message);
             else {
-                supabase.from('prediction_log').insert({ user_id: currentUser, prediction_type: 'podium', data: { champion, runner_up, third_place } });
+                const { error: logError } = await supabase.from('prediction_log').insert({ user_id: currentUser, prediction_type: 'podium', data: { champion, runner_up, third_place }, created_at: new Date().toISOString() });
+                if (logError) console.error('Error guardando en prediction_log:', logError);
                 alert('¡Podio Ideal guardado exitosamente! 🤡🏆');
             }
         };
@@ -892,7 +893,8 @@ window.guardarPronostico = async (matchId) => {
             btn.disabled = false;
         }
     } else {
-        supabase.from('prediction_log').insert({ user_id: currentUser, prediction_type: 'match', match_id: matchId, data: predictionData });
+        const { error: logError } = await supabase.from('prediction_log').insert({ user_id: currentUser, prediction_type: 'match', match_id: matchId, data: predictionData, created_at: new Date().toISOString() });
+        if (logError) console.error('Error guardando en prediction_log:', logError);
         alert('¡Pronóstico guardado con éxito! 🤡');
         
         // Actualizar localmente el array de pronósticos para persistencia sin recargar

@@ -487,7 +487,8 @@
 
                     if (error) alert('Error al guardar podio: ' + error.message);
                     else {
-                        supabase.from('prediction_log').insert({ user_id: currentUser, prediction_type: 'podium', data: { champion, runner_up, third_place } });
+                        const { error: logError } = await supabase.from('prediction_log').insert({ user_id: currentUser, prediction_type: 'podium', data: { champion, runner_up, third_place }, created_at: new Date().toISOString() });
+                        if (logError) console.error('Error guardando en prediction_log:', logError);
                         alert('¡Podio Ideal guardado exitosamente! 🤡🏆');
                     }
                 };
@@ -607,7 +608,8 @@
 
                     if (error) alert('Error al guardar: ' + error.message);
                     else {
-                        supabase.from('prediction_log').insert({ user_id: currentUser, prediction_type: 'bonus', data: { most_goals_for, most_goals_against } });
+                        const { error: logError } = await supabase.from('prediction_log').insert({ user_id: currentUser, prediction_type: 'bonus', data: { most_goals_for, most_goals_against }, created_at: new Date().toISOString() });
+                        if (logError) console.error('Error guardando en prediction_log:', logError);
                         alert('¡Respuestas guardadas exitosamente! 🎯');
                     }
                 };
