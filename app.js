@@ -62,6 +62,8 @@ const flags = {
     'Uzbekistán': '🇺🇿'
 };
 
+const svTimestamp = () => new Date().toLocaleString('sv-SE', { timeZone: 'America/El_Salvador' }).replace(' ', 'T');
+
 const getFlag = (team) => `${flags[team] || '🏳️'} ${team}`;
 
 const userConfig = {
@@ -339,7 +341,7 @@ async function cargarPodio() {
 
             if (error) alert('Error al guardar podio: ' + error.message);
             else {
-                const { error: logError } = await supabase.from('prediction_log').insert({ user_id: currentUser, prediction_type: 'podium', data: { champion, runner_up, third_place }, created_at: new Date().toISOString() });
+                const { error: logError } = await supabase.from('prediction_log').insert({ user_id: currentUser, prediction_type: 'podium', data: { champion, runner_up, third_place }, created_at: svTimestamp() });
                 if (logError) console.error('Error guardando en prediction_log:', logError);
                 alert('¡Podio Ideal guardado exitosamente! 🤡🏆');
             }
@@ -880,7 +882,8 @@ window.guardarPronostico = async (matchId) => {
         user_id: currentUser, 
         home_score_pred: parseInt(home), 
         away_score_pred: parseInt(away),
-        penalty_winner_pred: penalty
+        penalty_winner_pred: penalty,
+        updated_at: svTimestamp()
     }
 
     const { error } = await supabase.from('predictions').upsert([predictionData], { onConflict: 'user_id, match_id' })
@@ -893,7 +896,7 @@ window.guardarPronostico = async (matchId) => {
             btn.disabled = false;
         }
     } else {
-        const { error: logError } = await supabase.from('prediction_log').insert({ user_id: currentUser, prediction_type: 'match', match_id: matchId, data: predictionData, created_at: new Date().toISOString() });
+        const { error: logError } = await supabase.from('prediction_log').insert({ user_id: currentUser, prediction_type: 'match', match_id: matchId, data: predictionData, created_at: svTimestamp() });
         if (logError) console.error('Error guardando en prediction_log:', logError);
         alert('¡Pronóstico guardado con éxito! 🤡');
         
