@@ -69,7 +69,7 @@ const getFlag = (team) => `${flags[team] || '🏳️'} ${team}`;
 const userConfig = {
     'admin': { emoji: '🤡', color: 'ring-primary' },
     'aaron': { emoji: '🥳', color: 'ring-secondary' },
-    'alam': { emoji: '🤪', color: 'ring-accent' },
+    'alam': { emoji: '🤪', img: 'images/perfilalam.png', color: 'ring-accent' },
     'bennett': { emoji: '🤹', img: 'images/perfilbennet.png', color: 'ring-info' },
     'dennis': { emoji: '🎭', color: 'ring-success' },
     'jorge': { emoji: '🃏', color: 'ring-warning' },
