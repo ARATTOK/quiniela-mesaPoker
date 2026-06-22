@@ -877,13 +877,21 @@ window.guardarPronostico = async (matchId) => {
         btn.disabled = true;
     }
 
+    const { data: existing } = await supabase
+        .from('predictions')
+        .select('id')
+        .eq('user_id', currentUser)
+        .eq('match_id', matchId)
+        .maybeSingle();
+
     const predictionData = { 
         match_id: matchId, 
         user_id: currentUser, 
         home_score_pred: parseInt(home), 
         away_score_pred: parseInt(away),
         penalty_winner_pred: penalty,
-        updated_at: svTimestamp()
+        updated_at: svTimestamp(),
+        ...(!existing ? { created_at: svTimestamp() } : {})
     }
 
     const { error } = await supabase.from('predictions').upsert([predictionData], { onConflict: 'user_id, match_id' })
