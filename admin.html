@@ -957,8 +957,10 @@
             
             filteredMatches.forEach((m, index) => {
                 const isFinished = m.status === 'finished'
-                const isKnockout = ['Octavos', 'Cuartos', 'Semis', 'Final'].includes(m.stage)
+                const isKnockout = ['16avos', 'Octavos', 'Cuartos', 'Semis', 'Final'].includes(m.stage)
                 const div = document.createElement('div')
+                div.setAttribute('data-match-id', m.id);
+                div.setAttribute('data-match-stage', m.stage);
                 div.className = `card bg-base-100 shadow-xl border-l-4 ${isFinished ? 'border-success' : 'border-warning'} animate-fade-in-up p-2 overflow-hidden`
                 div.style.animationDelay = `${index * 0.05}s`
                 
@@ -975,18 +977,20 @@
                         </div>
                         <div class="flex items-center gap-2 justify-center py-1">
                             <input type="number" id="home-${m.id}" value="${m.home_score ?? ''}" 
-                                class="input input-bordered input-xs w-12 text-center font-bold">
+                                class="input input-bordered input-xs w-12 text-center font-bold" oninput="alternarPenalesAdmin(${m.id})">
                             <span class="opacity-30">-</span>
                             <input type="number" id="away-${m.id}" value="${m.away_score ?? ''}" 
-                                class="input input-bordered input-xs w-12 text-center font-bold">
+                                class="input input-bordered input-xs w-12 text-center font-bold" oninput="alternarPenalesAdmin(${m.id})">
                         </div>
                         
                         ${isKnockout ? `
-                        <select id="penalty-${m.id}" class="select select-bordered select-xs w-full mt-1">
-                            <option value="">¿Quién clasifica?</option>
-                            <option value="${m.home_team}" ${m.penalty_winner === m.home_team ? 'selected' : ''}>${getFlag(m.home_team)}</option>
-                            <option value="${m.away_team}" ${m.penalty_winner === m.away_team ? 'selected' : ''}>${getFlag(m.away_team)}</option>
-                        </select>` : ''}
+                        <div id="penal-admin-container-${m.id}" class="${m.home_score !== null && m.home_score === m.away_score ? '' : 'hidden'}">
+                            <select id="penalty-${m.id}" class="select select-bordered select-xs w-full mt-1">
+                                <option value="">⚖️ ¿Quién clasifica?</option>
+                                <option value="${m.home_team}" ${m.penalty_winner === m.home_team ? 'selected' : ''}>${getFlag(m.home_team)}</option>
+                                <option value="${m.away_team}" ${m.penalty_winner === m.away_team ? 'selected' : ''}>${getFlag(m.away_team)}</option>
+                            </select>
+                        </div>` : ''}
 
                         <div class="card-actions justify-between items-center mt-2 border-t border-base-300 pt-2">
                             <button onclick="eliminarPartido(${m.id})" class="btn btn-ghost btn-xs text-error p-0">
@@ -1009,6 +1013,15 @@
             })
         }
 
+        window.alternarPenalesAdmin = (matchId) => {
+            const homeEl = document.getElementById(`home-${matchId}`);
+            const awayEl = document.getElementById(`away-${matchId}`);
+            const container = document.getElementById(`penal-admin-container-${matchId}`);
+            if (!homeEl || !awayEl || !container) return;
+            const homeV = homeEl.value, awayV = awayEl.value;
+            container.classList.toggle('hidden', !(homeV !== '' && awayV !== '' && parseInt(homeV) === parseInt(awayV)));
+        };
+
         // 3. Función para actualizar y calcular
         window.actualizarResultado = async (id) => {
             const homeInput = document.getElementById(`home-${id}`);
@@ -1020,6 +1033,14 @@
             const penalty = penaltyInput ? penaltyInput.value : null;
             
             if (home === '' || away === '') return alert('Por favor, ingresa los goles.')
+
+            // Verificar si es fase eliminatoria con empate -> requiere penal
+            const card = document.querySelector(`[data-match-id="${id}"]`);
+            const stage = card?.getAttribute('data-match-stage') || '';
+            const knockoutStages = ['16avos', 'Octavos', 'Cuartos', 'Semis', 'Final'];
+            if (knockoutStages.includes(stage) && parseInt(home) === parseInt(away) && !penalty) {
+                return alert('El partido está empatado. Debes seleccionar quién clasifica por penales.');
+            }
 
             // A. Actualizar partido
             const { error: updateError } = await supabase.from('matches').update({ 

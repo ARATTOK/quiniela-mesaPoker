@@ -532,6 +532,7 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
         div.style.animationDelay = `${index * 0.1}s`;
         div.setAttribute('data-match-id', match.id);
         div.setAttribute('data-match-date', match.match_date);
+        div.setAttribute('data-match-stage', match.stage);
         const isKnockout = ['16avos', 'Octavos', 'Cuartos', 'Semis', 'Final'].includes(match.stage)
         const matchTimeFormatted = parseMatchDate(match.match_date).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
 
@@ -566,7 +567,7 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
                     <div class="text-center">
                         <div class="text-3xl sm:text-4xl mb-1">${flags[match.home_team] || '🏳️'}</div>
                         <div class="text-[11px] sm:text-sm font-bold opacity-80 truncate max-w-[90px] sm:max-w-[140px] mx-auto leading-tight">${match.home_team}</div>
-                        <input type="number" id="home-${match.id}" class="input input-bordered input-sm w-12 sm:w-14 text-center font-bold mt-2 text-base" value="${homePred}" ${isDisabled}>
+                        <input type="number" id="home-${match.id}" class="input input-bordered input-sm w-12 sm:w-14 text-center font-bold mt-2 text-base" value="${homePred}" ${isDisabled} oninput="alternarPenales(${match.id}, '${match.stage}')">
                     </div>
 
                     <div class="flex flex-col items-center min-w-[40px]">
@@ -584,7 +585,7 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
                     <div class="text-center">
                         <div class="text-3xl sm:text-4xl mb-1">${flags[match.away_team] || '🏳️'}</div>
                         <div class="text-[11px] sm:text-sm font-bold opacity-80 truncate max-w-[90px] sm:max-w-[140px] mx-auto leading-tight">${match.away_team}</div>
-                        <input type="number" id="away-${match.id}" class="input input-bordered input-sm w-12 sm:w-14 text-center font-bold mt-2 text-base" value="${awayPred}" ${isDisabled}>
+                        <input type="number" id="away-${match.id}" class="input input-bordered input-sm w-12 sm:w-14 text-center font-bold mt-2 text-base" value="${awayPred}" ${isDisabled} oninput="alternarPenales(${match.id}, '${match.stage}')">
                     </div>
                 </div>
 
@@ -601,9 +602,13 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
                 </div>
 
                 ${isKnockout ? `
-                <div class="mb-3">
-                    <select id="penalty-${match.id}" class="select select-bordered select-sm w-full text-xs" ${isDisabled}>
-                        <option value="">⚖️ ¿Quién clasifica?</option>
+                <div id="penal-container-${match.id}" class="mb-3 ${homePred !== '' && awayPred !== '' && parseInt(homePred) === parseInt(awayPred) ? '' : 'hidden'}">
+                    <div class="flex items-center gap-1.5 justify-center mb-1.5">
+                        <span class="text-[9px] font-black uppercase tracking-wider opacity-40">⚖️ Desempate por penales</span>
+                        <span id="penal-alert-${match.id}" class="badge badge-error badge-xs gap-1 font-black text-[8px] tracking-widest animate-pulse ${parseInt(homePred) === parseInt(awayPred) && homePred !== '' && awayPred !== '' ? '' : 'hidden'}">⚠️ REQUERIDO</span>
+                    </div>
+                    <select id="penalty-${match.id}" class="select select-bordered select-sm w-full text-xs font-bold ${parseInt(homePred) === parseInt(awayPred) && homePred !== '' && awayPred !== '' ? 'select-error ring-2 ring-error/50' : ''}" ${isDisabled}>
+                        <option value="">Seleccionar...</option>
                         <option value="${match.home_team}" ${penaltyPred === match.home_team ? 'selected' : ''}>${flags[match.home_team] || '🏳️'} ${match.home_team}</option>
                         <option value="${match.away_team}" ${penaltyPred === match.away_team ? 'selected' : ''}>${flags[match.away_team] || '🏳️'} ${match.away_team}</option>
                     </select>
@@ -846,6 +851,26 @@ window.resetFecha = () => {
     startCountdowns(); // Restart countdowns for the "Hoy" view
 };
 
+window.alternarPenales = (matchId, stage) => {
+    const knockout = ['16avos', 'Octavos', 'Cuartos', 'Semis', 'Final'].includes(stage);
+    if (!knockout) return;
+    const homeEl = document.getElementById(`home-${matchId}`);
+    const awayEl = document.getElementById(`away-${matchId}`);
+    const container = document.getElementById(`penal-container-${matchId}`);
+    const select = document.getElementById(`penalty-${matchId}`);
+    if (!homeEl || !awayEl || !container || !select) return;
+    const homeV = homeEl.value, awayV = awayEl.value;
+    const isDraw = homeV !== '' && awayV !== '' && parseInt(homeV) === parseInt(awayV);
+    container.classList.toggle('hidden', !isDraw);
+    const firstOpt = select.querySelector('option:first-child');
+    if (firstOpt) firstOpt.textContent = isDraw ? '🔴 Debes elegir quién clasifica por penales' : 'Seleccionar...';
+    select.classList.toggle('select-error', isDraw);
+    select.classList.toggle('ring-2', isDraw);
+    select.classList.toggle('ring-error/50', isDraw);
+    const alertBadge = document.getElementById(`penal-alert-${matchId}`);
+    if (alertBadge) alertBadge.classList.toggle('hidden', !isDraw);
+};
+
 window.guardarPronostico = async (matchId) => {
     const home = document.getElementById(`home-${matchId}`).value
     const away = document.getElementById(`away-${matchId}`).value
@@ -853,6 +878,14 @@ window.guardarPronostico = async (matchId) => {
     const currentUser = localStorage.getItem('currentUser')
 
     if (home === '' || away === '') return alert('Ingresa un resultado')
+    
+    // Verificar si es fase eliminatoria con empate -> requiere penal
+    const matchEl = document.querySelector(`[data-match-id="${matchId}"]`);
+    const stage = matchEl?.getAttribute('data-match-stage') || '';
+    const knockout = ['16avos', 'Octavos', 'Cuartos', 'Semis', 'Final'].includes(stage);
+    if (knockout && home !== '' && away !== '' && parseInt(home) === parseInt(away) && !penalty) {
+        return alert('El partido terminó empatado. Debes seleccionar quién clasifica por penales para +3 pts.');
+    }
 
     // Verificación de seguridad en tiempo real: 
     // Consultamos la DB directamente para evitar que datos locales desactualizados permitan guardar.
