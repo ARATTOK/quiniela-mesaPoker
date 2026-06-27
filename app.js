@@ -532,7 +532,7 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
         div.style.animationDelay = `${index * 0.1}s`;
         div.setAttribute('data-match-id', match.id);
         div.setAttribute('data-match-date', match.match_date);
-        const isKnockout = ['Octavos', 'Cuartos', 'Semis', 'Final'].includes(match.stage)
+        const isKnockout = ['16avos', 'Octavos', 'Cuartos', 'Semis', 'Final'].includes(match.stage)
         const matchTimeFormatted = parseMatchDate(match.match_date).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
 
         let buttonText = existingPrediction ? 'Actualizar' : 'Guardar';

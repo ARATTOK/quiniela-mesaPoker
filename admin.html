@@ -277,12 +277,14 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <div class="form-control w-full">
                             <label class="label"><span class="label-text font-semibold">Local</span></label>
+                            <input type="text" id="new-home-filter" placeholder="Buscar país local..." class="input input-bordered w-full input-sm mb-1.5 focus:input-primary" oninput="filtrarSelectEquipos('new-home', this.value)">
                             <select id="new-home" class="select select-bordered w-full focus:select-primary select-teams-list">
                                 <option disabled selected>Cargando...</option>
                             </select>
                         </div>
                         <div class="form-control w-full">
                             <label class="label"><span class="label-text font-semibold">Visitante</span></label>
+                            <input type="text" id="new-away-filter" placeholder="Buscar país visitante..." class="input input-bordered w-full input-sm mb-1.5 focus:input-primary" oninput="filtrarSelectEquipos('new-away', this.value)">
                             <select id="new-away" class="select select-bordered w-full focus:select-primary select-teams-list">
                                 <option disabled selected>Cargando...</option>
                             </select>
@@ -290,7 +292,7 @@
                         <div class="form-control w-full">
                             <label class="label"><span class="label-text font-semibold">Fase</span></label>
                             <select id="new-stage" class="select select-bordered w-full focus:select-primary">
-                                <option value="Grupos">Grupos</option><option value="Octavos">Octavos</option>
+                                <option value="Grupos">Grupos</option><option value="16avos">16avos</option><option value="Octavos">Octavos</option>
                                 <option value="Cuartos">Cuartos</option><option value="Semis">Semis</option><option value="Final">Final</option>
                             </select>
                         </div>
@@ -327,6 +329,7 @@
                     <select id="filter-match-stage" class="select select-bordered select-sm" onchange="renderPartidosAdmin()">
                         <option value="todos">Todas las fases</option>
                         <option value="Grupos">Grupos</option>
+                        <option value="16avos">16avos</option>
                         <option value="Octavos">Octavos</option>
                         <option value="Cuartos">Cuartos</option>
                         <option value="Semis">Semis</option>
@@ -779,7 +782,22 @@
                     select.appendChild(option)
                 })
                 if (currentValue) select.value = currentValue;
+                // Reset filter input
+                const filterId = select.id + '-filter';
+                const filterInput = document.getElementById(filterId);
+                if (filterInput) filterInput.value = '';
             })
+        }
+
+        window.filtrarSelectEquipos = (selectId, query) => {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            const filter = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            Array.from(select.options).forEach(option => {
+                if (!option.value) return;
+                const text = option.textContent.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                option.hidden = !text.includes(filter);
+            });
         }
 
         window.importarEquiposMundial = async () => {
