@@ -37,16 +37,6 @@
     </style>
 </head>
 <body class="bg-base-200 min-h-screen">
-    <!-- Banner investigación -->
-    <div class="bg-gradient-to-r from-red-900 via-red-700 to-red-900 text-white text-center py-2 sm:py-2.5 px-4 cursor-pointer hover:from-red-800 hover:via-red-600 hover:to-red-800 transition-all duration-300 border-b-2 border-yellow-400/50 shadow-[0_0_20px_rgba(255,0,0,0.3)]" onclick="document.getElementById('modal-informe').showModal()">
-        <p class="text-xs sm:text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 flex-wrap">
-            <span class="animate-pulse text-yellow-400 text-lg">📜</span>
-            <span class="text-yellow-300">INVESTIGACIÓN CONCLUIDA:</span>
-            <span>Acusación Bennett → Alam — Ver informe forense completo</span>
-            <span class="text-yellow-400 text-lg">📜</span>
-            <span class="badge badge-error badge-xs sm:badge-sm animate-pulse font-black text-[8px] sm:text-[10px] tracking-widest">NUEVO</span>
-        </p>
-    </div>
     <!-- Modal informe PDF -->
     <dialog id="modal-informe" class="modal modal-bottom sm:modal-middle">
         <div class="modal-box w-full max-w-5xl h-[85vh] max-h-[90dvh] p-0 overflow-hidden">
@@ -230,6 +220,11 @@
         <p class="text-[10px] opacity-40 uppercase tracking-[0.2em]">
           © 2026 - Hecho por y para payasitos de corazón
         </p>
+        <div class="mt-2">
+          <button onclick="document.getElementById('modal-informe').showModal()" class="text-[10px] opacity-30 hover:opacity-70 transition-opacity tracking-wider uppercase cursor-pointer">
+            📜 Informe Forense
+          </button>
+        </div>
       </aside>
     </footer>
 
