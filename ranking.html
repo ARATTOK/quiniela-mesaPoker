@@ -286,6 +286,7 @@
         const getFlag = (team) => `${flags[team] || ''} ${team}`;
 
         let fullRankingData = [];
+        let extraPuntosMap = {};
 
         window.applyFilters = () => {
             const showOnlyExacts = document.getElementById('filter-exacts').checked;
@@ -313,7 +314,9 @@
                 const medalEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : isLast ? '🐌' : (index + 1);
                 const totalPoints = player.total_points || 0;
                 const exactScores = player.exact_scores || 0;
+                const extraPts = extraPuntosMap[player.username] || 0;
                 const otherPoints = Math.max(0, totalPoints - (exactScores * 12));
+                const totalWithExtra = totalPoints + extraPts;
                 const config = userConfig[player.username] || { emoji: '👤', color: 'ring-primary' };
                 const avatarShineClass = index === 0 ? 'leader-avatar-shine' : ''; // Aplica solo al líder
                 
@@ -343,11 +346,11 @@
                         </div>
                     </td>
                     <td class="text-center hidden sm:table-cell">
-                        <div class="text-xs font-bold opacity-50">${otherPoints} <span class="text-[8px] uppercase">pts</span></div>
+                        <div class="text-xs font-bold opacity-50">${otherPoints} <span class="text-[8px] uppercase">pts</span>${extraPts > 0 ? `<br><span class="text-accent text-[9px]">+${extraPts} extra</span>` : ''}</div>
                     </td>
                     <td class="text-right pr-4 sm:pr-10">
                         <div class="inline-flex items-center justify-center min-w-[45px] sm:min-w-[70px] ${pointsBadgeClass} total-points-badge rounded-xl py-1 sm:py-2 px-2 sm:px-4">
-                            <span class="text-xl sm:text-3xl font-black italic tracking-tighter">${totalPoints}</span>
+                            <span class="text-xl sm:text-3xl font-black italic tracking-tighter">${totalWithExtra}</span>
                         </div>
                     </td>
                 `;
@@ -360,11 +363,19 @@
                 .select('*')
             
             if (error) return console.error('Error al cargar el ranking:', error.message)
+
+            const { data: extras } = await supabase.from('extra_questions').select('user_id, puntos');
+            extraPuntosMap = {};
+            if (extras) extras.forEach(e => { extraPuntosMap[e.user_id] = e.puntos || 0; });
             
             // Ordenamiento robusto con desempates: Puntos > Exactos > Diferencia
             fullRankingData = ranking.sort((a, b) => {
-                if (b.total_points !== a.total_points) {
-                    return b.total_points - a.total_points;
+                const aExtra = extraPuntosMap[a.username] || 0;
+                const bExtra = extraPuntosMap[b.username] || 0;
+                const aTotal = (a.total_points || 0) + aExtra;
+                const bTotal = (b.total_points || 0) + bExtra;
+                if (bTotal !== aTotal) {
+                    return bTotal - aTotal;
                 }
                 if (b.exact_scores !== a.exact_scores) {
                     return b.exact_scores - a.exact_scores;

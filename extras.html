@@ -11,6 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="jugadores.js"></script>
     <style>
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -103,15 +104,18 @@
 
         <!-- Consultation Switcher -->
         <div role="tablist" class="tabs tabs-boxed bg-base-100 p-2 shadow-lg mb-8 overflow-x-auto no-scrollbar">
-            <a role="tab" class="tab tab-active whitespace-nowrap" onclick="switchConsulta('actual', this)">
+            <a role="tab" class="tab whitespace-nowrap" onclick="switchConsulta('actual', this)">
                 <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg> Consulta Actual</span>
+            </a>
+            <a role="tab" class="tab tab-active whitespace-nowrap" onclick="switchConsulta('extra', this)">
+                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg> 🎯 Preguntas Extra</span>
             </a>
             <a role="tab" class="tab whitespace-nowrap" onclick="switchConsulta('anteriores', this)">
                 <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg> Consultas Anteriores</span>
             </a>
         </div>
 
-        <div id="consulta-actual">
+        <div id="consulta-actual" class="hidden">
         <!-- Bonus (abierto hasta 26 Jun) -->
         <div id="bonus-container" class="hidden animate-fade-in-up mb-8 md:mb-10" style="animation-delay: 0.15s">
             <div class="card bg-base-100 shadow-2xl border-2 border-info/30 relative overflow-hidden">
@@ -220,30 +224,41 @@
                 </div>
             </div>
         </div>
+        </div>
+        </div><!-- /consulta-actual -->
 
-        <!-- New Section: Próximamente -->
-        <div class="animate-fade-in-up mt-10" style="animation-delay: 0.3s">
-            <div class="card bg-base-100 shadow-xl border border-base-300 border-dashed relative overflow-hidden">
-                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-accent"></div>
-                <div class="card-body p-8 sm:p-10 text-center">
-                    <div class="text-6xl mb-6 opacity-20">🔮</div>
-                    <h3 class="text-xl sm:text-2xl font-black mb-3 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">Nueva Consulta</h3>
-                    <p class="text-sm sm:text-base opacity-50 max-w-md mx-auto leading-relaxed">
-                        Próximamente podrás participar en una nueva consulta 
-                        con reglas y premios especiales.
-                    </p>
-                    <div class="divider w-24 mx-auto my-6 opacity-20"></div>
-                    <div class="flex items-center justify-center gap-2 text-xs opacity-30">
-                        <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-info opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-info"></span>
-                        </span>
-                        Próximamente
+        <div id="consulta-extra">
+        <!-- Preguntas Extra -->
+        <div id="extra-container" class="animate-fade-in-up mb-8 md:mb-10" style="animation-delay: 0.3s">
+            <div class="card bg-base-100 shadow-2xl border-2 border-accent/30 relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-accent via-secondary to-primary"></div>
+                <div class="card-body p-6 sm:p-8">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                        <div>
+                            <h2 class="card-title text-accent text-xl sm:text-2xl flex items-center gap-2">
+                                🎯 Preguntas Extra
+                                <div class="badge badge-accent font-normal text-[10px] uppercase tracking-widest">1 nueva/día · +5 pts c/u</div>
+                            </h2>
+                            <p class="text-sm opacity-60 mt-1">Responde una pregunta nueva cada día antes del final del mundial.</p>
+                        </div>
                     </div>
+
+                    <div id="extra-deadline-alert" class="bg-accent/5 border border-accent/20 rounded-2xl p-4 sm:p-6 mb-6 text-center">
+                        <div class="flex items-center justify-center gap-2 text-accent font-bold text-xs uppercase tracking-widest mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                            Tiempo restante hasta el final del mundial
+                        </div>
+                        <div id="extra-global-timer" class="font-mono font-black text-2xl sm:text-4xl tracking-widest text-accent drop-shadow-lg mb-2">Calculando...</div>
+                        <div class="text-[10px] opacity-40 uppercase tracking-widest">Sábado 19 de Julio 2026 — Final del Mundial</div>
+                    </div>
+
+                    <div id="extra-questions-grid" class="space-y-3">
+                    </div>
+
                 </div>
             </div>
         </div>
-        </div><!-- /consulta-actual -->
+        </div><!-- /consulta-extra -->
 
         <div id="consulta-anteriores" class="hidden">
             <div class="card bg-base-100 shadow-xl border border-base-300">
@@ -617,10 +632,11 @@
         }
 
         window.switchConsulta = (mode, el) => {
-            document.querySelectorAll('#consulta-actual, #consulta-anteriores').forEach(c => c.classList.add('hidden'));
-            document.getElementById(mode === 'actual' ? 'consulta-actual' : 'consulta-anteriores').classList.remove('hidden');
+            document.querySelectorAll('#consulta-actual, #consulta-anteriores, #consulta-extra').forEach(c => c.classList.add('hidden'));
+            document.getElementById(mode === 'actual' ? 'consulta-actual' : mode === 'extra' ? 'consulta-extra' : 'consulta-anteriores').classList.remove('hidden');
             document.querySelectorAll('[onclick^="switchConsulta"]').forEach(t => t.classList.remove('tab-active'));
             if (el) el.classList.add('tab-active');
+            if (mode === 'extra') cargarExtraQuestions();
         };
 
         async function cargarConsultaAnteriores() {
@@ -719,6 +735,319 @@
             };
         }
 
+        // ==================== Preguntas Extra ====================
+        const EXTRA_SCHEDULE = [
+            { key: 'q9', label: 'Goleador de 16avos', icon: '🏃‍♂️', libera: new Date(2026,5,29,0,0,0), cierra: new Date(2026,6,1,23,59,59), posAuto: false },
+            { key: 'q1', label: 'Goleador del Mundial', icon: '⚽', libera: new Date(2026,6,1,0,0,0), cierra: new Date(2026,6,3,23,59,59), posAuto: false },
+            { key: 'q2', label: 'Máximo asistidor', icon: '🎯', libera: new Date(2026,6,3,0,0,0), cierra: new Date(2026,6,5,23,59,59), posAuto: false },
+            { key: 'q3', label: 'Balón de Oro (mejor jugador)', icon: '🏅', libera: new Date(2026,6,5,0,0,0), cierra: new Date(2026,6,7,23,59,59), posAuto: false },
+            { key: 'q4', label: 'Guante de Oro (mejor portero)', icon: '🧤', libera: new Date(2026,6,7,0,0,0), cierra: new Date(2026,6,9,23,59,59), posAuto: 'PO' },
+            { key: 'q5', label: 'Mejor jugador joven', icon: '🌟', libera: new Date(2026,6,9,0,0,0), cierra: new Date(2026,6,11,23,59,59), posAuto: false },
+            { key: 'q6', label: 'Más goles de cabeza', icon: '🦅', libera: new Date(2026,6,11,0,0,0), cierra: new Date(2026,6,13,23,59,59), posAuto: false },
+            { key: 'q7', label: 'Arquero más vallas invictas', icon: '🛡️', libera: new Date(2026,6,13,0,0,0), cierra: new Date(2026,6,15,23,59,59), posAuto: 'PO' },
+            { key: 'q8', label: 'País con más goles a favor', icon: '🇺🇳', libera: new Date(2026,6,15,0,0,0), cierra: new Date(2026,6,17,23,59,59), posAuto: 'team' },
+            { key: 'q10', label: 'Más goles en eliminatoria directa', icon: '🗡️', libera: new Date(2026,6,17,0,0,0), cierra: new Date(2026,6,19,23,59,59), posAuto: false }
+        ];
+
+        let extraSavedData = null;
+
+        function getExtraStatus(q) {
+            const now = new Date();
+            if (now < q.libera) return 'locked';
+            if (now > q.cierra) return 'closed';
+            return 'open';
+        }
+
+        function formatCountdownLong(target) {
+            const diff = target - new Date();
+            if (diff <= 0) return null;
+            const d = Math.floor(diff / 86400000);
+            const h = Math.floor((diff % 86400000) / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+            if (d > 0) return `${d}d ${h}h ${m}m`;
+            if (h > 0) return `${h}h ${m}m ${s}s`;
+            return `${m}m ${s}s`;
+        }
+
+        async function cargarExtraQuestions() {
+            const { data } = await supabase
+                .from('extra_questions')
+                .select('*')
+                .eq('user_id', currentUser)
+                .maybeSingle();
+            extraSavedData = data || {};
+            renderExtraQuestions();
+        }
+
+        function renderExtraQuestions() {
+            const grid = document.getElementById('extra-questions-grid');
+            if (!grid) return;
+            let html = '';
+            EXTRA_SCHEDULE.forEach((q, idx) => {
+                const status = getExtraStatus(q);
+                q._prevStatus = status;
+                const isOpen = status === 'open';
+                const isLocked = status === 'locked';
+                const isClosed = status === 'closed';
+                const teamKey = q.key + '_team';
+                const playerKey = q.key + '_player';
+                const savedTeam = extraSavedData?.[teamKey] || '';
+                const savedPlayer = extraSavedData?.[playerKey] || '';
+
+                let statusBadge = '';
+                if (isLocked) statusBadge = `<span id="status-badge-${q.key}" class="badge badge-ghost badge-sm gap-1">🔒 Bloqueada</span>`;
+                else if (isClosed) statusBadge = `<span id="status-badge-${q.key}" class="badge badge-error badge-sm gap-1">⏰ Cerrada</span>`;
+                else statusBadge = `<span id="status-badge-${q.key}" class="badge badge-success badge-sm gap-1">✅ Abierta</span>`;
+
+                const disabled = !isOpen ? 'disabled' : '';
+                const isTeamOnly = q.posAuto === 'team';
+
+                html += `
+                <div class="bg-base-200 rounded-xl p-4 border border-accent/10 ${isLocked ? 'opacity-50' : ''}" data-extra-key="${q.key}">
+                    <div class="flex items-center justify-between mb-1 flex-wrap gap-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-lg">${q.icon}</span>
+                            <span class="font-bold text-sm">${q.label}</span>
+                            ${statusBadge}
+                        </div>
+                    </div>
+                    <div id="countdown-${q.key}" class="font-mono text-xs sm:text-sm mb-3"></div>
+                    <div class="flex flex-wrap items-end gap-3">
+                        <div class="form-control flex-1 min-w-[140px]">
+                            <label class="label py-0.5"><span class="label-text text-[10px] opacity-60 uppercase tracking-wider">Equipo</span></label>
+                            <select class="select select-bordered select-xs w-full extra-team" data-key="${q.key}" ${disabled}>
+                                <option value="">Seleccionar...</option>
+                                ${EQUIPOS_ORDER.map(t => `<option value="${t}" ${savedTeam === t ? 'selected' : ''}>${flags[t] || '🏳️'} ${t}</option>`).join('')}
+                            </select>
+                        </div>
+                        ${isTeamOnly ? '' : `
+                        <div class="form-control min-w-[100px]">
+                            <label class="label py-0.5"><span class="label-text text-[10px] opacity-60 uppercase tracking-wider">Posición</span></label>
+                            <select class="select select-bordered select-xs w-full extra-pos" data-key="${q.key}" ${disabled}>
+                                <option value="">Todas</option>
+                                ${POSICIONES.map(p => `<option value="${p}" ${q.posAuto === p ? 'selected' : ''}>${POSICIONES_LABEL[p] || p}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="form-control flex-[2] min-w-[140px]">
+                            <label class="label py-0.5"><span class="label-text text-[10px] opacity-60 uppercase tracking-wider">Jugador</span></label>
+                            <select class="select select-bordered select-xs w-full extra-player" data-key="${q.key}" ${disabled}>
+                                <option value="">Seleccionar jugador...</option>
+                            </select>
+                        </div>
+                        `}
+                    </div>
+                    <div class="flex justify-center mt-3">
+                        ${isOpen ? `<button class="btn btn-accent btn-sm gap-1 save-extra-btn px-6" data-key="${q.key}" data-orig="Guardar">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                            Guardar
+                        </button>` : ''}
+                    </div>
+                </div>`;
+            });
+            grid.innerHTML = html;
+
+            EXTRA_SCHEDULE.forEach(q => {
+                if (q.posAuto === 'team') return;
+                const teamSel = grid.querySelector(`.extra-team[data-key="${q.key}"]`);
+                const posSel = grid.querySelector(`.extra-pos[data-key="${q.key}"]`);
+                const playerSel = grid.querySelector(`.extra-player[data-key="${q.key}"]`);
+                if (!teamSel || !playerSel) return;
+
+                const updPlayer = () => {
+                    const team = teamSel.value;
+                    const pos = q.posAuto || posSel?.value || '';
+                    let filtered = getJugadoresFiltrados(team, pos);
+                    playerSel.innerHTML = '<option value="">Seleccionar jugador...</option>';
+                    filtered.forEach(j => {
+                        const opt = document.createElement('option');
+                        opt.value = j.nombre;
+                        opt.textContent = `#${j.numero} ${j.nombre} (${j.posicion})`;
+                        playerSel.appendChild(opt);
+                    });
+                    const savedPlayer = extraSavedData?.[q.key + '_player'] || '';
+                    if (savedPlayer) playerSel.value = savedPlayer;
+                };
+
+                teamSel.addEventListener('change', updPlayer);
+                if (posSel) posSel.addEventListener('change', updPlayer);
+                if (teamSel.value) updPlayer();
+            });
+
+            updateExtraCountdowns();
+        }
+
+        document.getElementById('extra-questions-grid').addEventListener('click', async (e) => {
+            const btn = e.target.closest('.save-extra-btn');
+            if (!btn) return;
+            const key = btn.dataset.key;
+            btn.disabled = true;
+            const orig = btn.getAttribute('data-orig') || 'Guardar';
+            btn.innerHTML = '<span class="loading loading-spinner loading-xs"></span>';
+
+            const teamEl = document.querySelector(`.extra-team[data-key="${key}"]`);
+            const playerEl = document.querySelector(`.extra-player[data-key="${key}"]`);
+            const fullData = { user_id: currentUser };
+            Object.keys(extraSavedData).forEach(k => {
+                if (k.startsWith('q') || k === 'user_id') fullData[k] = extraSavedData[k];
+            });
+            fullData[key + '_team'] = teamEl?.value || null;
+            fullData[key + '_player'] = playerEl?.value || null;
+
+            const now = new Date().toLocaleString('sv-SE', { timeZone: 'America/El_Salvador' }).replace(' ', 'T');
+            fullData.updated_at = now;
+
+            const { error: upsertError } = await supabase
+                .from('extra_questions')
+                .upsert(fullData, { onConflict: 'user_id' });
+
+            if (upsertError) {
+                alert('Error al guardar: ' + upsertError.message);
+                btn.disabled = false;
+                btn.innerHTML = orig;
+                return;
+            }
+
+            await supabase.from('prediction_log').insert({
+                user_id: currentUser,
+                prediction_type: 'extra',
+                data: { question: key, saved_at: now },
+                created_at: now
+            }).then(r => { if (r.error) console.error('Log error:', r.error.message); });
+
+            extraSavedData = { ...extraSavedData, ...fullData };
+
+            btn.className = btn.className.replace('btn-accent', 'btn-success');
+            btn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                Guardado ✓
+            `;
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.className = btn.className.replace('btn-success', 'btn-accent');
+                btn.innerHTML = orig;
+            }, 2000);
+        });
+
+        // Global countdown
+        function updateExtraCountdowns() {
+            const globalTimer = document.getElementById('extra-global-timer');
+            if (globalTimer) {
+                const end = new Date(2026, 6, 19, 23, 59, 59);
+                const diff = end - new Date();
+                if (diff <= 0) {
+                    globalTimer.innerHTML = '⏰ CERRADO';
+                    globalTimer.className = 'font-mono font-black text-2xl sm:text-4xl tracking-widest text-error drop-shadow-lg mb-2 animate-pulse';
+                } else {
+                    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((diff % (1000 * 60)) / 1000);
+                    globalTimer.innerHTML = `${d}<span class="text-sm opacity-40">d</span> ${h}<span class="text-sm opacity-40">h</span> ${m}<span class="text-sm opacity-40">m</span> ${s}<span class="text-sm opacity-40">s</span>`;
+                }
+            }
+
+            EXTRA_SCHEDULE.forEach(q => {
+                const status = getExtraStatus(q);
+                const prev = q._prevStatus || status;
+                const cdEl = document.getElementById(`countdown-${q.key}`);
+                const badge = document.getElementById(`status-badge-${q.key}`);
+                const card = document.querySelector(`[data-extra-key="${q.key}"]`);
+
+                // update countdown text
+                if (cdEl) {
+                    const now = new Date();
+                    let text = '', cls = '';
+                    if (status === 'locked') {
+                        const cd = formatCountdownLong(q.libera);
+                        if (cd) { text = `🔒 Se libera en ${cd}`; cls = 'text-ghost'; }
+                        else text = '🔒 Próximamente';
+                    } else if (status === 'open') {
+                        const cd = formatCountdownLong(q.cierra);
+                        if (cd) { text = `⏳ Cierra en ${cd}`; cls = 'text-warning'; }
+                        else text = '✅ Abierta';
+                    } else {
+                        text = '⏰ Cerrada';
+                        cls = 'text-error';
+                    }
+                    cdEl.textContent = text;
+                    cdEl.className = `font-mono text-xs sm:text-sm ${cls} ${status === 'closed' ? '' : 'animate-pulse'}`;
+                }
+
+                // handle status transitions (locked→open or open→closed)
+                if (status !== prev) {
+                    q._prevStatus = status;
+                    if (badge) {
+                        badge.className = 'badge badge-sm gap-1';
+                        if (status === 'locked') {
+                            badge.className += ' badge-ghost';
+                            badge.textContent = '🔒 Bloqueada';
+                        } else if (status === 'open') {
+                            badge.className += ' badge-success';
+                            badge.textContent = '✅ Abierta';
+                        } else {
+                            badge.className += ' badge-error';
+                            badge.textContent = '⏰ Cerrada';
+                        }
+                    }
+                    if (card) {
+                        if (status === 'locked') card.classList.add('opacity-50');
+                        else card.classList.remove('opacity-50');
+                        card.querySelectorAll('.extra-team, .extra-pos, .extra-player').forEach(sel => {
+                            sel.disabled = status !== 'open';
+                        });
+                    }
+                }
+            });
+        }
+
+        // Extend cargarConsultaAnteriores for extra questions
+        const origCargarConsultaAnteriores = cargarConsultaAnteriores;
+        cargarConsultaAnteriores = async function() {
+            await origCargarConsultaAnteriores.call(this);
+            const filterSelect = document.getElementById('prev-user-filter');
+            if (!filterSelect) return;
+            const origOnchange = filterSelect.onchange;
+            filterSelect.onchange = async function() {
+                if (origOnchange) await origOnchange.call(this);
+                const userId = filterSelect.value;
+                if (!userId) return;
+                const container = document.getElementById('prev-predictions');
+                if (!container) return;
+                const { data: extra } = await supabase
+                    .from('extra_questions')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .maybeSingle();
+                if (!extra) return;
+                const config = userConfig[userId] || { emoji: '👤', color: 'ring-primary' };
+                let extraHtml = `
+                <div class="bg-base-200 rounded-2xl p-5 border border-accent/20 mt-4">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-lg">🎯</span>
+                        <span class="font-bold text-sm uppercase tracking-wider opacity-70">Preguntas Extra</span>
+                        <span class="badge badge-xs badge-ghost font-normal">${extra.puntos ? extra.puntos + ' pts' : 'Sin puntos'}</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                `;
+                EXTRA_SCHEDULE.forEach(q => {
+                    const team = extra[q.key + '_team'];
+                    const player = extra[q.key + '_player'];
+                    if (!team && !player) return;
+                    extraHtml += `
+                        <div class="bg-base-100 rounded-xl p-3 border border-accent/10 text-sm">
+                            <span class="text-[10px] uppercase tracking-widest text-accent font-bold block mb-1">${q.icon} ${q.label}</span>
+                            <span class="font-black">${flags[team] || '🏳️'} ${team || ''}${player ? ' — ' + player : ''}</span>
+                        </div>`;
+                });
+                extraHtml += `
+                    </div>
+                </div>`;
+                container.insertAdjacentHTML('beforeend', extraHtml);
+            };
+            if (filterSelect.value) filterSelect.onchange();
+        };
+
         const initTheme = () => {
             const themeToggle = document.getElementById('theme-toggle');
             const currentTheme = localStorage.getItem('theme') || 'dark';
@@ -768,6 +1097,8 @@
         cargarPodio()
         cargarBonus()
         cargarConsultaAnteriores()
+        cargarExtraQuestions()
+        setInterval(updateExtraCountdowns, 1000)
         initTheme()
     </script>
 </body>
