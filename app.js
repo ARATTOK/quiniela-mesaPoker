@@ -862,6 +862,7 @@ window.alternarPenales = (matchId, stage) => {
     const homeV = homeEl.value, awayV = awayEl.value;
     const isDraw = homeV !== '' && awayV !== '' && parseInt(homeV) === parseInt(awayV);
     container.classList.toggle('hidden', !isDraw);
+    if (!isDraw) select.value = '';
     const firstOpt = select.querySelector('option:first-child');
     if (firstOpt) firstOpt.textContent = isDraw ? '🔴 Debes elegir quién clasifica por penales' : 'Seleccionar...';
     select.classList.toggle('select-error', isDraw);

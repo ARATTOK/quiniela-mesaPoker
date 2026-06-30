@@ -146,7 +146,7 @@
         </div>
 
         <!-- Second row: extra stats -->
-        <div id="stats-cards-2" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div id="stats-cards-2" class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
             <div class="card bg-base-100 shadow-xl border border-base-300 animate-fade-in-up" style="animation-delay: 0.2s">
                 <div class="card-body p-4 text-center">
                     <div class="stat-card-value font-black text-accent">-</div>
@@ -163,6 +163,12 @@
                 <div class="card-body p-4 text-center">
                     <div class="stat-card-value font-black text-info">-</div>
                     <div class="text-xs uppercase font-bold tracking-wider opacity-60 mt-1">Diferencia (8 pts)</div>
+                </div>
+            </div>
+            <div class="card bg-base-100 shadow-xl border border-base-300 animate-fade-in-up" style="animation-delay: 0.35s">
+                <div class="card-body p-4 text-center">
+                    <div class="stat-card-value font-black text-warning">-</div>
+                    <div class="text-xs uppercase font-bold tracking-wider opacity-60 mt-1">Puntos Extra</div>
                 </div>
             </div>
             <div class="card bg-base-100 shadow-xl border border-base-300 animate-fade-in-up" style="animation-delay: 0.35s">
@@ -383,12 +389,15 @@
             cargarPredicciones(selectedUser);
         }
 
+        let extraPoints = {};
+
         async function cargarPredicciones(username) {
-            const { data } = await supabase
-                .from('predictions')
-                .select('*')
-                .eq('user_id', username);
-            allPredictions = data || [];
+            const [predRes, extraRes] = await Promise.all([
+                supabase.from('predictions').select('*').eq('user_id', username),
+                supabase.from('extra_questions').select('puntos').eq('user_id', username)
+            ]);
+            allPredictions = predRes.data || [];
+            extraPoints = extraRes.data?.[0] || {};
             renderStats();
             renderCharts();
             renderTips();
@@ -419,6 +428,7 @@
         function renderStats() {
             const finished = getFinishedPreds();
             const totalPts = finished.reduce((s, i) => s + (i.pred.points || 0), 0);
+            const extraPts = extraPoints?.puntos || 0;
             const exacts = finished.filter(i => i.pred.points >= 12).length;
             const diffs = finished.filter(i => i.pred.points === 8).length;
             const zeros = finished.filter(i => !i.pred.points || i.pred.points === 0).length;
@@ -436,7 +446,7 @@
 
             // Saga adjustment (hardcoded - Bennet hackeó y se transfirieron pts a Luisito)
             const adjustment = sagaAdjustments[selectedUser] || 0;
-            const effectiveTotal = totalPts + adjustment;
+            const effectiveTotal = totalPts + adjustment + extraPts;
 
             // Update total points card with saga info
             const totalCard = document.querySelector('#stats-cards').children[0];
@@ -444,7 +454,7 @@
             const totalLabel = totalCard.querySelector('.stat-label');
             if (adjustment !== 0) {
                 const sign = adjustment > 0 ? '+' : '';
-                totalValue.innerHTML = `${effectiveTotal} <span class="text-xs font-normal opacity-50">(${totalPts} ${sign}${adjustment})</span>`;
+                totalValue.innerHTML = `${effectiveTotal} <span class="text-xs font-normal opacity-50">(${totalPts} ${sign}${adjustment}${extraPts ? ` +${extraPts} extra` : ''})</span>`;
                 totalValue.className = 'stat-card-value font-black ' + (adjustment < 0 ? 'text-error' : 'text-success');
                 const existingBadge = totalLabel.querySelector('.saga-badge');
                 if (existingBadge) {
@@ -456,6 +466,11 @@
                     badge.textContent = adjustment < 0 ? '🚫 Sancionado' : '🛡️ Bonus Caza-Hack';
                     totalLabel.appendChild(badge);
                 }
+            } else if (extraPts > 0) {
+                totalValue.innerHTML = `${effectiveTotal} <span class="text-xs font-normal opacity-50">(${totalPts} +${extraPts} extra)</span>`;
+                totalValue.className = 'stat-card-value font-black text-info';
+                const existingBadge = totalLabel.querySelector('.saga-badge');
+                if (existingBadge) existingBadge.remove();
             } else {
                 totalValue.textContent = totalPts;
                 totalValue.className = 'stat-card-value font-black text-info';
@@ -470,7 +485,8 @@
             document.querySelector('#stats-cards-2').children[0].querySelector('.stat-card-value').textContent = best;
             document.querySelector('#stats-cards-2').children[1].querySelector('.stat-card-value').textContent = streakLabel;
             document.querySelector('#stats-cards-2').children[2].querySelector('.stat-card-value').textContent = diffs;
-            document.querySelector('#stats-cards-2').children[3].querySelector('.stat-card-value').textContent = zeros;
+            document.querySelector('#stats-cards-2').children[3].querySelector('.stat-card-value').textContent = extraPts > 0 ? `+${extraPts}` : '0';
+            document.querySelector('#stats-cards-2').children[4].querySelector('.stat-card-value').textContent = zeros;
 
             // Saga banner
             const banner = document.getElementById('saga-banner');
@@ -518,13 +534,44 @@
                     type: 'bar',
                     data: {
                         labels: Object.keys(byDate),
-                        datasets: [{ label: 'Puntos', data: Object.values(byDate), backgroundColor: cols.accent, borderRadius: 8 }]
+                        datasets: [{
+                            label: 'Puntos',
+                            data: Object.values(byDate),
+                            backgroundColor: cols.accent,
+                            borderRadius: 8,
+                            borderSkipped: false
+                        }]
                     },
                     options: {
                         responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { y: { beginAtZero: true, ticks: { color: tColor } }, x: { ticks: { color: tColor } } }
-                    }
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => `${ctx.raw} pts`
+                                }
+                            }
+                        },
+                        scales: { y: { beginAtZero: true, ticks: { color: tColor } }, x: { ticks: { color: tColor, font: { size: 9 } } } }
+                    },
+                    plugins: [{
+                        id: 'barLabels',
+                        afterDatasetsDraw(chart) {
+                            const ctx = chart.ctx;
+                            chart.data.datasets.forEach((ds, i) => {
+                                const meta = chart.getDatasetMeta(i);
+                                meta.data.forEach((bar, idx) => {
+                                    const val = ds.data[idx];
+                                    if (val > 0) {
+                                        ctx.fillStyle = tColor;
+                                        ctx.font = 'bold 10px sans-serif';
+                                        ctx.textAlign = 'center';
+                                        ctx.fillText(val, bar.x, bar.y - 6);
+                                    }
+                                });
+                            });
+                        }
+                    }]
                 });
             }
 
@@ -543,13 +590,47 @@
                     type: 'bar',
                     data: {
                         labels: labelsR,
-                        datasets: [{ label: 'Puntos', data: dataR, backgroundColor: bgR, borderRadius: 6 }]
+                        datasets: [{ label: 'Puntos', data: dataR, backgroundColor: bgR, borderRadius: 6, borderSkipped: false }]
                     },
                     options: {
                         responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => {
+                                        const pts = ctx.raw;
+                                        let label = `${pts} pts`;
+                                        if (pts >= 12) label += ' 🎯 Exacto';
+                                        else if (pts === 8) label += ' 📊 Diferencia';
+                                        else if (pts === 5) label += ' ✅ Ganador';
+                                        else if (pts === 2) label += ' 🔢 Gol(es)';
+                                        else label += ' ❌';
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
                         scales: { y: { beginAtZero: true, ticks: { color: tColor } }, x: { ticks: { color: tColor, font: { size: 9 } } } }
-                    }
+                    },
+                    plugins: [{
+                        id: 'barLabels',
+                        afterDatasetsDraw(chart) {
+                            const ctx = chart.ctx;
+                            chart.data.datasets.forEach((ds, i) => {
+                                const meta = chart.getDatasetMeta(i);
+                                meta.data.forEach((bar, idx) => {
+                                    const val = ds.data[idx];
+                                    if (val > 0) {
+                                        ctx.fillStyle = tColor;
+                                        ctx.font = 'bold 9px sans-serif';
+                                        ctx.textAlign = 'center';
+                                        ctx.fillText(val, bar.x, bar.y - 6);
+                                    }
+                                });
+                            });
+                        }
+                    }]
                 });
             }
 
@@ -565,17 +646,54 @@
                     else if (p === 2) dist['Goles (2)']++;
                     else dist['Cero']++;
                 });
+                const totalPreds = Object.values(dist).reduce((a, b) => a + b, 0);
+                const acertados = totalPreds - dist['Cero'];
+                const pctAcertados = totalPreds > 0 ? Math.round((acertados / totalPreds) * 100) : 0;
                 if (window.chartPie) window.chartPie.destroy();
                 window.chartPie = new Chart(ctx3, {
                     type: 'doughnut',
                     data: {
                         labels: Object.keys(dist),
-                        datasets: [{ data: Object.values(dist), backgroundColor: [cols.success, cols.accent, cols.warning, cols.purple, cols.error], borderWidth: 0 }]
+                        datasets: [{
+                            data: Object.values(dist),
+                            backgroundColor: [cols.success, cols.accent, cols.warning, cols.purple, cols.error],
+                            borderWidth: 0
+                        }]
                     },
                     options: {
                         responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { position: 'bottom', labels: { color: tColor, font: { size: 10 } } } }
-                    }
+                        cutout: '65%',
+                        plugins: {
+                            legend: { position: 'bottom', labels: { color: tColor, font: { size: 10 } } },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => {
+                                        const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                        const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                                        return `${ctx.label}: ${ctx.raw} (${pct}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    plugins: [{
+                        id: 'centerText',
+                        beforeDraw(chart) {
+                            const { width, height, ctx } = chart;
+                            ctx.save();
+                            const cx = width / 2;
+                            const cy = height / 2 - 10;
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillStyle = tColor;
+                            ctx.font = 'bold 24px sans-serif';
+                            ctx.fillText(`${pctAcertados}%`, cx, cy);
+                            ctx.font = '10px sans-serif';
+                            ctx.fillStyle = tColor + '80';
+                            ctx.fillText('acertados', cx, cy + 18);
+                            ctx.restore();
+                        }
+                    }]
                 });
             }
 
@@ -583,32 +701,75 @@
             const ctx4 = document.getElementById('faseChart');
             if (ctx4) {
                 const byStage = {};
+                const stageOrder = ['Grupos', '16avos', 'Octavos', 'Cuartos', 'Semis', 'Final'];
+                const stageColors = {
+                    'Grupos': '#3b82f6',
+                    '16avos': '#d926a9',
+                    'Octavos': '#f5d142',
+                    'Cuartos': '#a855f7',
+                    'Semis': '#00ff9f',
+                    'Final': '#ff4d4d'
+                };
                 finished.forEach(item => {
-                    const stage = item.match.stage;
-                    const isKO = ['Octavos', 'Cuartos', 'Semis', 'Final'].includes(stage);
-                    const key = isKO ? 'Eliminatorias' : 'Fase de Grupos';
-                    byStage[key] = (byStage[key] || 0) + (item.pred.points || 0);
+                    let stage = item.match.stage || '';
+                    if (stage === 'Fase de Grupos') stage = 'Grupos';
+                    else if (stage === '16avos') stage = '16avos';
+                    else if (['Octavos', 'Cuartos', 'Semis', 'Final'].includes(stage)) {
+                        // keep as-is
+                    } else {
+                        stage = 'Grupos';
+                    }
+                    byStage[stage] = (byStage[stage] || 0) + (item.pred.points || 0);
                 });
+                const labels = stageOrder.filter(s => s in byStage);
+                const data = labels.map(s => byStage[s]);
+                const bgColors = labels.map(s => stageColors[s] || '#94a3b8');
                 if (window.chartFase) window.chartFase.destroy();
                 window.chartFase = new Chart(ctx4, {
                     type: 'bar',
                     data: {
-                        labels: Object.keys(byStage),
+                        labels: labels,
                         datasets: [{
                             label: 'Puntos',
-                            data: Object.values(byStage),
-                            backgroundColor: [cols.accent, cols.secondary],
-                            borderRadius: 8
+                            data: data,
+                            backgroundColor: bgColors,
+                            borderRadius: 8,
+                            borderSkipped: false
                         }]
                     },
                     options: {
                         responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => `${ctx.raw} pts`
+                                }
+                            }
+                        },
                         scales: {
-                            y: { beginAtZero: true, ticks: { color: tColor } },
+                            y: { beginAtZero: true, ticks: { color: tColor, stepSize: 5 } },
                             x: { ticks: { color: tColor, font: { weight: 'bold' } } }
                         }
-                    }
+                    },
+                    plugins: [{
+                        id: 'barLabels',
+                        afterDatasetsDraw(chart) {
+                            const ctx = chart.ctx;
+                            chart.data.datasets.forEach((ds, i) => {
+                                const meta = chart.getDatasetMeta(i);
+                                meta.data.forEach((bar, idx) => {
+                                    const val = ds.data[idx];
+                                    if (val > 0) {
+                                        ctx.fillStyle = tColor;
+                                        ctx.font = 'bold 11px sans-serif';
+                                        ctx.textAlign = 'center';
+                                        ctx.fillText(val + ' pts', bar.x, bar.y - 8);
+                                    }
+                                });
+                            });
+                        }
+                    }]
                 });
             }
 
@@ -630,18 +791,44 @@
                         datasets: [{
                             data: [myData.total_points, Math.round(avgPoints), topPoints],
                             backgroundColor: [cols.secondary, '#94a3b8', cols.success],
-                            borderRadius: 10
+                            borderRadius: 10,
+                            borderSkipped: false
                         }]
                     },
                     options: {
                         indexAxis: 'y',
                         responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => `${ctx.raw} pts`
+                                }
+                            }
+                        },
                         scales: {
                             x: { beginAtZero: true, ticks: { color: tColor } },
                             y: { ticks: { color: tColor, font: { weight: 'bold' } } }
                         }
-                    }
+                    },
+                    plugins: [{
+                        id: 'barLabels',
+                        afterDatasetsDraw(chart) {
+                            const ctx = chart.ctx;
+                            chart.data.datasets.forEach((ds, i) => {
+                                const meta = chart.getDatasetMeta(i);
+                                meta.data.forEach((bar, idx) => {
+                                    const val = ds.data[idx];
+                                    if (val > 0) {
+                                        ctx.fillStyle = tColor;
+                                        ctx.font = 'bold 12px sans-serif';
+                                        ctx.textAlign = 'left';
+                                        ctx.fillText(val + ' pts', bar.x + 8, bar.y + 4);
+                                    }
+                                });
+                            });
+                        }
+                    }]
                 });
 
                 if (labelComp) {
@@ -659,6 +846,7 @@
             const exacts = finished.filter(i => i.pred.points >= 12).length;
             const total = finished.length;
             const pct = total > 0 ? Math.round((exacts / total) * 100) : 0;
+            const extraPts = extraPoints?.puntos || 0;
 
             const container = document.getElementById('tips-container');
             if (!container) return;
@@ -680,6 +868,20 @@
                     ? `Bennett tiene ${Math.abs(adjustment)} pts de penalización por intento de hackeo. Esos puntos fueron transferidos a Luisito.`
                     : `Luisito recibió ${adjustment} pts bonus por reportar el intento de hackeo de Bennett.`;
                 tips.push({ icon, title, text: desc, cls });
+            }
+
+            if (extraPts > 0) {
+                tips.push({
+                    icon: '🎯', title: 'Puntos Extra',
+                    text: `Has sumado +${extraPts} pts en las Preguntas Extra. Sigue respondiendo en la sección Extras.`,
+                    cls: 'warning'
+                });
+            } else {
+                tips.push({
+                    icon: '🎯', title: 'Puntos Extra',
+                    text: 'Ya comenzó la ronda de Preguntas Extra. Responde en la sección Extras para sumar puntos adicionales.',
+                    cls: 'info'
+                });
             }
 
             tips.forEach(t => {
