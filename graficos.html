@@ -8,6 +8,7 @@
     </script>
     <title>Quiniela - Estadísticas</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
@@ -883,6 +884,13 @@
                     cls: 'info'
                 });
             }
+
+            // Argentina celebration tip
+            tips.push({
+                icon: '🇦🇷', title: '¡Vamos Argentina!',
+                text: 'La Scaloneta sigue avanzando. Messi y el equipo están imparables. ¡Vamos por la tercera! ⭐⭐⭐',
+                cls: 'primary'
+            });
 
             tips.forEach(t => {
                 const div = document.createElement('div');

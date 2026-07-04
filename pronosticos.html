@@ -8,6 +8,7 @@
     </script>
     <title>Quiniela - Pronósticos</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
@@ -37,6 +38,7 @@
     </style>
 </head>
 <body class="bg-base-200 min-h-screen">
+    <div class="argentina-ribbon">🇦🇷 <a href="javascript:void(0)" onclick="document.getElementById('messi_modal').showModal()">Argentina 2026 ★ Messi</a></div>
     <!-- Modal informe PDF -->
     <dialog id="modal-informe" class="modal modal-bottom sm:modal-middle">
         <div class="modal-box w-full max-w-5xl h-[85vh] max-h-[90dvh] p-0 overflow-hidden">
@@ -138,20 +140,24 @@
         </div>
     </div>
 
-    <!-- Banner Preguntas Extra -->
-    <div class="bg-gradient-to-r from-error/20 via-error/10 to-error/20 border-b-2 border-error/40 animate-fade-in-up">
+    <!-- Banner Argentina -->
+    <div class="argentina-banner animate-fade-in-up">
         <div class="container mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div class="flex items-center gap-3">
-                <span class="text-2xl">🎯</span>
+                <span class="text-3xl">🇦🇷</span>
                 <div>
-                    <p class="font-black text-sm sm:text-base text-error">¡Ya comenzó la ronda de Preguntas Extra!</p>
-                    <p class="text-[11px] opacity-70">Responde y suma puntos adicionales al ranking.</p>
+                    <p class="font-black text-sm sm:text-base">🇦🇷 ¡Argentina VENCIÓ a Cabo Verde y avanza en el Mundial!</p>
+                    <p class="text-[11px] opacity-80">⭐ Messi y la Scaloneta siguen haciendo historia. ¡Vamos Argentina!</p>
                 </div>
             </div>
-            <a href="extras.html" class="btn btn-error btn-sm sm:btn-md gap-2 shadow-lg shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
-                Ir a Extras
-            </a>
+            <div class="flex gap-2 shrink-0">
+                <a href="extras.html" class="btn btn-sm sm:btn-md gap-2 shadow-lg argentina-btn">
+                    🎯 Ir a Extras
+                </a>
+                <a href="ranking.html" class="btn btn-sm sm:btn-md gap-2 shadow-lg argentina-btn-outline">
+                    🏆 Ver Ranking
+                </a>
+            </div>
         </div>
     </div>
 
@@ -283,6 +289,26 @@
         </div>
     </dialog>
 
+    <!-- Modal Messi Lovers -->
+    <dialog id="messi_modal" class="modal" onclick="this.close()">
+        <div class="modal-box max-w-2xl p-0 overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 z-10 bg-base-100/80 backdrop-blur-sm hover:bg-base-100">✕</button>
+            </form>
+            <img src="images/messilovers.png" alt="Messi Lovers" class="w-full h-auto block" />
+        </div>
+    </dialog>
+
     <script type="module" src="app.js"></script>
+    <script>
+        // Confeti por Argentina
+        setTimeout(() => {
+            try {
+                confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, colors: ['#75AADB','#FFFFFF','#FFD700'] });
+                setTimeout(() => confetti({ particleCount: 40, spread: 50, origin: { y: 0.7, x: 0.3 }, colors: ['#75AADB','#FFFFFF','#FFD700'] }), 400);
+                setTimeout(() => confetti({ particleCount: 40, spread: 50, origin: { y: 0.7, x: 0.7 }, colors: ['#75AADB','#FFFFFF','#FFD700'] }), 800);
+            } catch(e) {}
+        }, 1000);
+    </script>
 </body>
 </html>

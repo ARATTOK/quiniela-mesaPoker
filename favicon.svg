@@ -1,23 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#1a1a2e"/>
-      <stop offset="100%" stop-color="#16213e"/>
-    </linearGradient>
-    <linearGradient id="ball" x1="0.3" y1="0.2" x2="0.8" y2="0.9">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#e0e0e0"/>
-    </linearGradient>
-  </defs>
-  <rect width="100" height="100" rx="20" fill="url(#bg)"/>
-  <g transform="translate(50,48)">
-    <circle r="28" fill="url(#ball)" stroke="#333" stroke-width="1"/>
-    <path d="M-18,-8 Q0,-28 18,-8" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
-    <path d="M-18,8 Q0,28 18,8" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
-    <line x1="-6" y1="-27" x2="-6" y2="27" stroke="#333" stroke-width="1.5"/>
-    <line x1="6" y1="-27" x2="6" y2="27" stroke="#333" stroke-width="1.5"/>
-    <line x1="-22" y1="-14" x2="22" y2="-14" stroke="#333" stroke-width="1"/>
-    <line x1="-22" y1="14" x2="22" y2="14" stroke="#333" stroke-width="1"/>
-  </g>
-  <text x="50" y="88" text-anchor="middle" font-size="10" font-weight="bold" fill="#ffd700" font-family="sans-serif">QUINI</text>
+  <rect width="100" height="100" rx="20" fill="#fff"/>
+  <rect y="10" width="100" height="27" fill="#75AADB"/>
+  <rect y="63" width="100" height="27" fill="#75AADB"/>
+  <circle cx="50" cy="50" r="14" fill="#FFD700" stroke="#C8A84E" stroke-width="1.5"/>
+  <circle cx="50" cy="50" r="10" fill="#FFD700"/>
+  <path d="M50,38 L53,46 L62,46 L55,51 L57,59 L50,54 L43,59 L45,51 L38,46 L47,46 Z" fill="#C8A84E"/>
+  <circle cx="50" cy="45" r="2" fill="#C8A84E"/>
+  <circle cx="46" cy="50" r="1.5" fill="#C8A84E"/>
+  <circle cx="54" cy="50" r="1.5" fill="#C8A84E"/>
 </svg>

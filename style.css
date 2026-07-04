@@ -1,20 +1,248 @@
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; color: #1c1e21; margin: 0; padding: 0; }
-.container { max-width: 900px; margin: 20px auto; padding: 20px; }
-nav { background: #24292e; padding: 1rem; display: flex; gap: 15px; }
-nav a { color: white; text-decoration: none; font-weight: bold; }
-header { text-align: center; margin-bottom: 40px; }
-.card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
-.match-card { display: flex; flex-direction: column; gap: 15px; border-left: 5px solid #007bff; }
-.inputs { display: flex; gap: 10px; justify-content: center; }
-input[type="number"] { width: 60px; padding: 10px; font-size: 1.2rem; text-align: center; border: 1px solid #ccc; border-radius: 6px; }
-button { background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-size: 1rem; }
-button:hover { background: #218838; }
-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+/* ========================================
+   🏆 TEMPORADA ARGENTINA 2026 🏆
+   Tema especial: Argentina Campeón del Mundo
+   ======================================== */
 
-#ranking-table th { background-color: #007bff; color: white; }
-#ranking-table tr:nth-child(even) { background-color: #f2f2f2; }
-#ranking-table tr:hover { background-color: #ddd; }
+:root {
+  --arg-celeste: #75AADB;
+  --arg-blue: #003366;
+  --arg-white: #FFFFFF;
+  --arg-gold: #FFD700;
+  --arg-gold-dark: #C8A84E;
+  --arg-sky: #B0D4F1;
+  --arg-messi: #FF6B35;
+}
+
+/* Override DaisyUI theme colors — MUST use OKLCH format for DaisyUI 4 compatibility */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --p: 68% 0.13 230;
+  --pc: 12% 0.04 240;
+  --s: 84% 0.14 100;
+  --sc: 20% 0.06 80;
+  --a: 68% 0.13 230;
+  --ac: 12% 0.04 240;
+  --in: 68% 0.13 230;
+  --inc: 12% 0.04 240;
+  --er: 60% 0.22 35;
+  --erc: 0% 0 0;
+  --b1: 22% 0.018 250;
+  --b2: 20% 0.016 250;
+  --b3: 17% 0.014 250;
+  --bc: 77% 0.016 260;
+  --n: 26% 0.015 250;
+  --nc: 77% 0.016 260;
+  --su: 64.8% 0.150 160;
+  --suc: 0% 0 0;
+  --wa: 84.71% 0.199 83.87;
+  --wac: 0% 0 0;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --p: 68% 0.13 230;
+  --pc: 12% 0.04 240;
+  --s: 84% 0.14 100;
+  --sc: 20% 0.06 80;
+  --a: 68% 0.13 230;
+  --ac: 12% 0.04 240;
+  --in: 68% 0.13 230;
+  --inc: 12% 0.04 240;
+  --er: 60% 0.22 35;
+  --erc: 0% 0 0;
+  --b1: 100% 0 0;
+  --b2: 96% 0 0;
+  --b3: 92% 0 0;
+  --bc: 28% 0.03 257;
+  --n: 32% 0.02 255;
+  --nc: 89% 0.01 252;
+  --su: 64.8% 0.150 160;
+  --suc: 0% 0 0;
+  --wa: 84.71% 0.199 83.87;
+  --wac: 0% 0 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Argentina flag top bar */
+body::before {
+  content: '';
+  display: block;
+  height: 4px;
+  background: linear-gradient(90deg, var(--arg-celeste) 0%, var(--arg-celeste) 33%, var(--arg-white) 33%, var(--arg-white) 66%, var(--arg-celeste) 66%, var(--arg-celeste) 100%);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+}
+
+/* Fixed Argentina ribbon */
+.argentina-ribbon {
+  position: fixed;
+  top: 4px;
+  right: 10px;
+  z-index: 10000;
+  background: linear-gradient(135deg, var(--arg-celeste), var(--arg-blue));
+  color: var(--arg-white);
+  padding: 3px 10px 3px 8px;
+  border-radius: 0 0 8px 8px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--arg-gold);
+  border-top: none;
+  animation: argentinaSlideIn 0.5s ease-out;
+  white-space: nowrap;
+}
+
+.argentina-ribbon a {
+  color: var(--arg-gold) !important;
+  text-decoration: none !important;
+}
+
+.argentina-ribbon a:hover {
+  text-decoration: underline !important;
+  color: var(--arg-white) !important;
+}
+
+@keyframes argentinaSlideIn {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Sun of May floating decoration */
+body::after {
+  content: '🌞';
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  font-size: 48px;
+  opacity: 0.12;
+  z-index: 9998;
+  animation: argentinaPulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes argentinaPulse {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.12; }
+  50% { transform: scale(1.15) rotate(15deg); opacity: 0.22; }
+}
+
+/* Argentina Banner (pronosticos) */
+.argentina-banner {
+  background: linear-gradient(135deg, var(--arg-blue), #1a3a6e, var(--arg-blue));
+  border-bottom: 3px solid var(--arg-gold);
+  color: var(--arg-white);
+  position: relative;
+  overflow: hidden;
+}
+
+.argentina-banner::before {
+  content: '⭐';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  font-size: 120px;
+  opacity: 0.06;
+  transform: rotate(-15deg);
+  pointer-events: none;
+}
+
+.argentina-banner::after {
+  content: '🇦🇷';
+  position: absolute;
+  bottom: -15px;
+  right: 10px;
+  font-size: 100px;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.argentina-btn {
+  background: linear-gradient(135deg, var(--arg-celeste), var(--arg-blue)) !important;
+  border: 1px solid var(--arg-gold) !important;
+  color: var(--arg-white) !important;
+  transition: all 0.3s ease !important;
+}
+
+.argentina-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 15px rgba(117, 170, 219, 0.5) !important;
+}
+
+.argentina-btn-outline {
+  background: transparent !important;
+  border: 1px solid var(--arg-gold) !important;
+  color: var(--arg-gold) !important;
+  transition: all 0.3s ease !important;
+}
+
+.argentina-btn-outline:hover {
+  background: var(--arg-gold) !important;
+  color: var(--arg-blue) !important;
+  transform: translateY(-2px);
+}
+
+/* Messi star effect on cards */
+.card, .match-card, [class*="card"] {
+  transition: all 0.3s ease;
+}
+
+.card:hover, .match-card:hover, [class*="card"]:hover {
+  box-shadow: 0 4px 20px rgba(117, 170, 219, 0.2);
+}
+
+/* Argentina-themed badges */
+.badge-success {
+  background: linear-gradient(135deg, var(--arg-celeste), var(--arg-blue)) !important;
+  color: white !important;
+  border: 1px solid var(--arg-gold) !important;
+}
+
+/* Argentina flag on loading states */
+.loading::before {
+  content: '🇦🇷';
+  margin-right: 5px;
+}
+
+/* Sun of May spinner */
+@keyframes solRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loading-spinner, .loading-infinity {
+  --loading-color: var(--arg-gold) !important;
+}
+
+/* Navbar Argentina styling */
+nav, [class*="navbar"], header nav {
+  background: linear-gradient(135deg, var(--arg-blue), #0f1a2e) !important;
+  border-bottom: 2px solid var(--arg-celeste) !important;
+}
+
+/* Footer styling */
+footer, [class*="footer"] {
+  border-top: 2px solid var(--arg-celeste) !important;
+}
+
+/* Argentina flag on focused inputs */
+input:focus, select:focus, textarea:focus {
+  border-color: var(--arg-celeste) !important;
+  box-shadow: 0 0 0 2px rgba(117, 170, 219, 0.3) !important;
+  outline: none !important;
+}
+
+
 
 /* Admin Panel Specific Styles */
 .admin-section { margin-top: 30px; }
