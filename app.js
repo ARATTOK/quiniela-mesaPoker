@@ -215,12 +215,6 @@ async function cargarPartidos() {
         };
     }
 
-    // Abrir modal de ayuda para Bennet si el usuario actual es 'bennett'
-    const bennetModal = document.getElementById('help_modal_bennet');
-    if (currentUser === 'bennett' && bennetModal) {
-        bennetModal.showModal();
-    }
-
     cargarPodio(); // Inicializar Podio Ideal antes de renderizar partidos
     renderizarPartidosPorFecha(hoy);
     actualizarGraficoPuntos();
