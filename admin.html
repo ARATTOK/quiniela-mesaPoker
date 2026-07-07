@@ -1065,7 +1065,7 @@
             // Verificar si es fase eliminatoria con empate -> requiere penal
             const card = document.querySelector(`[data-match-id="${id}"]`);
             const stage = card?.getAttribute('data-match-stage') || '';
-            const knockoutStages = ['16avos', 'Octavos', 'Cuartos', 'Semis', 'Final'];
+            const knockoutStages = ['16avos', 'Octavos', 'Cuartos', 'Semis', 'Final', 'Tercer Puesto'];
             if (knockoutStages.includes(stage) && parseInt(home) === parseInt(away) && !penalty) {
                 return alert('El partido está empatado. Debes seleccionar quién clasifica por penales.');
             }
@@ -1091,6 +1091,25 @@
                 console.error('Error en RPC:', rpcError);
                 alert('Resultado guardado en tabla matches, pero falló el cálculo de puntos: ' + rpcError.message)
             } else {
+                // C. Corregir puntos para predicciones All-In
+                const { data: allInPreds } = await supabase
+                    .from('predictions')
+                    .select('id, home_score_pred, away_score_pred')
+                    .eq('match_id', id)
+                    .eq('all_in', true);
+                
+                if (allInPreds?.length) {
+                    const homeScore = parseInt(home);
+                    const awayScore = parseInt(away);
+                    for (const pred of allInPreds) {
+                        const exacto = pred.home_score_pred === homeScore && pred.away_score_pred === awayScore;
+                        await supabase
+                            .from('predictions')
+                            .update({ points: exacto ? 30 : 0 })
+                            .eq('id', pred.id);
+                    }
+                }
+                
                 alert('Resultado guardado, puntos calculados y leaderboard actualizado.')
                 await cargarPartidosAdmin();
             }

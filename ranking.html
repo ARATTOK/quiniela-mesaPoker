@@ -73,35 +73,18 @@
             color: #78350f !important;
         }
 
-        /* Argentina gold for success states */
-        .text-success {
-            color: var(--arg-gold) !important;
-        }
-
-        /* Argentina gold for exact scores badge */
-        .badge-success {
-            background: linear-gradient(135deg, var(--arg-gold), var(--arg-gold-dark)) !important;
-            border-color: var(--arg-gold) !important;
-            color: var(--arg-blue) !important;
-        }
-
-        /* Argentina themed rows (4° puesto en adelante) */
-        .argentina-row {
-            border-left: 3px solid var(--arg-celeste);
+        /* Rows 4+ base style */
+        .default-row {
             transition: all 0.3s ease;
         }
-        .argentina-row:nth-child(odd) {
-            background: rgba(117, 170, 219, 0.02) !important;
+        .default-row:nth-child(odd) {
+            background: hsl(var(--b2) / 0.3) !important;
         }
-        .argentina-row:nth-child(even) {
-            background: rgba(117, 170, 219, 0.07) !important;
+        .default-row:nth-child(even) {
+            background: hsl(var(--b3) / 0.3) !important;
         }
-        .argentina-row:hover {
-            background: rgba(117, 170, 219, 0.14) !important;
-        }
-        /* Destacar nombres de usuarios en posiciones 4+ */
-        .argentina-row .capitalize.font-black {
-            color: var(--arg-celeste) !important;
+        .default-row:hover {
+            background: hsl(var(--p) / 0.05) !important;
         }
     </style>
 </head>
@@ -174,20 +157,20 @@
 
     <div class="container mx-auto p-2 sm:p-4 lg:p-10 max-w-5xl">
         <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-            <h1 class="text-3xl sm:text-4xl font-black border-l-8 pl-4 uppercase tracking-tighter italic" style="border-color: var(--arg-celeste); color: var(--arg-celeste);">🏆 Leaderboard</h1>
+            <h1 class="text-3xl sm:text-4xl font-black border-l-8 pl-4 uppercase tracking-tighter italic border-secondary text-secondary">🏆 Leaderboard</h1>
             <div class="form-control">
-                <label class="label cursor-pointer gap-3 bg-base-100 px-4 py-2 rounded-xl shadow-sm border border-base-300 hover:border-[var(--arg-celeste)] transition-all">
+                <label class="label cursor-pointer gap-3 bg-base-100 px-4 py-2 rounded-xl shadow-sm border border-base-300 hover:border-primary transition-all">
                     <span class="label-text font-black text-[10px] sm:text-xs uppercase opacity-70">Filtrar Exactos 🎯</span> 
-                    <input type="checkbox" id="filter-exacts" class="checkbox" style="--chkbg: var(--arg-celeste); --chkfg: white;" onchange="window.applyFilters()" />
+                    <input type="checkbox" id="filter-exacts" class="checkbox checkbox-primary" onchange="window.applyFilters()" />
                 </label>
             </div>
         </div>
 
-        <div class="card bg-base-100 shadow-2xl border border-base-300 overflow-hidden" style="border-color: rgba(117, 170, 219, 0.2) !important;">
+        <div class="card bg-base-100 shadow-2xl border border-base-300 overflow-hidden">
             <table class="table w-full" id="ranking-table">
                 <thead>
-                    <tr class="text-white uppercase text-[10px] sm:text-xs font-black tracking-[0.2em] border-b border-base-300" style="background: linear-gradient(135deg, var(--arg-blue), var(--arg-celeste));">
-                        <th class="w-12 sm:w-20 text-center">🇦🇷</th>
+                    <tr class="text-white uppercase text-[10px] sm:text-xs font-black tracking-[0.2em] border-b border-base-300 bg-primary">
+                        <th class="w-12 sm:w-20 text-center">🏆</th>
                         <th class="pl-2">Payasito</th>
                         <th class="text-center px-1 sm:px-4">Exactos</th>
                         <th class="text-center hidden sm:table-cell">Otros</th>
@@ -342,7 +325,7 @@
                 } else if (isLast) {
                     row.className = 'row-inferno font-black';
                 } else {
-                    row.className = 'argentina-row';
+                    row.className = 'default-row';
                 }
 
                 const medalEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : isLast ? '🐌' : (index + 1);

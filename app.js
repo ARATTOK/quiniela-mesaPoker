@@ -220,6 +220,8 @@ async function cargarPartidos() {
     actualizarGraficoPuntos();
     renderDatePills(hoy);
     startCountdowns(); // Start countdowns on initial load
+    renderBracketView();
+    switchView('bracket');
 }
 
 async function cargarPodio() {
@@ -741,7 +743,7 @@ function updateCountdowns() {
     const now = new Date();
     let allMatchesClosed = true; // Flag to check if all matches on screen are closed
 
-    document.querySelectorAll('.card[data-match-id]').forEach(cardElement => {
+    document.querySelectorAll('.card[data-match-id], .bracket-match[data-match-id]').forEach(cardElement => {
         const matchId = cardElement.getAttribute('data-match-id');
         const matchDateStr = cardElement.getAttribute('data-match-date');
         const matchStatus = cardElement.getAttribute('data-status');
@@ -846,7 +848,7 @@ window.resetFecha = () => {
 };
 
 window.alternarPenales = (matchId, stage) => {
-    const knockout = ['16avos', 'Octavos', 'Cuartos', 'Semis', 'Final'].includes(stage);
+    const knockout = ['16avos', 'Octavos', 'Cuartos', 'Semis', 'Final', 'Tercer Puesto'].includes(stage);
     if (!knockout) return;
     const homeEl = document.getElementById(`home-${matchId}`);
     const awayEl = document.getElementById(`away-${matchId}`);
@@ -870,6 +872,8 @@ window.guardarPronostico = async (matchId) => {
     const home = document.getElementById(`home-${matchId}`).value
     const away = document.getElementById(`away-${matchId}`).value
     const penalty = document.getElementById(`penalty-${matchId}`)?.value || null
+    const allInCheckbox = document.getElementById(`allin-${matchId}`);
+    const allIn = allInCheckbox ? allInCheckbox.checked : false;
     const currentUser = localStorage.getItem('currentUser')
 
     if (home === '' || away === '') return alert('Ingresa un resultado')
@@ -877,7 +881,7 @@ window.guardarPronostico = async (matchId) => {
     // Verificar si es fase eliminatoria con empate -> requiere penal
     const matchEl = document.querySelector(`[data-match-id="${matchId}"]`);
     const stage = matchEl?.getAttribute('data-match-stage') || '';
-    const knockout = ['16avos', 'Octavos', 'Cuartos', 'Semis', 'Final'].includes(stage);
+    const knockout = ['16avos', 'Octavos', 'Cuartos', 'Semis', 'Final', 'Tercer Puesto'].includes(stage);
     if (knockout && home !== '' && away !== '' && parseInt(home) === parseInt(away) && !penalty) {
         return alert('El partido terminó empatado. Debes seleccionar quién clasifica por penales para +3 pts.');
     }
@@ -918,6 +922,7 @@ window.guardarPronostico = async (matchId) => {
         home_score_pred: parseInt(home), 
         away_score_pred: parseInt(away),
         penalty_winner_pred: penalty,
+        all_in: allIn,
         updated_at: svTimestamp(),
         ...(!existing ? { created_at: svTimestamp() } : {})
     }
@@ -988,6 +993,167 @@ window.playHorn = () => {
             colors: ['#ef4444', '#f5d142', '#3b82f6', '#10b981', '#a855f7']
         });
     }
+}
+
+window.switchView = (view) => {
+    const bracketContainer = document.getElementById('bracket-container');
+    const dateContainer = document.getElementById('date-container');
+    const btnBracket = document.getElementById('btn-bracket-view');
+    const btnDate = document.getElementById('btn-date-view');
+    if (!bracketContainer || !dateContainer) return;
+
+    if (view === 'bracket') {
+        bracketContainer.classList.remove('hidden');
+        dateContainer.classList.add('hidden');
+        btnBracket?.classList.remove('btn-ghost');
+        btnBracket?.classList.add('btn-primary');
+        btnDate?.classList.remove('btn-primary');
+        btnDate?.classList.add('btn-ghost');
+        renderBracketView();
+    } else {
+        bracketContainer.classList.add('hidden');
+        dateContainer.classList.remove('hidden');
+        btnDate?.classList.remove('btn-ghost');
+        btnDate?.classList.add('btn-primary');
+        btnBracket?.classList.remove('btn-primary');
+        btnBracket?.classList.add('btn-ghost');
+    }
+};
+
+function renderBracketView() {
+    const container = document.getElementById('bracket-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const stages = ['Cuartos', 'Semis', 'Tercer Puesto', 'Final'];
+    const stageLabels = { 'Cuartos': 'Cuartos de Final', 'Semis': 'Semifinales', 'Tercer Puesto': '3er Puesto', 'Final': 'Final' };
+    const stageEmojis = { 'Cuartos': '🏅', 'Semis': '⚡', 'Tercer Puesto': '🥉', 'Final': '🏆' };
+
+    stages.forEach(stage => {
+        const matches = allMatches.filter(m => m.stage === stage);
+        const roundDiv = document.createElement('div');
+        roundDiv.className = 'bracket-round';
+        roundDiv.dataset.stage = stage;
+
+        const title = document.createElement('div');
+        title.className = 'bracket-round-title';
+        title.textContent = `${stageEmojis[stage] || ''} ${stageLabels[stage] || stage}`;
+        roundDiv.appendChild(title);
+
+        const matchesDiv = document.createElement('div');
+        matchesDiv.className = 'bracket-matches';
+
+        if (matches.length === 0 && stage === 'Tercer Puesto') {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'bracket-placeholder';
+            placeholder.innerHTML = '⏳ Partido por definir<br><span style="font-size:0.6rem;opacity:0.6">Disponible cuando el admin lo cree</span>';
+            matchesDiv.appendChild(placeholder);
+        } else if (matches.length === 0) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'bracket-placeholder';
+            placeholder.textContent = '⏳ Próximamente';
+            matchesDiv.appendChild(placeholder);
+        } else {
+            matches.forEach((match, idx) => {
+                const card = document.createElement('div');
+                card.className = 'bracket-match';
+                card.dataset.matchId = match.id;
+                card.dataset.matchStage = match.stage;
+                card.dataset.matchDate = match.match_date;
+
+                const matchTime = parseMatchDate(match.match_date);
+                const now = new Date();
+                const hasStarted = now >= matchTime || match.status === 'finished';
+                const isFinished = match.status === 'finished';
+                const existingPrediction = userPredictions.find(p => p.match_id === match.id);
+                const homePred = existingPrediction?.home_score_pred ?? '';
+                const awayPred = existingPrediction?.away_score_pred ?? '';
+                const penaltyPred = existingPrediction?.penalty_winner_pred ?? '';
+                const allInPred = existingPrediction?.all_in ?? false;
+                const pointsEarned = existingPrediction?.points ?? 0;
+                const isKnockout = ['Cuartos', 'Semis', 'Final'].includes(match.stage);
+                const isDisabled = hasStarted ? 'disabled' : '';
+                const noPrediction = isFinished && !existingPrediction;
+                const pointsColor = noPrediction ? 'ghost' :
+                                   pointsEarned >= 30 ? 'warning' :
+                                   pointsEarned >= 12 ? 'warning' :
+                                   pointsEarned >= 8 ? 'info' :
+                                   pointsEarned >= 5 ? 'success' :
+                                   pointsEarned >= 2 ? 'accent' : 'error';
+
+                if (isFinished) card.classList.add('finished');
+                if (allInPred) card.classList.add('allin-active');
+
+                let resultHTML = '';
+                if (isFinished) {
+                    const isExact = pointsEarned >= 30 || pointsEarned >= 12;
+                    resultHTML = `
+                        <div class="bracket-result" style="color:hsl(var(--${pointsColor === 'ghost' ? 'bc' : pointsColor}))">
+                            ${match.home_score ?? '?'} - ${match.away_score ?? '?'}
+                            <span class="bracket-points" style="background:hsl(var(--${pointsColor === 'ghost' ? 'bc' : pointsColor}) / 0.12)">
+                                ${allInPred && pointsEarned === 30 ? '🎲 ALL-IN +30' : 
+                                  allInPred && pointsEarned === 0 ? '🎲 All-In 0' : 
+                                  isExact ? '🎯 ' : ''}${pointsEarned > 0 || allInPred ? pointsEarned + ' pts' : ''}
+                                ${noPrediction ? 'Sin pronóstico' : ''}
+                            </span>
+                        </div>
+                    `;
+                }
+
+                const allInChecked = allInPred ? 'checked' : '';
+                const allInActive = allInPred ? 'active' : '';
+
+                card.innerHTML = `
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.35rem">
+                        <span class="bracket-stage-badge">${match.stage}</span>
+                        ${!hasStarted ? `
+                        <label class="allin-label ${allInActive}">
+                            <input type="checkbox" class="allin-checkbox" id="allin-${match.id}" ${allInChecked} ${isDisabled} onchange="this.parentElement.classList.toggle('active');document.querySelector('[data-match-id=\\'${match.id}\\']')?.classList.toggle('allin-active')" />
+                            🎲 All-In +30
+                        </label>` : allInPred ? `<span style="font-size:0.55rem;font-weight:900;padding:0.15rem 0.4rem;border-radius:999px;background:#FFD700;color:#1a1a2e">🎲 ALL-IN</span>` : ''}
+                    </div>
+                    <div class="bracket-teams">
+                        <div class="bracket-team">
+                            <span class="flag">${flags[match.home_team] || '🏳️'}</span>
+                            <span class="name">${match.home_team}</span>
+                            ${!isFinished ? `<input type="number" id="home-${match.id}" class="score-input" value="${homePred}" ${isDisabled} min="0" max="15" oninput="alternarPenales(${match.id}, '${match.stage}')">` : ''}
+                        </div>
+                        <div class="bracket-vs">vs</div>
+                        <div class="bracket-team">
+                            <span class="flag">${flags[match.away_team] || '🏳️'}</span>
+                            <span class="name">${match.away_team}</span>
+                            ${!isFinished ? `<input type="number" id="away-${match.id}" class="score-input" value="${awayPred}" ${isDisabled} min="0" max="15" oninput="alternarPenales(${match.id}, '${match.stage}')">` : ''}
+                        </div>
+                    </div>
+                    ${isKnockout && !isFinished ? `
+                    <div class="bracket-penalty" id="penal-container-${match.id}" ${homePred !== '' && awayPred !== '' && parseInt(homePred) === parseInt(awayPred) ? '' : 'style="display:none"'}>
+                        <div style="display:flex;align-items:center;gap:0.25rem;margin-bottom:0.2rem">
+                            <span style="font-size:0.5rem;font-weight:900;opacity:0.4">⚖️ Penales</span>
+                            <span id="penal-alert-${match.id}" class="badge badge-error badge-xs" style="${parseInt(homePred) === parseInt(awayPred) && homePred !== '' && awayPred !== '' ? '' : 'display:none'}">⚠️</span>
+                        </div>
+                        <select id="penalty-${match.id}" class="select select-bordered select-sm w-full text-xs font-bold" ${isDisabled}>
+                            <option value="">Seleccionar...</option>
+                            <option value="${match.home_team}" ${penaltyPred === match.home_team ? 'selected' : ''}>${flags[match.home_team] || '🏳️'} ${match.home_team}</option>
+                            <option value="${match.away_team}" ${penaltyPred === match.away_team ? 'selected' : ''}>${flags[match.away_team] || '🏳️'} ${match.away_team}</option>
+                        </select>
+                    </div>` : ''}
+                    ${resultHTML}
+                    ${!isFinished ? `
+                    <div class="bracket-footer">
+                        <span class="bracket-countdown" id="countdown-${match.id}"></span>
+                        <button class="btn btn-primary btn-xs bracket-save-btn gap-1" onclick="guardarPronostico(${match.id})" ${isDisabled}>
+                            ${hasStarted ? '🔒' : '💾'} ${existingPrediction ? 'Actualizar' : 'Guardar'}
+                        </button>
+                    </div>` : ''}
+                `;
+
+                matchesDiv.appendChild(card);
+            });
+        }
+
+        roundDiv.appendChild(matchesDiv);
+        container.appendChild(roundDiv);
+    });
 }
 
 cargarPartidos()
