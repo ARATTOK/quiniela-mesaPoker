@@ -1,0 +1,17 @@
+{
+  "name": "Quiniela Mesa Poker Mundial 2026",
+  "short_name": "Quiniela",
+  "description": "Pronósticos del Mundial 2026",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#1d232a",
+  "theme_color": "#1d232a",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

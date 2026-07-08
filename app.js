@@ -216,12 +216,11 @@ async function cargarPartidos() {
     }
 
     cargarPodio(); // Inicializar Podio Ideal antes de renderizar partidos
+    switchView('bracket'); // Mostrar Eliminatorias por defecto (oculta fecha-container ANTES de renderizarla)
     renderizarPartidosPorFecha(hoy);
     actualizarGraficoPuntos();
     renderDatePills(hoy);
-    startCountdowns(); // Start countdowns on initial load
-    renderBracketView();
-    switchView('bracket');
+    startCountdowns();
 }
 
 async function cargarPodio() {
@@ -625,8 +624,8 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
 
                 <div class="card-actions mt-1">
                     <div id="countdown-${match.id}" class="text-xs font-bold text-center w-full mb-1 opacity-60"></div>
-                    <button class="btn ${buttonClass} btn-block btn-sm gap-1.5" onclick="guardarPronostico(${match.id})" ${isDisabled}>
-                        ${hasStarted ? '🔒' : '💾'} ${buttonText}
+                    <button class="btn ${buttonClass} btn-block btn-sm" onclick="guardarPronostico(${match.id})" title="${buttonText}" ${isDisabled}>
+                        ${hasStarted ? '<i class="fa-solid fa-lock"></i>' : '<i class="fa-solid fa-floppy-disk"></i>'}
                     </button>
                 </div>
             </div>
@@ -791,7 +790,8 @@ function updateCountdowns() {
                 if (saveButton) {
                     if (!saveButton.disabled) { // Only update if not already disabled
                         saveButton.disabled = true;
-                        saveButton.textContent = 'Partido Cerrado';
+                        saveButton.innerHTML = '<i class="fa-solid fa-lock"></i>';
+                        saveButton.title = 'Cerrado';
                         saveButton.classList.remove('btn-primary', 'btn-secondary');
                         saveButton.classList.add('btn-disabled');
                     }
@@ -799,7 +799,7 @@ function updateCountdowns() {
             }
         } else if (timeRemaining <= 300000) { // Menos de 5 minutos (5 * 60 * 1000 ms)
             allMatchesClosed = false;
-            countdownElement.textContent = `¡CIERRE INMINENTE!: ${formatTime(timeRemaining)}`;
+            countdownElement.textContent = formatTime(timeRemaining);
             cardElement.classList.add('border-error', 'animate-pulse');
             countdownElement.classList.add('text-error');
             if (homeInput) homeInput.classList.add('input-error', 'border-2', 'animate-pulse'); // Inputs siguen pulsando
@@ -809,7 +809,7 @@ function updateCountdowns() {
             }
         } else if (timeRemaining <= 1800000) { // Less than 30 minutes (30 * 60 * 1000 ms)
             allMatchesClosed = false;
-            countdownElement.textContent = `Cierre Inminente: ${formatTime(timeRemaining)}`;
+            countdownElement.textContent = formatTime(timeRemaining);
             cardElement.classList.add('border-accent');
             countdownElement.classList.add('text-accent');
             if (!isCardFocused) { // Solo pulsa la tarjeta si no hay un input enfocado
@@ -817,12 +817,12 @@ function updateCountdowns() {
             }
         } else if (timeRemaining < 3600000) { // Less than 1 hour (60 * 60 * 1000 ms)
             allMatchesClosed = false;
-            countdownElement.textContent = `Cierra en: ${formatTime(timeRemaining)}`;
+            countdownElement.textContent = formatTime(timeRemaining);
             cardElement.classList.add('border-warning');
             countdownElement.classList.add('text-warning');
         } else {
             allMatchesClosed = false; // At least one match is still open
-            countdownElement.textContent = `Cierra en: ${formatTime(timeRemaining)}`;
+            countdownElement.textContent = formatTime(timeRemaining);
             cardElement.classList.add('border-primary'); // Default border for open matches
             countdownElement.classList.add('text-success');
         }
@@ -860,12 +860,9 @@ window.alternarPenales = (matchId, stage) => {
     container.classList.toggle('hidden', !isDraw);
     if (!isDraw) select.value = '';
     const firstOpt = select.querySelector('option:first-child');
-    if (firstOpt) firstOpt.textContent = isDraw ? '🔴 Debes elegir quién clasifica por penales' : 'Seleccionar...';
-    select.classList.toggle('select-error', isDraw);
-    select.classList.toggle('ring-2', isDraw);
-    select.classList.toggle('ring-error/50', isDraw);
-    const alertBadge = document.getElementById(`penal-alert-${matchId}`);
-    if (alertBadge) alertBadge.classList.toggle('hidden', !isDraw);
+    if (firstOpt) firstOpt.textContent = isDraw ? '🔴 Debes elegir' : '▼ Seleccionar';
+    select.style.borderColor = isDraw ? 'rgba(239, 68, 68, 0.5)' : '';
+    select.style.boxShadow = isDraw ? '0 0 0 2px rgba(239, 68, 68, 0.15)' : '';
 };
 
 window.guardarPronostico = async (matchId) => {
@@ -954,10 +951,8 @@ window.guardarPronostico = async (matchId) => {
             btn.classList.remove('loading', 'btn-primary');
             btn.classList.add('btn-secondary');
             btn.disabled = false;
-            btn.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                Actualizar
-            `;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            btn.title = 'Actualizar';
         }
     }
 }
@@ -1002,21 +997,32 @@ window.switchView = (view) => {
     const btnDate = document.getElementById('btn-date-view');
     if (!bracketContainer || !dateContainer) return;
 
+    btnBracket?.classList.toggle('btn-primary', view === 'bracket');
+    btnBracket?.classList.toggle('btn-ghost', view !== 'bracket');
+    btnDate?.classList.toggle('btn-primary', view === 'date');
+    btnDate?.classList.toggle('btn-ghost', view !== 'date');
+
     if (view === 'bracket') {
-        bracketContainer.classList.remove('hidden');
-        dateContainer.classList.add('hidden');
-        btnBracket?.classList.remove('btn-ghost');
-        btnBracket?.classList.add('btn-primary');
-        btnDate?.classList.remove('btn-primary');
-        btnDate?.classList.add('btn-ghost');
+        bracketContainer.style.display = '';
+        dateContainer.style.display = 'none';
         renderBracketView();
     } else {
-        bracketContainer.classList.add('hidden');
-        dateContainer.classList.remove('hidden');
-        btnDate?.classList.remove('btn-ghost');
-        btnDate?.classList.add('btn-primary');
-        btnBracket?.classList.remove('btn-primary');
-        btnBracket?.classList.add('btn-ghost');
+        bracketContainer.style.display = 'none';
+        dateContainer.style.display = '';
+    }
+};
+
+window.ajusteGol = (matchId, side, delta) => {
+    const input = document.getElementById(`${side}-${matchId}`);
+    const display = document.getElementById(`s${side}-${matchId}`);
+    if (!input || !display) return;
+    let val = parseInt(input.value) || 0;
+    val = Math.max(0, Math.min(15, val + delta));
+    input.value = val;
+    display.textContent = val;
+    const card = document.querySelector(`[data-match-id="${matchId}"]`);
+    if (card) {
+        alternarPenales(matchId, card.dataset.matchStage);
     }
 };
 
@@ -1027,7 +1033,12 @@ function renderBracketView() {
 
     const stages = ['Cuartos', 'Semis', 'Tercer Puesto', 'Final'];
     const stageLabels = { 'Cuartos': 'Cuartos de Final', 'Semis': 'Semifinales', 'Tercer Puesto': '3er Puesto', 'Final': 'Final' };
-    const stageEmojis = { 'Cuartos': '🏅', 'Semis': '⚡', 'Tercer Puesto': '🥉', 'Final': '🏆' };
+    const stageIcons = {
+        'Cuartos': '<i class="fa-solid fa-medal icon-stage"></i>',
+        'Semis': '<i class="fa-solid fa-bolt icon-stage"></i>',
+        'Tercer Puesto': '<i class="fa-solid fa-ranking-star icon-stage"></i>',
+        'Final': '<i class="fa-solid fa-trophy icon-stage"></i>'
+    };
 
     stages.forEach(stage => {
         const matches = allMatches.filter(m => m.stage === stage);
@@ -1037,7 +1048,7 @@ function renderBracketView() {
 
         const title = document.createElement('div');
         title.className = 'bracket-round-title';
-        title.textContent = `${stageEmojis[stage] || ''} ${stageLabels[stage] || stage}`;
+        title.innerHTML = `${stageIcons[stage] || ''} ${stageLabels[stage] || stage}`;
         roundDiv.appendChild(title);
 
         const matchesDiv = document.createElement('div');
@@ -1054,7 +1065,7 @@ function renderBracketView() {
             placeholder.textContent = '⏳ Próximamente';
             matchesDiv.appendChild(placeholder);
         } else {
-            matches.forEach((match, idx) => {
+            matches.forEach((match) => {
                 const card = document.createElement('div');
                 card.className = 'bracket-match';
                 card.dataset.matchId = match.id;
@@ -1084,13 +1095,27 @@ function renderBracketView() {
                 if (isFinished) card.classList.add('finished');
                 if (allInPred) card.classList.add('allin-active');
 
+                let scoreClass = '';
+                if (isFinished && existingPrediction) {
+                    if (allInPred && pointsEarned >= 30) scoreClass = 'score-allin';
+                    else if (pointsEarned >= 12) scoreClass = 'score-exact';
+                    else if (pointsEarned >= 8) scoreClass = 'score-high';
+                    else if (pointsEarned >= 5) scoreClass = 'score-mid';
+                    else if (pointsEarned >= 2) scoreClass = 'score-low';
+                    else scoreClass = 'score-0';
+                }
+                if (scoreClass) card.classList.add(scoreClass);
+
+                const dateStr = matchTime.toLocaleDateString('es-SV', { day: 'numeric', month: 'short', timeZone: 'America/El_Salvador' });
+                const timeStr = matchTime.toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'America/El_Salvador' });
+
                 let resultHTML = '';
                 if (isFinished) {
                     const isExact = pointsEarned >= 30 || pointsEarned >= 12;
                     resultHTML = `
-                        <div class="bracket-result" style="color:hsl(var(--${pointsColor === 'ghost' ? 'bc' : pointsColor}))">
+                        <div class="bracket-result" style="color:oklch(var(--${pointsColor === 'ghost' ? 'bc' : pointsColor}))">
                             ${match.home_score ?? '?'} - ${match.away_score ?? '?'}
-                            <span class="bracket-points" style="background:hsl(var(--${pointsColor === 'ghost' ? 'bc' : pointsColor}) / 0.12)">
+                            <span class="bracket-points" style="background:oklch(var(--${pointsColor === 'ghost' ? 'bc' : pointsColor}) / 0.12)">
                                 ${allInPred && pointsEarned === 30 ? '🎲 ALL-IN +30' : 
                                   allInPred && pointsEarned === 0 ? '🎲 All-In 0' : 
                                   isExact ? '🎯 ' : ''}${pointsEarned > 0 || allInPred ? pointsEarned + ' pts' : ''}
@@ -1102,37 +1127,56 @@ function renderBracketView() {
 
                 const allInChecked = allInPred ? 'checked' : '';
                 const allInActive = allInPred ? 'active' : '';
+                const homeDisplay = homePred !== '' ? homePred : '-';
+                const awayDisplay = awayPred !== '' ? awayPred : '-';
+                const homeIsDraw = homePred !== '' && awayPred !== '' && parseInt(homePred) === parseInt(awayPred);
 
                 card.innerHTML = `
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.35rem">
-                        <span class="bracket-stage-badge">${match.stage}</span>
-                        ${!hasStarted ? `
-                        <label class="allin-label ${allInActive}">
-                            <input type="checkbox" class="allin-checkbox" id="allin-${match.id}" ${allInChecked} ${isDisabled} onchange="this.parentElement.classList.toggle('active');document.querySelector('[data-match-id=\\'${match.id}\\']')?.classList.toggle('allin-active')" />
-                            🎲 All-In +30
-                        </label>` : allInPred ? `<span style="font-size:0.55rem;font-weight:900;padding:0.15rem 0.4rem;border-radius:999px;background:#FFD700;color:#1a1a2e">🎲 ALL-IN</span>` : ''}
+                    <div class="bracket-header">
+                        <span class="bracket-stage-badge">${stageIcons[match.stage] || ''} ${match.stage}</span>
+                        <span class="bracket-datetime"><i class="fa-regular fa-clock" style="font-size:0.5rem;opacity:0.5;margin-right:0.15rem"></i>${dateStr} ${timeStr}</span>
                     </div>
+                    ${!isFinished ? `
+                    <div class="bracket-allin-row ${allInActive}">
+                        <span><i class="fa-solid fa-dice"></i> All‑In +30</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="toggle-input" id="allin-${match.id}" ${allInChecked} ${isDisabled} onchange="this.closest('.bracket-allin-row').classList.toggle('active');document.querySelector('[data-match-id=\\'${match.id}\\']')?.classList.toggle('allin-active')" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>` : allInPred ? `
+                    <div class="bracket-allin-row finished">
+                        <span class="allin-badge"><i class="fa-solid fa-dice"></i> ALL-IN</span>
+                    </div>` : ''}
                     <div class="bracket-teams">
-                        <div class="bracket-team">
+                        <div class="bracket-team-side">
                             <span class="flag">${flags[match.home_team] || '🏳️'}</span>
                             <span class="name">${match.home_team}</span>
-                            ${!isFinished ? `<input type="number" id="home-${match.id}" class="score-input" value="${homePred}" ${isDisabled} min="0" max="15" oninput="alternarPenales(${match.id}, '${match.stage}')">` : ''}
+                            ${!isFinished ? `
+                            <div class="score-stepper">
+                                <button class="step-btn" onclick="ajusteGol(${match.id}, 'home', -1)" ${isDisabled}>−</button>
+                                <span class="step-value" id="shome-${match.id}">${homeDisplay}</span>
+                                <button class="step-btn" onclick="ajusteGol(${match.id}, 'home', 1)" ${isDisabled}>+</button>
+                                <input type="hidden" id="home-${match.id}" value="${homePred}">
+                            </div>` : `<span class="score-final">${homePred}</span>`}
                         </div>
-                        <div class="bracket-vs">vs</div>
-                        <div class="bracket-team">
+                        <div class="vs-circle">VS</div>
+                        <div class="bracket-team-side">
                             <span class="flag">${flags[match.away_team] || '🏳️'}</span>
                             <span class="name">${match.away_team}</span>
-                            ${!isFinished ? `<input type="number" id="away-${match.id}" class="score-input" value="${awayPred}" ${isDisabled} min="0" max="15" oninput="alternarPenales(${match.id}, '${match.stage}')">` : ''}
+                            ${!isFinished ? `
+                            <div class="score-stepper">
+                                <button class="step-btn" onclick="ajusteGol(${match.id}, 'away', -1)" ${isDisabled}>−</button>
+                                <span class="step-value" id="saway-${match.id}">${awayDisplay}</span>
+                                <button class="step-btn" onclick="ajusteGol(${match.id}, 'away', 1)" ${isDisabled}>+</button>
+                                <input type="hidden" id="away-${match.id}" value="${awayPred}">
+                            </div>` : `<span class="score-final">${awayPred}</span>`}
                         </div>
                     </div>
                     ${isKnockout && !isFinished ? `
-                    <div class="bracket-penalty" id="penal-container-${match.id}" ${homePred !== '' && awayPred !== '' && parseInt(homePred) === parseInt(awayPred) ? '' : 'style="display:none"'}>
-                        <div style="display:flex;align-items:center;gap:0.25rem;margin-bottom:0.2rem">
-                            <span style="font-size:0.5rem;font-weight:900;opacity:0.4">⚖️ Penales</span>
-                            <span id="penal-alert-${match.id}" class="badge badge-error badge-xs" style="${parseInt(homePred) === parseInt(awayPred) && homePred !== '' && awayPred !== '' ? '' : 'display:none'}">⚠️</span>
-                        </div>
-                        <select id="penalty-${match.id}" class="select select-bordered select-sm w-full text-xs font-bold" ${isDisabled}>
-                            <option value="">Seleccionar...</option>
+                    <div class="bracket-penalty ${homeIsDraw ? '' : 'hidden'}" id="penal-container-${match.id}">
+                        <span class="bracket-penalty-label">PENALES</span>
+                        <select id="penalty-${match.id}" ${isDisabled}>
+                            <option value="">▼ Seleccionar</option>
                             <option value="${match.home_team}" ${penaltyPred === match.home_team ? 'selected' : ''}>${flags[match.home_team] || '🏳️'} ${match.home_team}</option>
                             <option value="${match.away_team}" ${penaltyPred === match.away_team ? 'selected' : ''}>${flags[match.away_team] || '🏳️'} ${match.away_team}</option>
                         </select>
@@ -1140,9 +1184,9 @@ function renderBracketView() {
                     ${resultHTML}
                     ${!isFinished ? `
                     <div class="bracket-footer">
-                        <span class="bracket-countdown" id="countdown-${match.id}"></span>
-                        <button class="btn btn-primary btn-xs bracket-save-btn gap-1" onclick="guardarPronostico(${match.id})" ${isDisabled}>
-                            ${hasStarted ? '🔒' : '💾'} ${existingPrediction ? 'Actualizar' : 'Guardar'}
+                        <div class="bracket-countdown" id="countdown-${match.id}"></div>
+                        <button class="btn btn-primary bracket-save-btn" onclick="guardarPronostico(${match.id})" title="${existingPrediction ? 'Actualizar' : 'Guardar'}" ${isDisabled}>
+                            ${hasStarted ? '<i class="fa-solid fa-lock"></i>' : '<i class="fa-solid fa-floppy-disk"></i>'}
                         </button>
                     </div>` : ''}
                 `;
