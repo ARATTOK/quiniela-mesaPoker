@@ -15,6 +15,7 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <style>
         @keyframes shine {
             to { background-position: 200% center; }
@@ -25,12 +26,9 @@
             transition: all 0.3s ease;
         }
         .metallic-row:hover { 
-            transform: scale(1.005);
-            filter: brightness(1.05);
-        }
-        
-        .total-points-badge {
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 0 12px rgba(255, 215, 0, 0.08);
+            transform: scale(1.008);
+            filter: brightness(1.08);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
         .row-inferno {
@@ -42,22 +40,28 @@
             transition: all 0.3s ease;
         }
         .row-inferno:hover {
-            transform: scale(1.005);
+            transform: scale(1.008);
             filter: brightness(1.15);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2);
         }
         @keyframes infernoGlow {
             0%, 100% { box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.1); }
             50% { box-shadow: inset 0 0 40px rgba(239, 68, 68, 0.3); }
         }
 
-        /* Oro */
         .rank-1 {
             background-image: linear-gradient(110deg, #fdf6e3 0%, #f5d142 20%, #fdf6e3 40%, #f5d142 60%, #fdf6e3 80%, #f5d142 100%);
             color: #7a5100 !important;
         }
-        /* Plata */
-        
-        /* Animación para el avatar del líder */
+        .rank-2 {
+            background-image: linear-gradient(110deg, #f8fafc 0%, #cbd5e1 20%, #f8fafc 40%, #cbd5e1 60%, #f8fafc 80%, #cbd5e1 100%);
+            color: #334155 !important;
+        }
+        .rank-3 {
+            background-image: linear-gradient(110deg, #fff7ed 0%, #d97706 20%, #fff7ed 40%, #d97706 60%, #fff7ed 80%, #d97706 100%);
+            color: #78350f !important;
+        }
+
         @keyframes avatar-glow {
             0% { box-shadow: 0 0 0px 0px rgba(255, 215, 0, 0.7); }
             50% { box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.9); }
@@ -66,17 +70,7 @@
         .leader-avatar-shine {
             animation: avatar-glow 2s infinite ease-in-out;
         }
-        .rank-2 {
-            background-image: linear-gradient(110deg, #f8fafc 0%, #cbd5e1 20%, #f8fafc 40%, #cbd5e1 60%, #f8fafc 80%, #cbd5e1 100%);
-            color: #334155 !important;
-        }
-        /* Bronce */
-        .rank-3 {
-            background-image: linear-gradient(110deg, #fff7ed 0%, #d97706 20%, #fff7ed 40%, #d97706 60%, #fff7ed 80%, #d97706 100%);
-            color: #78350f !important;
-        }
 
-        /* Rows 4+ base style */
         .default-row {
             transition: all 0.3s ease;
         }
@@ -88,6 +82,128 @@
         }
         .default-row:hover {
             background: oklch(var(--p) / 0.05) !important;
+            transform: scale(1.005);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        .rank-badge {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.75rem;
+            line-height: 1;
+            flex-shrink: 0;
+            border: 2px solid oklch(var(--bc) / 0.2);
+            background: oklch(var(--b1));
+            color: oklch(var(--bc));
+        }
+        .rank-badge-gold {
+            border-color: #f5d142;
+            background: linear-gradient(135deg, #fdf6e3, #f5d142);
+            color: #7a5100;
+            box-shadow: 0 0 12px rgba(245, 209, 66, 0.4);
+            width: 2.4rem;
+            height: 2.4rem;
+            font-size: 0.9rem;
+        }
+        .rank-badge-silver {
+            border-color: #94a3b8;
+            background: linear-gradient(135deg, #f8fafc, #cbd5e1);
+            color: #334155;
+            box-shadow: 0 0 8px rgba(148, 163, 184, 0.3);
+        }
+        .rank-badge-bronze {
+            border-color: #d97706;
+            background: linear-gradient(135deg, #fff7ed, #d97706);
+            color: #78350f;
+            box-shadow: 0 0 8px rgba(217, 119, 6, 0.3);
+        }
+
+        .total-points-badge {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 0 12px rgba(255, 215, 0, 0.08);
+        }
+        .total-points-badge:hover {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 0 20px rgba(255, 215, 0, 0.2);
+            transform: scale(1.05);
+        }
+
+        .table thead tr,
+        .table thead th,
+        .table thead td {
+            background: oklch(var(--b2)) !important;
+        }
+        #ranking-table tbody th {
+            background: oklch(var(--b1)) !important;
+        }
+
+        .filter-bar {
+            background: oklch(var(--b1));
+            border: 1px solid oklch(var(--bc) / 0.15);
+            border-radius: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .filter-bar select {
+            font-size: 0.8rem;
+            padding: 0.25rem 1.5rem 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid oklch(var(--bc) / 0.2);
+            background: oklch(var(--b2));
+            color: oklch(var(--bc));
+            font-weight: 600;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.4rem center;
+        }
+        .filter-bar select:focus {
+            outline: none;
+            border-color: oklch(var(--p));
+            box-shadow: 0 0 0 2px oklch(var(--p) / 0.2);
+        }
+
+        .bonus-tooltip {
+            position: absolute;
+            z-index: 100;
+            background: oklch(var(--b1));
+            border: 1px solid oklch(var(--bc) / 0.2);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            min-width: 180px;
+            font-size: 0.8rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.15s, visibility 0.15s;
+        }
+        .bonus-tooltip.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .bonus-tooltip::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 20px;
+            width: 12px;
+            height: 12px;
+            background: oklch(var(--b1));
+            border-top: 1px solid oklch(var(--bc) / 0.2);
+            border-left: 1px solid oklch(var(--bc) / 0.2);
+            transform: rotate(45deg);
+        }
+
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
         }
     </style>
 </head>
@@ -159,33 +275,63 @@
     </div>
 
     <div class="container mx-auto p-2 sm:p-4 lg:p-10 max-w-5xl">
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-            <h1 class="text-3xl sm:text-4xl font-black border-l-8 pl-4 uppercase tracking-tighter italic border-secondary text-secondary">🏆 Leaderboard</h1>
-            <div class="form-control">
-                <label class="label cursor-pointer gap-3 bg-base-100 px-4 py-2 rounded-xl shadow-sm border border-base-300 hover:border-primary transition-all">
-                    <span class="label-text font-black text-[10px] sm:text-xs uppercase opacity-70">Filtrar Exactos 🎯</span> 
-                    <input type="checkbox" id="filter-exacts" class="checkbox checkbox-primary" onchange="window.applyFilters()" />
-                </label>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <h1 class="text-3xl sm:text-4xl font-black border-l-8 pl-4 uppercase tracking-tighter italic border-secondary text-secondary flex items-center gap-3">
+                <i class="fa-solid fa-trophy text-secondary"></i> Leaderboard
+            </h1>
+            <div class="filter-bar w-full sm:w-auto">
+                <i class="fa-solid fa-filter text-xs opacity-40"></i>
+                <select id="sort-select" onchange="window.applyFilters()">
+                    <option value="total">Puntos totales</option>
+                    <option value="exactos">🎯 Exactos</option>
+                    <option value="extra">✨ Puntos extra</option>
+                </select>
             </div>
         </div>
 
         <div class="card bg-base-100 shadow-2xl border border-base-300 overflow-hidden">
             <table class="table w-full" id="ranking-table">
                 <thead>
-                    <tr class="text-white uppercase text-[10px] sm:text-xs font-black tracking-[0.2em] border-b border-base-300 bg-primary">
-                        <th class="w-12 sm:w-20 text-center">🏆</th>
+                    <tr class="uppercase text-[10px] sm:text-xs font-black tracking-[0.2em] border-b border-base-300">
+                        <th class="w-10 sm:w-16 text-center"><i class="fa-solid fa-crown"></i></th>
                         <th class="pl-2">Payasito</th>
-                        <th class="text-center px-1 sm:px-4">Exactos</th>
-                        <th class="text-center hidden sm:table-cell">Otros</th>
-                        <th class="text-right pr-4 sm:pr-10">🏆 Total</th>
+                        <th class="text-center px-1">🎯 Exactos</th>
+                        <th class="text-center hidden sm:table-cell"><i class="fa-solid fa-layer-group"></i> Otros</th>
+                        <th class="text-right pr-3 sm:pr-8"><i class="fa-solid fa-trophy"></i> Total</th>
+                        <th class="w-8 sm:w-10"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Aquí se cargarán los datos del ranking -->
                 </tbody>
             </table>
         </div>
     </div>
+
+    <dialog id="bonus-detail-modal" class="modal">
+        <div class="modal-box max-w-sm">
+            <h3 class="font-black text-lg flex items-center gap-2 mb-1">
+                <i class="fa-solid fa-chart-pie text-accent"></i>
+                Desglose de puntos
+            </h3>
+            <p class="text-xs opacity-50 mb-4" id="bonus-modal-user"></p>
+            <div id="bonus-modal-body">
+                <table class="table w-full text-sm">
+                    <tbody id="bonus-modal-table-body"></tbody>
+                </table>
+            </div>
+            <div id="bonus-modal-predictions" class="mt-3 pt-3 border-t border-base-300 hidden">
+                <p class="text-xs font-bold mb-2 flex items-center gap-1">
+                    <i class="fa-solid fa-clock text-warning"></i>
+                    Tus predicciones (pendientes de resultados):
+                </p>
+                <div id="bonus-modal-pred-content" class="text-xs opacity-70 space-y-1"></div>
+            </div>
+            <form method="dialog" class="modal-action">
+                <button class="btn btn-sm btn-ghost">Cerrar</button>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop"><button>cerrar</button></form>
+    </dialog>
 
     <footer class="footer footer-center p-10 bg-base-100 text-base-content border-t border-primary/20 mt-10">
       <aside>
@@ -231,7 +377,6 @@
           ? `<div class="avatar"><div class="${w} rounded-full ring ${c.color} ring-offset-base-100 ring-offset-1 ${extra}"><img src="${c.img}" class="rounded-full object-cover w-full h-full" alt="" /></div></div>`
           : `<div class="avatar placeholder"><div class="bg-neutral text-neutral-content rounded-full ${w} ring ${c.color} ring-offset-base-100 ring-offset-1 ${extra}"><span class="${t}">${c.emoji}</span></div></div>`;
 
-        // Verificar sesión al cargar (Movido después de declarar userConfig)
         const currentUser = localStorage.getItem('currentUser');
         if (!currentUser) {
             window.location.href = 'index.html'
@@ -244,7 +389,6 @@
             userDisplay.parentElement.classList.remove('italic', 'opacity-70', 'lowercase');
         }
 
-        // User dropdown toggle
         const userDropdown = document.getElementById('user-dropdown')
         const userDropdownTrigger = document.getElementById('user-dropdown-trigger')
         if (userDropdown && userDropdownTrigger) {
@@ -282,7 +426,7 @@
             'Costa Rica': '🇨🇷', 'Panamá': '🇵🇦', 'Jamaica': '🇯🇲', 'Sudáfrica': '🇿🇦',
             'Chequia': '🇨🇿', 'Bosnia y Herzegovina': '🇧🇦', 'Haití': '🇭🇹', 'Curazao': '🇨🇼',
             'Suecia': '🇸🇪', 'Túnez': '🇹🇳', 'Nueva Zelanda': '🇳🇿', 'Islas de Cabo Verde': '🇨🇻', 'Cabo Verde': '🇨🇻',
-            'Irak': '🇮🇶', 'Noruega': '🇳🇴', 'Austria': '�🇹', 'Jordania': '🇯🇴', 'RD Congo': '🇨🇩',
+            'Irak': '🇮🇶', 'Noruega': '🇳🇴', 'Austria': '🇦🇹', 'Jordania': '🇯🇴', 'RD Congo': '🇨🇩',
             'RD del Congo': '🇨🇩',
             'Uzbekistán': '🇺🇿'
         };
@@ -305,14 +449,41 @@
 
         let fullRankingData = [];
         let extraPuntosMap = {};
+        let bonusPredMap = {};
+        let podiumPredMap = {};
 
         window.applyFilters = () => {
-            const showOnlyExacts = document.getElementById('filter-exacts').checked;
-            const filteredData = showOnlyExacts 
-                ? fullRankingData.filter(p => (p.exact_scores || 0) > 0)
-                : fullRankingData;
-            renderRanking(filteredData);
+            const sortBy = document.getElementById('sort-select').value;
+
+            const data = [...fullRankingData].sort((a, b) => {
+                const aExtra = extraPuntosMap[a.username] || 0;
+                const bExtra = extraPuntosMap[b.username] || 0;
+
+                switch (sortBy) {
+                    case 'exactos':
+                        return (b.exact_scores || 0) - (a.exact_scores || 0);
+                    case 'extra':
+                        return bExtra - aExtra;
+                    case 'total':
+                    default:
+                        const aTotal = (a.total_points || 0) + aExtra;
+                        const bTotal = (b.total_points || 0) + bExtra;
+                        if (bTotal !== aTotal) return bTotal - aTotal;
+                        if (b.exact_scores !== a.exact_scores) return b.exact_scores - a.exact_scores;
+                        return (b.correct_winner_diff || 0) - (a.correct_winner_diff || 0);
+                }
+            });
+
+            renderRanking(data);
         };
+
+        function getRankBadge(index, isLast, isTop3) {
+            if (index === 0) return `<div class="rank-badge rank-badge-gold"><i class="fa-solid fa-crown text-xs"></i></div>`;
+            if (index === 1) return `<div class="rank-badge rank-badge-silver"><i class="fa-solid fa-medal text-xs"></i></div>`;
+            if (index === 2) return `<div class="rank-badge rank-badge-bronze"><i class="fa-solid fa-medal text-xs"></i></div>`;
+            if (isLast) return `<div class="rank-badge" style="border-color:#ef4444;color:#ef4444;">🐌</div>`;
+            return `<div class="rank-badge">${index + 1}</div>`;
+        }
 
         function renderRanking(data) {
             const tbody = document.querySelector('#ranking-table tbody');
@@ -331,22 +502,20 @@
                     row.className = 'default-row';
                 }
 
-                const medalEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : isLast ? '🐌' : (index + 1);
                 const totalPoints = player.total_points || 0;
                 const exactScores = player.exact_scores || 0;
                 const extraPts = extraPuntosMap[player.username] || 0;
                 const otherPoints = Math.max(0, totalPoints - (exactScores * 12));
                 const totalWithExtra = totalPoints + extraPts;
                 const config = userConfig[player.username] || { emoji: '👤', color: 'ring-primary' };
-                const avatarShineClass = index === 0 ? 'leader-avatar-shine' : ''; // Aplica solo al líder
-                
-                // Estilo destacado para el puntaje total
+                const avatarShineClass = index === 0 ? 'leader-avatar-shine' : '';
                 const pointsBadgeClass = isTop3 ? 'bg-black/10' : 'bg-primary text-primary-content';
+                const rankBadge = getRankBadge(index, isLast, isTop3);
 
                 row.innerHTML = `
-                    <th class="text-center ${isTop3 ? 'text-2xl sm:text-3xl' : 'text-sm opacity-40'} font-black">${medalEmoji}</th>
+                    <th class="text-center">${rankBadge}</th>
                     <td class="pl-2">
-                        <div class="flex items-center gap-2 sm:gap-4">
+                        <div class="flex items-center gap-2 sm:gap-3">
                             ${avatarHtml(config, 'w-9 sm:w-12', 'text-xl sm:text-2xl', avatarShineClass)}
                             <div class="max-w-[120px] sm:max-w-none">
                                 <div class="${isTop3 ? 'text-base sm:text-xl' : 'text-sm sm:text-base'} font-black capitalize leading-none mb-1">${player.username}</div>
@@ -366,16 +535,146 @@
                         </div>
                     </td>
                     <td class="text-center hidden sm:table-cell">
-                        <div class="text-xs font-bold opacity-50">${otherPoints} <span class="text-[8px] uppercase">pts</span>${extraPts > 0 ? `<br><span class="text-accent text-[9px]">+${extraPts} extra</span>` : ''}</div>
-                    </td>
-                    <td class="text-right pr-4 sm:pr-10">
-                        <div class="inline-flex items-center justify-center min-w-[45px] sm:min-w-[70px] ${pointsBadgeClass} total-points-badge rounded-xl py-1 sm:py-2 px-2 sm:px-4">
-                            <span class="text-xl sm:text-3xl font-black italic tracking-tighter">${totalWithExtra}</span>
+                        <div class="text-xs font-bold opacity-50">${otherPoints} <span class="text-[8px] uppercase">pts</span>
+                            ${extraPts > 0 ? `<br><span class="badge badge-accent badge-xs gap-1 cursor-pointer hover:badge-sm transition-all" onclick="window.showBonusTooltip('${player.username}', this)"><i class="fa-solid fa-star text-[8px]"></i> +${extraPts}</span>` : ''}
                         </div>
+                    </td>
+                    <td class="text-right pr-3 sm:pr-8">
+                        <div class="inline-flex items-center justify-center min-w-[45px] sm:min-w-[70px] ${pointsBadgeClass} total-points-badge rounded-xl py-1 sm:py-2 px-2 sm:px-4 transition-all">
+                            <span class="text-xl sm:text-3xl font-black italic tracking-tighter tabular-nums">${totalWithExtra}</span>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-ghost btn-xs btn-square opacity-30 hover:opacity-100 transition-all" onclick="window.openBonusModal('${player.username}')" title="Ver desglose">
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
                     </td>
                 `;
             });
         }
+
+        window.openBonusModal = async (username) => {
+            const totalPoints = fullRankingData.find(p => p.username === username)?.total_points || 0;
+            const exactScores = fullRankingData.find(p => p.username === username)?.exact_scores || 0;
+            const extraPts = extraPuntosMap[username] || 0;
+            const otherPoints = Math.max(0, totalPoints - (exactScores * 12));
+            const totalWithExtra = totalPoints + extraPts;
+
+            document.getElementById('bonus-modal-user').textContent = `@${username}`;
+
+            const tbody = document.getElementById('bonus-modal-table-body');
+            tbody.innerHTML = `
+                <tr class="border-l-2 border-l-primary/30">
+                    <td class="font-semibold flex items-center gap-2 py-0.5"><i class="fa-solid fa-futbol text-xs w-4 text-primary"></i> Pronósticos</td>
+                    <td class="text-right font-bold tabular-nums py-0.5">${totalPoints}</td>
+                </tr>
+                <tr class="border-l-2 border-l-warning/20 text-xs opacity-60">
+                    <td class="pl-7 flex items-center gap-1.5 py-0.5"><i class="fa-solid fa-bullseye text-[10px] w-3 text-warning"></i> Exactos (×12)</td>
+                    <td class="text-right tabular-nums py-0.5">${exactScores * 12}</td>
+                </tr>
+                <tr class="border-l-2 border-l-info/20 text-xs opacity-60 border-b border-base-300/50">
+                    <td class="pl-7 flex items-center gap-1.5 py-0.5"><i class="fa-solid fa-chart-simple text-[10px] w-3 text-info"></i> Otros <span class="text-[9px] opacity-50 ml-1">(dif, ganador, goles, bonos, podio)</span></td>
+                    <td class="text-right tabular-nums py-0.5">${otherPoints}</td>
+                </tr>
+                <tr class="border-l-2 border-l-accent/40">
+                    <td class="font-semibold flex items-center gap-2 py-0.5"><i class="fa-solid fa-star text-xs w-4 text-accent"></i> Preguntas extra</td>
+                    <td class="text-right font-bold text-accent tabular-nums py-0.5">+${extraPts}</td>
+                </tr>
+                <tr class="border-t border-base-300 font-black text-lg border-l-2 border-l-base-content/20">
+                    <td class="pt-2 flex items-center gap-2"><i class="fa-solid fa-calculator text-sm w-5 opacity-40"></i> Total</td>
+                    <td class="text-right tabular-nums pt-2">${totalWithExtra}</td>
+                </tr>
+            `;
+
+            const predDiv = document.getElementById('bonus-modal-predictions');
+            const predContent = document.getElementById('bonus-modal-pred-content');
+            predDiv.classList.add('hidden');
+
+            try {
+                const [bonusRes, podiumRes] = await Promise.all([
+                    supabase.from('bonus_predictions').select('*').eq('user_id', username).maybeSingle(),
+                    supabase.from('podium_predictions').select('*').eq('user_id', username).maybeSingle()
+                ]);
+
+                const bonus = bonusRes.data;
+                const podium = podiumRes.data;
+                let parts = [];
+
+                if (bonus) {
+                    parts.push(`<span class="badge badge-ghost badge-sm gap-1"><i class="fa-solid fa-futbol text-[10px]"></i> Más goles a favor: <strong>${bonus.most_goals_for || '—'}</strong></span>`);
+                    parts.push(`<span class="badge badge-ghost badge-sm gap-1"><i class="fa-solid fa-shield-halved text-[10px]"></i> Más goles en contra: <strong>${bonus.most_goals_against || '—'}</strong></span>`);
+                }
+                if (podium) {
+                    parts.push(`<span class="badge badge-ghost badge-sm gap-1"><i class="fa-solid fa-trophy text-[10px] text-warning"></i> Campeón: <strong>${podium.champion || '—'}</strong></span>`);
+                    parts.push(`<span class="badge badge-ghost badge-sm gap-1"><i class="fa-solid fa-medal text-[10px] text-info"></i> Subcampeón: <strong>${podium.runner_up || '—'}</strong></span>`);
+                    parts.push(`<span class="badge badge-ghost badge-sm gap-1"><i class="fa-solid fa-award text-[10px] text-accent"></i> Tercero: <strong>${podium.third_place || '—'}</strong></span>`);
+                }
+
+                if (parts.length > 0) {
+                    predContent.innerHTML = parts.join('');
+                    predDiv.classList.remove('hidden');
+                }
+            } catch (e) {
+                console.error('Error loading predictions:', e);
+            }
+
+            document.getElementById('bonus-detail-modal').showModal();
+        };
+
+        window.showBonusTooltip = (username, el) => {
+            const extraPts = extraPuntosMap[username] || 0;
+            const totalPoints = fullRankingData.find(p => p.username === username)?.total_points || 0;
+            const exactScores = fullRankingData.find(p => p.username === username)?.exact_scores || 0;
+            const otherPoints = Math.max(0, totalPoints - (exactScores * 12));
+
+            const existing = document.querySelector('.bonus-tooltip.show');
+            if (existing) existing.classList.remove('show');
+
+            const tooltip = document.createElement('div');
+            tooltip.className = 'bonus-tooltip show';
+            tooltip.innerHTML = `
+                <div class="font-bold text-xs mb-1.5 flex items-center gap-1.5 pl-1.5 border-l-2 border-accent/40">
+                    <i class="fa-solid fa-star text-accent text-[10px]"></i> Puntos extra
+                </div>
+                <div class="space-y-0.5 text-xs pl-1.5">
+                    <div class="flex justify-between gap-4 items-center">
+                        <span class="flex items-center gap-1"><i class="fa-solid fa-futbol text-[9px] opacity-40 w-3"></i> Pronósticos</span>
+                        <span class="font-bold tabular-nums">${totalPoints}</span>
+                    </div>
+                    <div class="flex justify-between gap-4 text-[10px] opacity-60 items-center">
+                        <span class="flex items-center gap-1 pl-3"><i class="fa-solid fa-bullseye text-[9px] w-2.5 text-warning"></i> Exactos</span>
+                        <span class="tabular-nums">${exactScores * 12}</span>
+                    </div>
+                    <div class="flex justify-between gap-4 text-[10px] opacity-60 items-center">
+                        <span class="flex items-center gap-1 pl-3"><i class="fa-solid fa-chart-simple text-[9px] w-2.5 text-info"></i> Otros</span>
+                        <span class="tabular-nums">${otherPoints}</span>
+                    </div>
+                    <div class="flex justify-between gap-4 border-t border-base-300/50 pt-0.5 mt-0.5 items-center">
+                        <span class="flex items-center gap-1"><i class="fa-solid fa-star text-accent text-[9px] w-3"></i> Extra</span>
+                        <span class="font-bold text-accent tabular-nums">+${extraPts}</span>
+                    </div>
+                </div>
+                <button class="btn btn-ghost btn-xs w-full mt-1 text-[10px] gap-1" onclick="window.openBonusModal('${username}')">
+                    Ver detalle completo <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                </button>
+            `;
+
+            const rect = el.getBoundingClientRect();
+            tooltip.style.position = 'fixed';
+            tooltip.style.top = (rect.bottom + 6) + 'px';
+            tooltip.style.left = Math.min(rect.left, window.innerWidth - 200) + 'px';
+
+            document.body.appendChild(tooltip);
+
+            const close = (e) => {
+                if (!tooltip.contains(e.target) && e.target !== el) {
+                    tooltip.classList.remove('show');
+                    setTimeout(() => tooltip.remove(), 150);
+                    document.removeEventListener('click', close);
+                }
+            };
+            setTimeout(() => document.addEventListener('click', close), 10);
+        };
 
         async function cargarRanking() {
             const { data: ranking, error } = await supabase
@@ -388,7 +687,6 @@
             extraPuntosMap = {};
             if (extras) extras.forEach(e => { extraPuntosMap[e.user_id] = e.puntos || 0; });
             
-            // Ordenamiento robusto con desempates: Puntos > Exactos > Diferencia
             fullRankingData = ranking.sort((a, b) => {
                 const aExtra = extraPuntosMap[a.username] || 0;
                 const bExtra = extraPuntosMap[b.username] || 0;
