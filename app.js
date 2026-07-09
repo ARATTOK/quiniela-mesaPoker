@@ -1116,9 +1116,7 @@ function renderBracketView() {
                         <div class="bracket-result" style="color:oklch(var(--${pointsColor === 'ghost' ? 'bc' : pointsColor}))">
                             ${match.home_score ?? '?'} - ${match.away_score ?? '?'}
                             <span class="bracket-points" style="background:oklch(var(--${pointsColor === 'ghost' ? 'bc' : pointsColor}) / 0.12)">
-                                ${allInPred && pointsEarned === 30 ? '🎲 ALL-IN +30' : 
-                                  allInPred && pointsEarned === 0 ? '🎲 All-In 0' : 
-                                  isExact ? '🎯 ' : ''}${pointsEarned > 0 || allInPred ? pointsEarned + ' pts' : ''}
+                                ${allInPred ? '🎲 ALL-IN ' : isExact ? '🎯 ' : ''}${pointsEarned > 0 || allInPred ? pointsEarned + ' pts' : ''}
                                 ${noPrediction ? 'Sin pronóstico' : ''}
                             </span>
                         </div>

@@ -238,7 +238,7 @@
 
             const [vistaRes, predRes, matchRes] = await Promise.all([
                 supabase.from('vista_puntos_por_partido').select('*').eq('user_id', targetUser),
-                supabase.from('predictions').select('match_id, penalty_winner_pred').eq('user_id', targetUser),
+                supabase.from('predictions').select('match_id, penalty_winner_pred, all_in').eq('user_id', targetUser),
                 supabase.from('matches').select('id, match_date, home_team, away_team')
             ]);
 
@@ -252,9 +252,13 @@
                 matchMap[m.id] = `${mYear}-${mMonth}-${mDay}|${m.home_team}|${m.away_team}`;
             });
             const penMap = {};
+            const allInMap = {};
             (predRes.data || []).forEach(p => {
                 const key = matchMap[p.match_id];
-                if (key) penMap[key] = p.penalty_winner_pred;
+                if (key) {
+                    penMap[key] = p.penalty_winner_pred;
+                    allInMap[key] = p.all_in;
+                }
             });
             const now = new Date();
             const filtered = vistaData.filter(m => {
@@ -302,6 +306,7 @@
                                     <span class="text-xs font-mono">${m.mi_prediccion_away ?? '-'}</span>
                                 </div>
                                 ${userPredDraw ? '<span class="badge badge-ghost badge-xs">🤝 Empate</span>' : ''}
+                                ${allInMap[key] ? '<span class="badge badge-warning badge-xs">🎲 ALL-IN</span>' : ''}
                                 ${userPenaltyTeam ? `<span class="badge badge-warning badge-xs">⚖️ Penales: ${userPenaltyTeam}</span>` : ''}
                                 ${(m.points ?? m.puntos) != null ? `
                                 <div class="mt-1">
