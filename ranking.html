@@ -100,6 +100,23 @@
             border: 2px solid oklch(var(--bc) / 0.2);
             background: oklch(var(--b1));
             color: oklch(var(--bc));
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .rank-badge:hover {
+            transform: scale(1.12);
+            filter: brightness(1.15);
+            box-shadow: 0 0 16px rgba(255, 215, 0, 0.25);
+        }
+        .rank-badge::after {
+            content: 'ⓘ';
+            position: absolute;
+            top: -5px;
+            right: -7px;
+            font-size: 8px;
+            opacity: 0.5;
+            line-height: 1;
         }
         .rank-badge-gold {
             border-color: #f5d142;
@@ -308,7 +325,7 @@
     </div>
 
     <dialog id="bonus-detail-modal" class="modal">
-        <div class="modal-box max-w-sm">
+        <div class="modal-box max-w-lg">
             <h3 class="font-black text-lg flex items-center gap-2 mb-1">
                 <i class="fa-solid fa-chart-pie text-accent"></i>
                 Desglose de puntos
@@ -477,12 +494,13 @@
             renderRanking(data);
         };
 
-        function getRankBadge(index, isLast, isTop3) {
-            if (index === 0) return `<div class="rank-badge rank-badge-gold"><i class="fa-solid fa-crown text-xs"></i></div>`;
-            if (index === 1) return `<div class="rank-badge rank-badge-silver"><i class="fa-solid fa-medal text-xs"></i></div>`;
-            if (index === 2) return `<div class="rank-badge rank-badge-bronze"><i class="fa-solid fa-medal text-xs"></i></div>`;
-            if (isLast) return `<div class="rank-badge" style="border-color:#ef4444;color:#ef4444;">🐌</div>`;
-            return `<div class="rank-badge">${index + 1}</div>`;
+        function getRankBadge(index, isLast, isTop3, username) {
+            const onclick = `window.openBonusModal('${username}')`;
+            if (index === 0) return `<div class="rank-badge rank-badge-gold" onclick="${onclick}"><i class="fa-solid fa-crown text-xs"></i></div>`;
+            if (index === 1) return `<div class="rank-badge rank-badge-silver" onclick="${onclick}"><i class="fa-solid fa-medal text-xs"></i></div>`;
+            if (index === 2) return `<div class="rank-badge rank-badge-bronze" onclick="${onclick}"><i class="fa-solid fa-medal text-xs"></i></div>`;
+            if (isLast) return `<div class="rank-badge" style="border-color:#ef4444;color:#ef4444;" onclick="${onclick}">🐌</div>`;
+            return `<div class="rank-badge" onclick="${onclick}">${index + 1}</div>`;
         }
 
         function renderRanking(data) {
@@ -510,7 +528,7 @@
                 const config = userConfig[player.username] || { emoji: '👤', color: 'ring-primary' };
                 const avatarShineClass = index === 0 ? 'leader-avatar-shine' : '';
                 const pointsBadgeClass = isTop3 ? 'bg-black/10' : 'bg-primary text-primary-content';
-                const rankBadge = getRankBadge(index, isLast, isTop3);
+                const rankBadge = getRankBadge(index, isLast, isTop3, player.username);
 
                 row.innerHTML = `
                     <th class="text-center">${rankBadge}</th>
@@ -536,7 +554,7 @@
                     </td>
                     <td class="text-center hidden sm:table-cell">
                         <div class="text-xs font-bold opacity-50">${otherPoints} <span class="text-[8px] uppercase">pts</span>
-                            ${extraPts > 0 ? `<br><span class="badge badge-accent badge-xs gap-1 cursor-pointer hover:badge-sm transition-all" onclick="window.showBonusTooltip('${player.username}', this)"><i class="fa-solid fa-star text-[8px]"></i> +${extraPts}</span>` : ''}
+                            ${extraPts > 0 ? `<br><span class="badge badge-accent badge-xs gap-1 cursor-pointer hover:badge-sm transition-all" onclick="window.openBonusModal('${player.username}')"><i class="fa-solid fa-star text-[8px]"></i> +${extraPts}</span>` : ''}
                         </div>
                     </td>
                     <td class="text-right pr-3 sm:pr-8">
@@ -554,32 +572,202 @@
         }
 
         window.openBonusModal = async (username) => {
-            const totalPoints = fullRankingData.find(p => p.username === username)?.total_points || 0;
-            const exactScores = fullRankingData.find(p => p.username === username)?.exact_scores || 0;
+            const player = fullRankingData.find(p => p.username === username);
+            const totalPoints = player?.total_points || 0;
             const extraPts = extraPuntosMap[username] || 0;
-            const otherPoints = Math.max(0, totalPoints - (exactScores * 12));
             const totalWithExtra = totalPoints + extraPts;
 
             document.getElementById('bonus-modal-user').textContent = `@${username}`;
 
             const tbody = document.getElementById('bonus-modal-table-body');
+            tbody.innerHTML = '<tr><td colspan="2" class="text-center py-4 opacity-40"><span class="loading loading-spinner loading-sm"></span> Cargando desglose...</td></tr>';
+
+            const [predRes, championRes, bonusRes, podiumRes, eqResultsRes, eqUserRes] = await Promise.all([
+                supabase.from('predictions').select('points, all_in').eq('user_id', username),
+                supabase.from('champion_predictions').select('*').eq('user_id', username).maybeSingle(),
+                supabase.from('bonus_predictions').select('*').eq('user_id', username).maybeSingle(),
+                supabase.from('podium_predictions').select('*').eq('user_id', username).maybeSingle(),
+                supabase.from('extra_question_results').select('*'),
+                supabase.from('extra_questions').select('*').eq('user_id', username).maybeSingle()
+            ]);
+
+            const userPreds = predRes.data || [];
+            const champion = championRes.data;
+            const bonus = bonusRes.data;
+            const podium = podiumRes.data;
+            const officialResults = eqResultsRes.data || [];
+            const userExtraRow = eqUserRes.data;
+
+            const preds = userPreds.filter(p => p.points != null);
+            const pointGroups = {};
+            preds.forEach(p => {
+                const pts = p.points;
+                pointGroups[pts] = (pointGroups[pts] || 0) + 1;
+            });
+
+            // All-In stats
+            const allInAttempts = userPreds.filter(p => p.all_in === true).length;
+            const allInSuccess = pointGroups[30] || 0;
+
+            const tierLabels = {
+                30: { icon: '🔥', label: 'All-In Exacto', color: 'text-error' },
+                12: { icon: '🎯', label: 'Marcador Exacto', color: 'text-success' },
+                8: { icon: '📊', label: 'Ganador + Diferencia', color: 'text-info' },
+                5: { icon: '✅', label: 'Ganador', color: 'text-primary' },
+                3: { icon: '⚖️', label: 'Bono Penales', color: 'text-warning' },
+                2: { icon: '⚽', label: 'Gol de un equipo', color: 'text-accent' },
+            };
+
+            const sortedPoints = Object.keys(pointGroups)
+                .filter(p => parseInt(p) > 0)
+                .sort((a, b) => parseInt(b) - parseInt(a));
+
+            const zeroCount = pointGroups[0] || 0;
+            let predRows = '';
+            sortedPoints.forEach(p => {
+                const count = pointGroups[p];
+                const pts = parseInt(p);
+                const tier = tierLabels[pts] || { icon: '🏅', label: `${pts} pts`, color: 'text-base-content' };
+                const subtotal = count * pts;
+                predRows += `
+                    <tr class="border-l-2 border-l-info/20 text-xs opacity-70">
+                        <td class="pl-7 flex items-center gap-1.5 py-0.5">
+                            <span class="${tier.color}">${tier.icon}</span>
+                            ${tier.label} <span class="text-[10px] opacity-40 font-mono">×${count}</span>
+                        </td>
+                        <td class="text-right tabular-nums py-0.5 font-medium">${subtotal}</td>
+                    </tr>
+                `;
+            });
+
+            if (zeroCount > 0) {
+                predRows += `
+                    <tr class="border-l-2 border-l-error/10 text-[10px] opacity-30">
+                        <td class="pl-7 flex items-center gap-1.5 py-0.5">
+                            ❌ Sin acierto <span class="text-[10px] opacity-40">×${zeroCount}</span>
+                        </td>
+                        <td class="text-right tabular-nums py-0.5">0</td>
+                    </tr>
+                `;
+            }
+
+            // All-In summary row
+            let allInRow = '';
+            if (allInAttempts > 0) {
+                allInRow = `
+                    <tr class="border-l-2 border-l-error/30 text-xs ${allInSuccess > 0 ? 'opacity-70' : 'opacity-40'}">
+                        <td class="pl-7 flex items-center gap-1.5 py-0.5">
+                            <span class="text-error">🔥</span> All-In <span class="text-[10px] opacity-40">${allInAttempts} intentados${allInAttempts - allInSuccess > 0 ? `, ${allInAttempts - allInSuccess} fallados` : ''}</span>
+                        </td>
+                        <td class="text-right tabular-nums py-0.5 font-medium">${allInSuccess * 30} pts</td>
+                    </tr>
+                `;
+            }
+
+            // Daily extra questions breakdown
+            let dailyCorrect = 0;
+            let dailyAttempted = 0;
+            let dailyPts = 0;
+            let dailyDetailRows = '';
+
+            if (userExtraRow && officialResults.length > 0) {
+                officialResults.sort((a, b) => (a.question_number || '').localeCompare(b.question_number || ''));
+                officialResults.forEach(result => {
+                    const qKey = (result.question_number || '').toLowerCase();
+                    const userTeam = userExtraRow[qKey + '_team'];
+                    const userPlayer = userExtraRow[qKey + '_player'];
+                    if (!userTeam && !userPlayer) return;
+
+                    dailyAttempted++;
+                    const isCorrect = result.team && !result.player
+                        ? userTeam === result.team
+                        : userTeam === result.team && userPlayer === result.player;
+
+                    if (isCorrect) {
+                        dailyCorrect++;
+                        dailyPts += 5;
+                        dailyDetailRows += `
+                            <tr class="border-l-2 border-l-success/20 text-[10px] opacity-60">
+                                <td class="pl-9 flex items-center gap-1.5 py-0.5 truncate">
+                                    <span class="text-success shrink-0">✓</span>
+                                    <span class="truncate">${result.question_number}</span>
+                                </td>
+                                <td class="text-right tabular-nums py-0.5 text-success shrink-0">+5</td>
+                            </tr>
+                        `;
+                    }
+                });
+            }
+
+            // Extra questions sub-rows
+            let extraSubRows = '';
+
+            if (champion) {
+                extraSubRows += `
+                    <tr class="border-l-2 border-l-accent/20 text-xs opacity-60">
+                        <td class="pl-7 flex items-center gap-1.5 py-0.5">
+                            <span class="text-warning">🏆</span> Campeón <span class="text-[10px] opacity-40">${champion.champion_team}</span>
+                        </td>
+                        <td class="text-right tabular-nums py-0.5 text-[10px] opacity-40">máx 50</td>
+                    </tr>
+                `;
+            }
+            if (bonus) {
+                extraSubRows += `
+                    <tr class="border-l-2 border-l-accent/20 text-xs opacity-60">
+                        <td class="pl-7 flex items-center gap-1.5 py-0.5">
+                            <span class="text-success">⚽</span> Bonus goles a favor <span class="text-[10px] opacity-40">${bonus.most_goals_for || '—'}</span>
+                        </td>
+                        <td class="text-right tabular-nums py-0.5 text-[10px] opacity-40">máx 50</td>
+                    </tr>
+                    <tr class="border-l-2 border-l-accent/20 text-xs opacity-60">
+                        <td class="pl-7 flex items-center gap-1.5 py-0.5">
+                            <span class="text-error">🛑</span> Bonus goles en contra <span class="text-[10px] opacity-40">${bonus.most_goals_against || '—'}</span>
+                        </td>
+                        <td class="text-right tabular-nums py-0.5 text-[10px] opacity-40">máx 50</td>
+                    </tr>
+                `;
+            }
+            if (podium) {
+                extraSubRows += `
+                    <tr class="border-l-2 border-l-accent/20 text-xs opacity-60">
+                        <td class="pl-7 flex items-center gap-1.5 py-0.5">
+                            <span class="text-warning">🥇</span> Podio 1° <span class="text-[10px] opacity-40">${podium.champion || '—'}</span>
+                        </td>
+                        <td class="text-right tabular-nums py-0.5 text-[10px] opacity-40">máx 50</td>
+                    </tr>
+                    <tr class="border-l-2 border-l-accent/20 text-xs opacity-60">
+                        <td class="pl-7 flex items-center gap-1.5 py-0.5">
+                            <span class="text-info">🥈</span> Podio 2° <span class="text-[10px] opacity-40">${podium.runner_up || '—'}</span>
+                        </td>
+                        <td class="text-right tabular-nums py-0.5 text-[10px] opacity-40">máx 30</td>
+                    </tr>
+                    <tr class="border-l-2 border-l-accent/20 text-xs opacity-60">
+                        <td class="pl-7 flex items-center gap-1.5 py-0.5">
+                            <span class="text-accent">🥉</span> Podio 3° <span class="text-[10px] opacity-40">${podium.third_place || '—'}</span>
+                        </td>
+                        <td class="text-right tabular-nums py-0.5 text-[10px] opacity-40">máx 20</td>
+                    </tr>
+                `;
+            }
+
             tbody.innerHTML = `
                 <tr class="border-l-2 border-l-primary/30">
-                    <td class="font-semibold flex items-center gap-2 py-0.5"><i class="fa-solid fa-futbol text-xs w-4 text-primary"></i> Pronósticos</td>
-                    <td class="text-right font-bold tabular-nums py-0.5">${totalPoints}</td>
+                    <td class="font-semibold flex items-center gap-2 py-1">
+                        <i class="fa-solid fa-futbol text-xs w-4 text-primary"></i> Pronósticos <span class="text-[9px] opacity-40 font-normal">(partidos)</span>
+                    </td>
+                    <td class="text-right font-bold tabular-nums py-1">${totalPoints}</td>
                 </tr>
-                <tr class="border-l-2 border-l-warning/20 text-xs opacity-60">
-                    <td class="pl-7 flex items-center gap-1.5 py-0.5"><i class="fa-solid fa-bullseye text-[10px] w-3 text-warning"></i> Exactos (×12)</td>
-                    <td class="text-right tabular-nums py-0.5">${exactScores * 12}</td>
-                </tr>
-                <tr class="border-l-2 border-l-info/20 text-xs opacity-60 border-b border-base-300/50">
-                    <td class="pl-7 flex items-center gap-1.5 py-0.5"><i class="fa-solid fa-chart-simple text-[10px] w-3 text-info"></i> Otros <span class="text-[9px] opacity-50 ml-1">(dif, ganador, goles, bonos, podio)</span></td>
-                    <td class="text-right tabular-nums py-0.5">${otherPoints}</td>
-                </tr>
+                ${predRows}
+                ${allInRow}
                 <tr class="border-l-2 border-l-accent/40">
-                    <td class="font-semibold flex items-center gap-2 py-0.5"><i class="fa-solid fa-star text-xs w-4 text-accent"></i> Preguntas extra</td>
-                    <td class="text-right font-bold text-accent tabular-nums py-0.5">+${extraPts}</td>
+                    <td class="font-semibold flex items-center gap-2 py-1">
+                        <i class="fa-solid fa-star text-xs w-4 text-accent"></i> Preguntas extra <span class="text-[9px] opacity-40 font-normal">(total ganado)</span>
+                    </td>
+                    <td class="text-right font-bold text-accent tabular-nums py-1">+${extraPts}</td>
                 </tr>
+                ${extraSubRows}
+                ${dailyDetailRows}
                 <tr class="border-t border-base-300 font-black text-lg border-l-2 border-l-base-content/20">
                     <td class="pt-2 flex items-center gap-2"><i class="fa-solid fa-calculator text-sm w-5 opacity-40"></i> Total</td>
                     <td class="text-right tabular-nums pt-2">${totalWithExtra}</td>
@@ -591,13 +779,6 @@
             predDiv.classList.add('hidden');
 
             try {
-                const [bonusRes, podiumRes] = await Promise.all([
-                    supabase.from('bonus_predictions').select('*').eq('user_id', username).maybeSingle(),
-                    supabase.from('podium_predictions').select('*').eq('user_id', username).maybeSingle()
-                ]);
-
-                const bonus = bonusRes.data;
-                const podium = podiumRes.data;
                 let parts = [];
 
                 if (bonus) {
