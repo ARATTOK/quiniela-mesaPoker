@@ -471,6 +471,9 @@ function renderizarPartidosPorFecha(fechaSeleccionada) {
         return `${mYear}-${mMonth}-${mDay}` === fechaSeleccionada;
     });
 
+    const stagePriority = { 'Semis': 1, 'Final': 2, 'Tercer Puesto': 3, 'Cuartos': 4, 'Octavos': 5, '16avos': 6, 'Grupos': 7 };
+    matchesFiltrados.sort((a, b) => (stagePriority[a.stage] || 99) - (stagePriority[b.stage] || 99));
+
     if (matchesFiltrados.length > 0) {
         const header = document.createElement('div');
         header.className = 'col-span-full mb-2';
@@ -1031,7 +1034,10 @@ function renderBracketView() {
     if (!container) return;
     container.innerHTML = '';
 
-    const stages = ['Cuartos', 'Semis', 'Tercer Puesto', 'Final'];
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    const stages = isMobile
+        ? ['Semis', 'Final', 'Tercer Puesto', 'Cuartos']
+        : ['Cuartos', 'Semis', 'Tercer Puesto', 'Final'];
     const stageLabels = { 'Cuartos': 'Cuartos de Final', 'Semis': 'Semifinales', 'Tercer Puesto': '3er Puesto', 'Final': 'Final' };
     const stageIcons = {
         'Cuartos': '<i class="fa-solid fa-medal icon-stage"></i>',
