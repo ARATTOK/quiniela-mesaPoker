@@ -111,6 +111,9 @@
             <a role="tab" class="tab transition-all whitespace-nowrap" onclick="switchTab(this, 'section-extra')">
                 <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg> Preguntas Extra</span>
             </a>
+            <a role="tab" class="tab transition-all whitespace-nowrap" onclick="switchTab(this, 'section-campeon')">
+                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 4.233a2.25 2.25 0 0 0-3 0m3 0a2.25 2.25 0 1 1-3 0m3 0V2.25m-3 1.983V2.25m-6 4.632V2.25m0 4.632a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5Z" /></svg> 🏆 Campeón</span>
+            </a>
         </div>
 
         <!-- API Automation -->
@@ -446,6 +449,39 @@
                         <button id="btn-save-extra" class="btn btn-accent shadow-lg gap-2" onclick="guardarResultadosExtra()">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
                             Guardar Resultados y Calcular Puntos
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Encuesta Final Campeón -->
+        <section id="section-campeon" class="tab-content space-y-4">
+            <h2 class="text-2xl font-bold border-l-4 pl-4 uppercase tracking-wider text-sm" style="border-color: #FFD700; color: #FFD700;">🏆 Encuesta Final - Resultado Campeón Mundial</h2>
+            <div class="card bg-base-100 shadow-xl border border-[#FFD700]/20">
+                <div class="card-body">
+                    <div class="alert shadow-lg mb-6 py-3 border-2" style="background: rgba(255, 215, 0, 0.08); border-color: rgba(255, 215, 0, 0.4); color: #FFD700;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        <div>
+                            <span class="text-xs sm:text-sm font-bold uppercase tracking-tight">Usa esta sección al finalizar el mundial.</span>
+                            <p class="text-xs opacity-70 mt-1">Selecciona el equipo campeón real y presiona "Calcular Puntos" para asignar 50 pts a los que acertaron.</p>
+                        </div>
+                    </div>
+                    <div class="form-control max-w-xs">
+                        <label class="label"><span class="label-text font-bold text-xs uppercase opacity-70">🏆 Campeón Mundial (50 pts)</span></label>
+                        <select id="admin-champion" class="select select-bordered w-full">
+                            <option value="" disabled selected>Seleccionar...</option>
+                            <option value="Inglaterra">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra</option>
+                            <option value="Argentina">🇦🇷 Argentina</option>
+                            <option value="Francia">🇫🇷 Francia</option>
+                            <option value="España">🇪🇸 España</option>
+                        </select>
+                    </div>
+                    <div class="card-actions justify-end mt-6">
+                        <button class="btn btn-ghost btn-sm" onclick="limpiarCampeonAdmin()">Limpiar</button>
+                        <button class="btn px-8 shadow-lg" onclick="calcularPuntosCampeon()" style="background: linear-gradient(135deg, #FFD700, #FFA500); color: #1a1a2e; border: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+                            Calcular Puntos Campeón
                         </button>
                     </div>
                 </div>
@@ -1294,6 +1330,60 @@
                     btn.classList.remove('loading');
                     btn.disabled = false;
                 }
+            }
+        };
+
+        // ==================== Encuesta Final Campeón - Admin ====================
+        window.limpiarCampeonAdmin = () => {
+            document.getElementById('admin-champion').value = '';
+        };
+
+        window.calcularPuntosCampeon = async () => {
+            const champion = document.getElementById('admin-champion').value;
+            if (!champion) return alert('Por favor, selecciona el equipo campeón.');
+
+            if (!confirm(`¿Estás seguro de que ${champion} es el campeón mundial?\n\nSe asignarán 50 pts a quienes acertaron.`)) return;
+
+            const btn = document.querySelector('button[onclick="calcularPuntosCampeon()"]');
+            if (btn) { btn.classList.add('loading'); btn.disabled = true; }
+
+            try {
+                const { data: predictions } = await supabase.from('champion_predictions').select('*');
+                const { data: extras } = await supabase.from('extra_questions').select('*');
+
+                if (!predictions || !extras) throw new Error('Error consultando datos');
+
+                const now = new Date().toLocaleString('sv-SE', { timeZone: 'America/El_Salvador' }).replace(' ', 'T');
+                let updatedCount = 0;
+
+                for (const pred of predictions) {
+                    if (pred.champion_team !== champion) continue;
+                    const extraRow = extras.find(e => e.user_id === pred.user_id);
+                    const currentPuntos = extraRow?.puntos || 0;
+
+                    await supabase.from('extra_questions').upsert({
+                        user_id: pred.user_id,
+                        puntos: currentPuntos + 50,
+                        updated_at: now
+                    }, { onConflict: 'user_id' });
+
+                    await supabase.from('prediction_log').insert({
+                        user_id: pred.user_id,
+                        prediction_type: 'champion',
+                        data: { champion_team: champion, puntos_asignados: 50, calculated_at: now },
+                        created_at: now
+                    });
+
+                    updatedCount++;
+                }
+
+                alert(`✅ ¡Puntos del Campeón calculados exitosamente!\nSe actualizaron ${updatedCount} jugadores.`);
+                playHorn();
+            } catch (err) {
+                console.error(err);
+                alert('Error: ' + err.message);
+            } finally {
+                if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
             }
         };
 

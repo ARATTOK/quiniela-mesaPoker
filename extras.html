@@ -108,20 +108,83 @@
 
         <!-- Consultation Switcher -->
         <div role="tablist" class="tabs tabs-boxed bg-base-100 p-2 shadow-lg mb-8 overflow-x-auto no-scrollbar">
-            <a role="tab" class="tab whitespace-nowrap" onclick="switchConsulta('actual', this)">
-                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg> Consulta Actual</span>
+            <a role="tab" class="tab tab-active whitespace-nowrap" onclick="switchConsulta('actual', this)">
+                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg> Actual</span>
             </a>
-            <a role="tab" class="tab tab-active whitespace-nowrap" onclick="switchConsulta('extra', this)">
-                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg> 🎯 Preguntas Extra</span>
+            <a role="tab" class="tab whitespace-nowrap" onclick="switchConsulta('extra', this)">
+                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg> Extra</span>
             </a>
             <a role="tab" class="tab whitespace-nowrap" onclick="switchConsulta('anteriores', this)">
-                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg> Consultas Anteriores</span>
+                <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg> Consultar</span>
             </a>
         </div>
 
-        <div id="consulta-actual" class="hidden">
+        <div id="consulta-actual">
+
+        <!-- Encuesta Final 2026 -->
+        <div id="champion-container" class="hidden animate-fade-in-up mb-8 md:mb-10" style="animation-delay: 0.1s">
+            <div class="card bg-base-100 shadow-2xl border-2 border-[#FFD700]/30 relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#FFD700] to-[#FFA500]"></div>
+                <div class="card-body p-6 sm:p-8">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                        <div>
+                            <h2 class="card-title text-2xl sm:text-3xl flex items-center gap-2" style="color: #FFD700;">
+                                🏆 Encuesta Final
+                                <div class="badge font-normal text-[10px] uppercase tracking-widest" style="background: #FFD700; color: #1a1a2e; border: none;">+50 pts</div>
+                            </h2>
+                            <p class="text-sm opacity-60 mt-1">¿Quién será el campeón del mundo? Elegí entre los 4 semifinalistas.</p>
+                        </div>
+                    </div>
+
+                    <div id="champion-deadline-alert" class="bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-2xl p-5 sm:p-7 mb-8 text-center">
+                        <div class="flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-widest mb-4" style="color: #FFD700;">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                            Tiempo restante para guardar tu elección
+                        </div>
+                        <div id="champion-timer" class="font-mono font-black text-3xl sm:text-5xl md:text-6xl tracking-widest drop-shadow-lg mb-3" style="color: #FFD700;">Calculando...</div>
+                        <div class="text-[10px] opacity-40 uppercase tracking-widest">Fecha límite: Martes 14 de Julio 2026 — 12:00 hrs (El Salvador)</div>
+                    </div>
+
+                    <div id="champion-saved-alert" class="hidden bg-success/10 border border-success/30 rounded-2xl p-5 sm:p-7 mb-8 text-center">
+                        <div class="font-black text-lg sm:text-2xl text-success flex items-center justify-center gap-3 mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                            ¡Elección guardada!
+                        </div>
+                        <p class="text-sm opacity-80">Tu campeón elegido: <span id="champion-saved-team" class="font-black text-lg"></span></p>
+                    </div>
+
+                    <div id="champion-cards" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+                        <div class="champion-card cursor-pointer rounded-2xl border-2 border-base-300 p-5 sm:p-6 text-center transition-all duration-300 hover:border-[#FFD700]/50 hover:shadow-lg hover:scale-[1.02] bg-base-200" data-team="Inglaterra" onclick="selectChampion('Inglaterra')">
+                            <div class="text-5xl sm:text-6xl mb-3 leading-none">🏴󠁧󠁢󠁥󠁮󠁧󠁿</div>
+                            <div class="font-bold text-sm sm:text-base">Inglaterra</div>
+                        </div>
+                        <div class="champion-card cursor-pointer rounded-2xl border-2 border-base-300 p-5 sm:p-6 text-center transition-all duration-300 hover:border-[#FFD700]/50 hover:shadow-lg hover:scale-[1.02] bg-base-200" data-team="Argentina" onclick="selectChampion('Argentina')">
+                            <div class="text-5xl sm:text-6xl mb-3 leading-none">🇦🇷</div>
+                            <div class="font-bold text-sm sm:text-base">Argentina</div>
+                        </div>
+                        <div class="champion-card cursor-pointer rounded-2xl border-2 border-base-300 p-5 sm:p-6 text-center transition-all duration-300 hover:border-[#FFD700]/50 hover:shadow-lg hover:scale-[1.02] bg-base-200" data-team="Francia" onclick="selectChampion('Francia')">
+                            <div class="text-5xl sm:text-6xl mb-3 leading-none">🇫🇷</div>
+                            <div class="font-bold text-sm sm:text-base">Francia</div>
+                        </div>
+                        <div class="champion-card cursor-pointer rounded-2xl border-2 border-base-300 p-5 sm:p-6 text-center transition-all duration-300 hover:border-[#FFD700]/50 hover:shadow-lg hover:scale-[1.02] bg-base-200" data-team="España" onclick="selectChampion('España')">
+                            <div class="text-5xl sm:text-6xl mb-3 leading-none">🇪🇸</div>
+                            <div class="font-bold text-sm sm:text-base">España</div>
+                        </div>
+                    </div>
+
+                    <div class="card-actions justify-center mt-2">
+                        <button id="save-champion" class="btn btn-lg px-12 shadow-xl gap-2 text-base hidden" style="background: linear-gradient(135deg, #FFD700, #FFA500); color: #1a1a2e; border: none;" onclick="guardarCampeon()" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                            Guardar mi elección
+                        </button>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
         <!-- Bonus (abierto hasta 26 Jun) -->
-        <div id="bonus-container" class="hidden animate-fade-in-up mb-8 md:mb-10" style="animation-delay: 0.15s">
+        <div id="bonus-container" class="hidden animate-fade-in-up mb-8 md:mb-10" style="animation-delay: 0.25s">
             <div class="card bg-base-100 shadow-2xl border-2 border-info/30 relative overflow-hidden">
                 <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-info to-secondary"></div>
                 <div class="card-body p-6 sm:p-8">
@@ -172,7 +235,7 @@
         </div>
 
         <!-- Podio (cerrado 18 Jun) -->
-        <div id="podium-container" class="hidden animate-fade-in-up mb-8 md:mb-10">
+        <div id="podium-container" class="hidden animate-fade-in-up mb-8 md:mb-10" style="animation-delay: 0.4s">
             <div class="card bg-base-100 shadow-2xl border-2 border-warning/30 relative overflow-hidden">
                 <div class="absolute top-0 left-0 right-0 h-2 bg-warning"></div>
                 <div class="card-body p-6 sm:p-8">
@@ -227,7 +290,6 @@
                     </div>
                 </div>
             </div>
-        </div>
         </div>
         </div><!-- /consulta-actual -->
 
@@ -634,6 +696,156 @@
                 };
             }
         }
+
+        // ==================== Encuesta Final Campeón ====================
+        let championSelected = '';
+        let championSavedData = null;
+        const championDeadline = new Date(2026, 6, 14, 12, 0, 0);
+
+        window.selectChampion = (team) => {
+            if (new Date() >= championDeadline) return;
+            document.querySelectorAll('.champion-card').forEach(c => {
+                c.classList.remove('ring-2', 'ring-warning', 'bg-warning/5', 'scale-105', 'shadow-xl');
+                c.style.borderColor = '';
+            });
+            const card = document.querySelector(`.champion-card[data-team="${team}"]`);
+            if (card) {
+                card.classList.add('ring-2', 'ring-warning', 'bg-warning/5', 'scale-105', 'shadow-xl');
+                card.style.borderColor = '#FFD700';
+            }
+            championSelected = team;
+            const btn = document.getElementById('save-champion');
+            if (btn) {
+                btn.disabled = false;
+                btn.classList.remove('hidden');
+            }
+        };
+
+        async function cargarCampeon() {
+            const currentUser = localStorage.getItem('currentUser');
+            const container = document.getElementById('champion-container');
+            if (!currentUser || !container) return;
+
+            const { data: saved } = await supabase
+                .from('champion_predictions')
+                .select('*')
+                .eq('user_id', currentUser)
+                .maybeSingle();
+
+            championSavedData = saved;
+
+            if (saved) {
+                document.getElementById('champion-cards').classList.add('hidden');
+                document.getElementById('save-champion').classList.add('hidden');
+                document.getElementById('champion-deadline-alert').classList.add('hidden');
+                const savedAlert = document.getElementById('champion-saved-alert');
+                savedAlert.classList.remove('hidden');
+                const flag = flags[saved.champion_team] || '🏆';
+                document.getElementById('champion-saved-team').innerHTML = `${flag} ${saved.champion_team}`;
+            }
+
+            const updateChampionCountdown = () => {
+                const now = new Date();
+                const timeRemaining = championDeadline - now;
+                const timerDisplay = document.getElementById('champion-timer');
+                const saveBtn = document.getElementById('save-champion');
+                const deadlineAlert = document.getElementById('champion-deadline-alert');
+
+                if (timeRemaining <= 0) {
+                    document.querySelectorAll('#champion-container .champion-card').forEach(el => {
+                        el.style.pointerEvents = 'none';
+                        el.classList.add('opacity-50');
+                    });
+                    if (saveBtn) saveBtn.remove();
+                    if (!championSavedData) {
+                        document.getElementById('champion-cards').classList.add('hidden');
+                    }
+                    if (deadlineAlert) {
+                        deadlineAlert.className = 'bg-error/10 border border-error/30 rounded-2xl p-5 sm:p-7 mb-8 text-center';
+                        deadlineAlert.innerHTML = `
+                            <div class="flex items-center justify-center gap-2 text-error font-bold text-xs uppercase tracking-widest mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+                                Plazo finalizado
+                            </div>
+                            <div class="font-mono font-black text-3xl sm:text-5xl md:text-6xl tracking-widest text-error drop-shadow-lg mb-3 animate-pulse">⏰ CERRADO</div>
+                            <div class="text-[10px] opacity-40 uppercase tracking-widest">El plazo para guardar tu elección ha finalizado.</div>
+                        `;
+                    }
+                    return true;
+                }
+
+                if (timerDisplay) {
+                    const d = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+                    const h = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const m = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+                    if (timeRemaining < 86400000) {
+                        timerDisplay.className = 'font-mono font-black text-3xl sm:text-5xl md:text-6xl tracking-widest text-error drop-shadow-lg mb-3 animate-pulse';
+                    } else {
+                        timerDisplay.className = 'font-mono font-black text-3xl sm:text-5xl md:text-6xl tracking-widest drop-shadow-lg mb-3';
+                        timerDisplay.style.color = '#FFD700';
+                    }
+
+                    timerDisplay.innerHTML = `${d}<span class="text-sm sm:text-lg opacity-40">d</span> ${h}<span class="text-sm sm:text-lg opacity-40">h</span> ${m}<span class="text-sm sm:text-lg opacity-40">m</span> ${s}<span class="text-sm sm:text-lg opacity-40">s</span>`;
+                }
+                return false;
+            };
+
+            container._championInterval = setInterval(updateChampionCountdown, 1000);
+            updateChampionCountdown();
+            container.classList.remove('hidden');
+        }
+
+        window.guardarCampeon = async () => {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser || !championSelected) return;
+            if (new Date() >= championDeadline) {
+                alert('¡Demasiado tarde! El plazo ha vencido.');
+                location.reload();
+                return;
+            }
+
+            const btn = document.getElementById('save-champion');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> Guardando...';
+
+            const { error } = await supabase
+                .from('champion_predictions')
+                .upsert({ user_id: currentUser, champion_team: championSelected }, { onConflict: 'user_id' });
+
+            if (error) {
+                alert('Error al guardar: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg> Guardar mi elección';
+                return;
+            }
+
+            const now = new Date().toLocaleString('sv-SE', { timeZone: 'America/El_Salvador' }).replace(' ', 'T');
+            await supabase.from('prediction_log').insert({
+                user_id: currentUser,
+                prediction_type: 'champion',
+                data: { champion_team: championSelected, saved_at: now },
+                created_at: now
+            }).then(r => { if (r.error) console.error('Log error:', r.error.message); });
+
+            document.getElementById('champion-cards').classList.add('hidden');
+            btn.classList.add('hidden');
+            document.getElementById('champion-deadline-alert').classList.add('hidden');
+            const savedAlert = document.getElementById('champion-saved-alert');
+            savedAlert.classList.remove('hidden');
+            const flag = flags[championSelected] || '🏆';
+            document.getElementById('champion-saved-team').innerHTML = `${flag} ${championSelected}`;
+
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { x: 0.5, y: 0.3 },
+                    colors: ['#FFD700', '#FFA500', '#FF6347']
+                });
+            }
+        };
 
         window.switchConsulta = (mode, el) => {
             document.querySelectorAll('#consulta-actual, #consulta-anteriores, #consulta-extra').forEach(c => c.classList.add('hidden'));
@@ -1100,6 +1312,7 @@
 
         cargarPodio()
         cargarBonus()
+        cargarCampeon()
         cargarConsultaAnteriores()
         cargarExtraQuestions()
         setInterval(updateExtraCountdowns, 1000)
