@@ -1036,7 +1036,7 @@ function renderBracketView() {
 
     const isMobile = window.matchMedia('(max-width: 767px)').matches;
     const stages = isMobile
-        ? ['Semis', 'Final', 'Tercer Puesto', 'Cuartos']
+        ? ['Final', 'Tercer Puesto', 'Semis', 'Cuartos']
         : ['Cuartos', 'Semis', 'Tercer Puesto', 'Final'];
     const stageLabels = { 'Cuartos': 'Cuartos de Final', 'Semis': 'Semifinales', 'Tercer Puesto': '3er Puesto', 'Final': 'Final' };
     const stageIcons = {
