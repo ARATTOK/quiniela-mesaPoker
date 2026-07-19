@@ -603,11 +603,11 @@
 
             const OFICIAL = {
                 campeon: 'España',
-                podio: { champion: 'España', runnerUp: 'Argentina', thirdPlace: 'Inglaterra' },
+                podio: { champion: 'España', runner_up: 'Argentina', third_place: 'Inglaterra' },
                 bonusFor: ['Francia', 'Inglaterra'],
                 bonusAgainst: ['Irak', 'Túnez', 'Inglaterra'],
                 championPts: 50, bonusPts: 50,
-                podioPts: { champion: 50, runnerUp: 30, thirdPlace: 20 }
+                podioPts: { champion: 50, runner_up: 30, third_place: 20 }
             };
 
             // --- Puntos de partidos (suma directa de predictions.points) ---
@@ -682,8 +682,8 @@
             const ptsBonusFor = (bonus && OFICIAL.bonusFor.includes(bonus.most_goals_for)) ? OFICIAL.bonusPts : 0;
             const ptsBonusAgainst = (bonus && OFICIAL.bonusAgainst.includes(bonus.most_goals_against)) ? OFICIAL.bonusPts : 0;
             const ptsPodio1 = (podium?.champion === OFICIAL.podio.champion) ? OFICIAL.podioPts.champion : 0;
-            const ptsPodio2 = (podium?.runnerUp === OFICIAL.podio.runnerUp) ? OFICIAL.podioPts.runnerUp : 0;
-            const ptsPodio3 = (podium?.thirdPlace === OFICIAL.podio.thirdPlace) ? OFICIAL.podioPts.thirdPlace : 0;
+            const ptsPodio2 = (podium?.runner_up === OFICIAL.podio.runner_up) ? OFICIAL.podioPts.runner_up : 0;
+            const ptsPodio3 = (podium?.third_place === OFICIAL.podio.third_place) ? OFICIAL.podioPts.third_place : 0;
 
             const ajusteConocido = ptsBonusFor + ptsBonusAgainst + ptsPodio1 + ptsPodio2 + ptsPodio3;
             const otrosAjustes = (totalPoints - sumPredPoints) - ajusteConocido;
@@ -703,11 +703,11 @@
                     <td class="text-right tabular-nums py-0.5 font-medium">+${ptsPodio1}</td>
                 </tr>
                 <tr class="border-l-2 border-l-warning/20 text-xs ${ptsPodio2 > 0 ? 'opacity-80' : 'opacity-40'}">
-                    <td class="pl-7 flex items-center gap-1.5 py-0.5"><span class="text-info">🥈</span> Podio 2° — ${podium?.runnerUp || '—'}</td>
+                    <td class="pl-7 flex items-center gap-1.5 py-0.5"><span class="text-info">🥈</span> Podio 2° — ${podium?.runner_up || '—'}</td>
                     <td class="text-right tabular-nums py-0.5 font-medium">+${ptsPodio2}</td>
                 </tr>
                 <tr class="border-l-2 border-l-warning/20 text-xs ${ptsPodio3 > 0 ? 'opacity-80' : 'opacity-40'}">
-                    <td class="pl-7 flex items-center gap-1.5 py-0.5"><span class="text-accent">🥉</span> Podio 3° — ${podium?.thirdPlace || '—'}</td>
+                    <td class="pl-7 flex items-center gap-1.5 py-0.5"><span class="text-accent">🥉</span> Podio 3° — ${podium?.third_place || '—'}</td>
                     <td class="text-right tabular-nums py-0.5 font-medium">+${ptsPodio3}</td>
                 </tr>
             `;
