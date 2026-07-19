@@ -325,7 +325,7 @@
     </div>
 
     <dialog id="bonus-detail-modal" class="modal">
-        <div class="modal-box max-w-lg">
+        <div class="modal-box max-w-xl">
             <h3 class="font-black text-lg flex items-center gap-2 mb-1">
                 <i class="fa-solid fa-chart-pie text-accent"></i>
                 Desglose de puntos
@@ -395,15 +395,18 @@
           : `<div class="avatar placeholder"><div class="bg-neutral text-neutral-content rounded-full ${w} ring ${c.color} ring-offset-base-100 ring-offset-1 ${extra}"><span class="${t}">${c.emoji}</span></div></div>`;
 
         const currentUser = localStorage.getItem('currentUser');
-        if (!currentUser) {
-            window.location.href = 'index.html'
-        } else {
+        if (currentUser) {
             const userDisplay = document.getElementById('user-display');
             const config = userConfig[currentUser] || { emoji: '👤', color: 'ring-primary' };
             userDisplay.innerHTML = `<div class="flex items-center gap-2">${avatarHtml(config)}</div>`;
             const dropdownInfo = document.getElementById('user-dropdown-info');
             if (dropdownInfo) dropdownInfo.innerHTML = `${avatarHtml(config)} <span class="capitalize">${currentUser}</span>`;
             userDisplay.parentElement.classList.remove('italic', 'opacity-70', 'lowercase');
+        } else {
+            const userDisplay = document.getElementById('user-display');
+            if (userDisplay) {
+                userDisplay.innerHTML = `<a href="index.html?login" class="flex items-center gap-1 text-xs font-normal"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" /></svg> Iniciar Sesión</a>`;
+            }
         }
 
         const userDropdown = document.getElementById('user-dropdown')
@@ -598,14 +601,25 @@
             const officialResults = eqResultsRes.data || [];
             const userExtraRow = eqUserRes.data;
 
+            const OFICIAL = {
+                campeon: 'España',
+                podio: { champion: 'España', runnerUp: 'Argentina', thirdPlace: 'Inglaterra' },
+                bonusFor: ['Francia', 'Inglaterra'],
+                bonusAgainst: ['Irak', 'Túnez', 'Inglaterra'],
+                championPts: 50, bonusPts: 50,
+                podioPts: { champion: 50, runnerUp: 30, thirdPlace: 20 }
+            };
+
+            // --- Puntos de partidos (suma directa de predictions.points) ---
             const preds = userPreds.filter(p => p.points != null);
+            const sumPredPoints = preds.reduce((s, p) => s + (p.points || 0), 0);
+
             const pointGroups = {};
             preds.forEach(p => {
                 const pts = p.points;
                 pointGroups[pts] = (pointGroups[pts] || 0) + 1;
             });
 
-            // All-In stats
             const allInAttempts = userPreds.filter(p => p.all_in === true).length;
             const allInSuccess = pointGroups[30] || 0;
 
@@ -651,7 +665,6 @@
                 `;
             }
 
-            // All-In summary row
             let allInRow = '';
             if (allInAttempts > 0) {
                 allInRow = `
@@ -664,10 +677,53 @@
                 `;
             }
 
-            // Daily extra questions breakdown
+            // --- Bonificaciones (podio + bonus en manual_adjustment) ---
+            const ptsCampeon = (champion?.champion_team === OFICIAL.campeon) ? OFICIAL.championPts : 0;
+            const ptsBonusFor = (bonus && OFICIAL.bonusFor.includes(bonus.most_goals_for)) ? OFICIAL.bonusPts : 0;
+            const ptsBonusAgainst = (bonus && OFICIAL.bonusAgainst.includes(bonus.most_goals_against)) ? OFICIAL.bonusPts : 0;
+            const ptsPodio1 = (podium?.champion === OFICIAL.podio.champion) ? OFICIAL.podioPts.champion : 0;
+            const ptsPodio2 = (podium?.runnerUp === OFICIAL.podio.runnerUp) ? OFICIAL.podioPts.runnerUp : 0;
+            const ptsPodio3 = (podium?.thirdPlace === OFICIAL.podio.thirdPlace) ? OFICIAL.podioPts.thirdPlace : 0;
+
+            const ajusteConocido = ptsBonusFor + ptsBonusAgainst + ptsPodio1 + ptsPodio2 + ptsPodio3;
+            const otrosAjustes = (totalPoints - sumPredPoints) - ajusteConocido;
+
+            let bonusRows = '';
+            bonusRows += `
+                <tr class="border-l-2 border-l-warning/20 text-xs ${ptsBonusFor > 0 ? 'opacity-80' : 'opacity-40'}">
+                    <td class="pl-7 flex items-center gap-1.5 py-0.5"><span class="text-success">⚽</span> Bonus goles a favor</td>
+                    <td class="text-right tabular-nums py-0.5 font-medium">+${ptsBonusFor}</td>
+                </tr>
+                <tr class="border-l-2 border-l-warning/20 text-xs ${ptsBonusAgainst > 0 ? 'opacity-80' : 'opacity-40'}">
+                    <td class="pl-7 flex items-center gap-1.5 py-0.5"><span class="text-error">🛑</span> Bonus goles en contra</td>
+                    <td class="text-right tabular-nums py-0.5 font-medium">+${ptsBonusAgainst}</td>
+                </tr>
+                <tr class="border-l-2 border-l-warning/20 text-xs ${ptsPodio1 > 0 ? 'opacity-80' : 'opacity-40'}">
+                    <td class="pl-7 flex items-center gap-1.5 py-0.5"><span class="text-warning">🥇</span> Podio 1° — ${podium?.champion || '—'}</td>
+                    <td class="text-right tabular-nums py-0.5 font-medium">+${ptsPodio1}</td>
+                </tr>
+                <tr class="border-l-2 border-l-warning/20 text-xs ${ptsPodio2 > 0 ? 'opacity-80' : 'opacity-40'}">
+                    <td class="pl-7 flex items-center gap-1.5 py-0.5"><span class="text-info">🥈</span> Podio 2° — ${podium?.runnerUp || '—'}</td>
+                    <td class="text-right tabular-nums py-0.5 font-medium">+${ptsPodio2}</td>
+                </tr>
+                <tr class="border-l-2 border-l-warning/20 text-xs ${ptsPodio3 > 0 ? 'opacity-80' : 'opacity-40'}">
+                    <td class="pl-7 flex items-center gap-1.5 py-0.5"><span class="text-accent">🥉</span> Podio 3° — ${podium?.thirdPlace || '—'}</td>
+                    <td class="text-right tabular-nums py-0.5 font-medium">+${ptsPodio3}</td>
+                </tr>
+            `;
+            if (otrosAjustes > 0) {
+                bonusRows += `
+                    <tr class="border-l-2 border-l-warning/20 text-xs opacity-70">
+                        <td class="pl-7 flex items-center gap-1.5 py-0.5"><span class="text-secondary">🎖️</span> Bonus especial</td>
+                        <td class="text-right tabular-nums py-0.5 font-medium text-secondary">+${otrosAjustes}</td>
+                    </tr>
+                `;
+            }
+
+            // --- Preguntas Extra (campeón + diarias) ---
             let dailyCorrect = 0;
             let dailyAttempted = 0;
-            let dailyPts = 0;
+            let dailySum = 0;
             let dailyDetailRows = '';
 
             if (userExtraRow && officialResults.length > 0) {
@@ -685,7 +741,7 @@
 
                     if (isCorrect) {
                         dailyCorrect++;
-                        dailyPts += 5;
+                        dailySum += 5;
                         dailyDetailRows += `
                             <tr class="border-l-2 border-l-success/20 text-[10px] opacity-60">
                                 <td class="pl-9 flex items-center gap-1.5 py-0.5 truncate">
@@ -699,77 +755,62 @@
                 });
             }
 
-            // Extra questions sub-rows
-            let extraSubRows = '';
+            const ptsChampionDisplay = ptsCampeon;
+            const ptsDiarias = extraPts - ptsCampeon;
 
-            if (champion) {
-                extraSubRows += `
-                    <tr class="border-l-2 border-l-accent/20 text-xs opacity-60">
-                        <td class="pl-7 flex items-center gap-1.5 py-0.5">
-                            <span class="text-warning">🏆</span> Campeón <span class="text-[10px] opacity-40">${champion.champion_team}</span>
-                        </td>
-                        <td class="text-right tabular-nums py-0.5 text-[10px] opacity-40">máx 50</td>
+            let extraRows = '';
+            extraRows += `
+                <tr class="border-l-2 border-l-accent/20 text-xs ${ptsChampionDisplay > 0 ? 'opacity-80' : 'opacity-40'}">
+                    <td class="pl-7 flex items-center gap-1.5 py-0.5"><span class="text-warning">🏆</span> Campeón — España</td>
+                    <td class="text-right tabular-nums py-0.5 font-medium">+${ptsChampionDisplay}</td>
+                </tr>
+            `;
+            if (dailyDetailRows) {
+                extraRows += `
+                    <tr class="border-l-2 border-l-accent/20 text-xs ${dailySum > 0 ? 'opacity-80' : 'opacity-40'}">
+                        <td class="pl-7 flex items-center gap-1.5 py-0.5"><span class="text-accent">📋</span> Preguntas diarias <span class="text-[10px] opacity-40">(${dailyCorrect}/${dailyAttempted})</span></td>
+                        <td class="text-right tabular-nums py-0.5 font-medium">+${dailySum}</td>
                     </tr>
+                    ${dailyDetailRows}
                 `;
             }
-            if (bonus) {
-                extraSubRows += `
-                    <tr class="border-l-2 border-l-accent/20 text-xs opacity-60">
-                        <td class="pl-7 flex items-center gap-1.5 py-0.5">
-                            <span class="text-success">⚽</span> Bonus goles a favor <span class="text-[10px] opacity-40">${bonus.most_goals_for || '—'}</span>
-                        </td>
-                        <td class="text-right tabular-nums py-0.5 text-[10px] opacity-40">máx 50</td>
-                    </tr>
-                    <tr class="border-l-2 border-l-accent/20 text-xs opacity-60">
-                        <td class="pl-7 flex items-center gap-1.5 py-0.5">
-                            <span class="text-error">🛑</span> Bonus goles en contra <span class="text-[10px] opacity-40">${bonus.most_goals_against || '—'}</span>
-                        </td>
-                        <td class="text-right tabular-nums py-0.5 text-[10px] opacity-40">máx 50</td>
-                    </tr>
-                `;
-            }
-            if (podium) {
-                extraSubRows += `
-                    <tr class="border-l-2 border-l-accent/20 text-xs opacity-60">
-                        <td class="pl-7 flex items-center gap-1.5 py-0.5">
-                            <span class="text-warning">🥇</span> Podio 1° <span class="text-[10px] opacity-40">${podium.champion || '—'}</span>
-                        </td>
-                        <td class="text-right tabular-nums py-0.5 text-[10px] opacity-40">máx 50</td>
-                    </tr>
-                    <tr class="border-l-2 border-l-accent/20 text-xs opacity-60">
-                        <td class="pl-7 flex items-center gap-1.5 py-0.5">
-                            <span class="text-info">🥈</span> Podio 2° <span class="text-[10px] opacity-40">${podium.runner_up || '—'}</span>
-                        </td>
-                        <td class="text-right tabular-nums py-0.5 text-[10px] opacity-40">máx 30</td>
-                    </tr>
-                    <tr class="border-l-2 border-l-accent/20 text-xs opacity-60">
-                        <td class="pl-7 flex items-center gap-1.5 py-0.5">
-                            <span class="text-accent">🥉</span> Podio 3° <span class="text-[10px] opacity-40">${podium.third_place || '—'}</span>
-                        </td>
-                        <td class="text-right tabular-nums py-0.5 text-[10px] opacity-40">máx 20</td>
-                    </tr>
-                `;
-            }
+
+            // --- Validación ---
+            const sumaCheck = sumPredPoints + ajusteConocido + otrosAjustes + extraPts;
+            const valido = sumaCheck === totalWithExtra;
+
+            const validationBadge = valido
+                ? '<span class="badge badge-success badge-xs gap-1 ml-2"><i class="fa-solid fa-check text-[9px]"></i> coincide</span>'
+                : `<span class="badge badge-error badge-xs gap-1 ml-2"><i class="fa-solid fa-xmark text-[9px]"></i> diferencia: ${totalWithExtra - sumaCheck}</span>`;
 
             tbody.innerHTML = `
                 <tr class="border-l-2 border-l-primary/30">
                     <td class="font-semibold flex items-center gap-2 py-1">
                         <i class="fa-solid fa-futbol text-xs w-4 text-primary"></i> Pronósticos <span class="text-[9px] opacity-40 font-normal">(partidos)</span>
                     </td>
-                    <td class="text-right font-bold tabular-nums py-1">${totalPoints}</td>
+                    <td class="text-right font-bold tabular-nums py-1">${sumPredPoints}</td>
                 </tr>
                 ${predRows}
                 ${allInRow}
+                <tr class="border-l-2 border-l-warning/40">
+                    <td class="font-semibold flex items-center gap-2 py-1">
+                        <i class="fa-solid fa-trophy text-xs w-4 text-warning"></i> Bonificaciones <span class="text-[9px] opacity-40 font-normal">(podio+bonus)</span>
+                    </td>
+                    <td class="text-right font-bold text-warning tabular-nums py-1">+${ajusteConocido + otrosAjustes}</td>
+                </tr>
+                ${bonusRows}
                 <tr class="border-l-2 border-l-accent/40">
                     <td class="font-semibold flex items-center gap-2 py-1">
-                        <i class="fa-solid fa-star text-xs w-4 text-accent"></i> Preguntas extra <span class="text-[9px] opacity-40 font-normal">(total ganado)</span>
+                        <i class="fa-solid fa-star text-xs w-4 text-accent"></i> Preguntas Extra <span class="text-[9px] opacity-40 font-normal">(campeón+diarias)</span>
                     </td>
                     <td class="text-right font-bold text-accent tabular-nums py-1">+${extraPts}</td>
                 </tr>
-                ${extraSubRows}
-                ${dailyDetailRows}
-                <tr class="border-t border-base-300 font-black text-lg border-l-2 border-l-base-content/20">
-                    <td class="pt-2 flex items-center gap-2"><i class="fa-solid fa-calculator text-sm w-5 opacity-40"></i> Total</td>
+                ${extraRows}
+                <tr class="border-t-2 border-base-content/20 font-black text-lg">
+                    <td class="pt-2 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator text-sm w-5 opacity-40"></i> Total
+                        ${validationBadge}
+                    </td>
                     <td class="text-right tabular-nums pt-2">${totalWithExtra}</td>
                 </tr>
             `;
